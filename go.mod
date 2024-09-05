@@ -1,4 +1,4 @@
-module main
+module github.com/miraklik/Azmolo
 
 go 1.22.0
 
