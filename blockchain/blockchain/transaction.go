@@ -49,6 +49,7 @@ func CoinbaseTx(to, data string) *Transaction {
 	txout := TxOutput{100, to}
 
 	tx := Transaction{nil, []TxInput{txin}, []TxOutput{txout}}
+	tx.SetID()
 
 	return &tx
 }
