@@ -2,8 +2,7 @@ syntax = "proto3";
 
 package auth;
 
-option go_
-package = "mikra.sso.v1;ssov1";
+option go_package = "mikra.sso.v1;ssov1";
 
 service Auth {
     rpc Register (RegisterRequest) returns (RegisterResponce);
