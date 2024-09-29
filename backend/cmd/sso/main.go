@@ -1,11 +1,9 @@
 package main
 
 import (
+	"internal/internal/lib/logger/handlers/slogpretty"
 	"log/slog"
 	"os"
-
-	"github.com/miraklik/Azmolo/backend/internal/config"
-	"github.com/miraklik/Azmolo/backend/internal/lib/logger/handlers/slogpretty"
 )
 
 const (
@@ -15,11 +13,13 @@ const (
 )
 
 func main() {
-	cfg := config.MustLoad()
+	cfg := config
 
 	log := setupLogger(cfg.Env)
 
 	log.Info("starting application", slog.Any("config", cfg))
+
+	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
 
 	// TODO: инициализация app
 
