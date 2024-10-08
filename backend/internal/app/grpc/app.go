@@ -2,7 +2,7 @@ package grpcapp
 
 import (
 	"fmt"
-	authgrpc "internal/grpc/auth"
+	authgrpc "internal/internal/grpc/auth"
 	"log/slog"
 	"net"
 

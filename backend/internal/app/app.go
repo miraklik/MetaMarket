@@ -1,13 +1,13 @@
 package app
 
 import (
-	grpcapp "internal/app/grpc"
+	grpcapp "internal/internal/app/grpc"
 	"log/slog"
 	"time"
 )
 
 type App struct {
-	gRPCServer *grpcapp.App
+	GRPCServer *grpcapp.App
 }
 
 func New(log *slog.Logger, grpcPort int, storagePath string, tokenTTL time.Duration) *App {
@@ -15,6 +15,6 @@ func New(log *slog.Logger, grpcPort int, storagePath string, tokenTTL time.Durat
 	grpcApp := grpcapp.New(log, grpcPort)
 
 	return &App{
-		gRPCServer: grpcApp,
+		GRPCServer: grpcApp,
 	}
 }

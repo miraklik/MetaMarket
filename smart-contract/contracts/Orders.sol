@@ -1,6 +1,9 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../.deps/npm/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./chancheprice.sol";
 
 contract Marketplace {
     // Структура объявления
@@ -14,8 +17,12 @@ contract Marketplace {
         bool sold;
     }
 
+    address owner;
     uint public listingCount;
+    uint256 public totalOrders;
     mapping(uint => Listing) public listings;
+    mapping(uint => address) public orders;
+    
 
     // Адрес контракта USDT (для работы с любой сетью, контракт адрес необходимо указать отдельно)
     IERC20 public usdtToken;
@@ -101,14 +108,20 @@ contract Marketplace {
         escrowBuyer[_listingId] = address(0);
     }
 
-     function cancelOrder(uint256 _orderId) public {
+     /*function cancelOrder(uint256 _orderId) public {
         // Проверяем, что заказ существует
-        require(_orderId < orders.length, "Заказ не существует");
+        require(_orderId < totalOrders);
 
         // Проверяем, что заказ не подтвержден ранее
-        require(!orders[_orderId].isConfirmed, "Заказ уже подтвержден");
+        require(!orders[_orderId].isConfirmed);
 
         // Отменяем заказ
         orders[_orderId].isConfirmed = false;
-    }
+    }*/
+
+    function withdrawToken() public {
+        address _to = payable(owner);
+        address _thisContract = address(this);
+        usdtToken.transfer(_to, usdtToken.balanceOf(_thisContract));
+    } 
 }

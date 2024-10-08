@@ -1,9 +1,13 @@
 package main
 
 import (
+	"internal/internal/app"
+	"internal/internal/config"
 	"internal/internal/lib/logger/handlers/slogpretty"
 	"log/slog"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 const (
@@ -13,17 +17,28 @@ const (
 )
 
 func main() {
-	cfg := config
+	cfg := config.MustLoad()
 
 	log := setupLogger(cfg.Env)
 
-	log.Info("starting application", slog.Any("config", cfg))
-
 	application := app.New(log, cfg.GRPC.Port, cfg.StoragePath, cfg.TokenTTL)
+
+	go application.GRPCServer.MustRun()
 
 	// TODO: инициализация app
 
 	// TODO: запустить gRPC-сервер
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+
+	signStop := <-stop
+
+	log.Info("stopping aplication", slog.String("signal", signStop.String()))
+
+	application.GRPCServer.Stop()
+
+	log.Info("application stopped!")
 }
 
 func setupLogger(env string) *slog.Logger {

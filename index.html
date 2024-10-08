@@ -1,23 +1,230 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connect Wallet</title>
-    <!-- Подключение библиотеки ethers.js -->
-    <script src="https://cdn.jsdelivr.net/npm/ethers@latest/dist/ethers.umd.min.js"></script>
-    <!-- Подключение библиотеки WalletConnect -->
-    <script src="https://unpkg.com/@walletconnect/web3-provider@1.6.6/dist/umd/index.min.js"></script>
-    <!-- Подключение библиотеки для Solana -->
-    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+    <title>MetaMarket</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Подключение кошелька</h1>
-    <!-- Кнопка для подключения кошелька -->
-    <button id="connectButton">Connect Wallet</button>
+    <header>
+        <div class="navbar">
+            <div class="logo">MetaMarket</div>
+            <nav>
+                <ul>
+                    <li><a href="#">Акции</a></li>
+                    <li><a href="#">Партнерство</a></li>
+                    <li><a href="#">Помощь</a></li>
+                    <li><a href="#">Контакты</a></li>
+                </ul>
+            </nav>
+            <button class="wallet-btn">Подключить кошелек</button>
+        </div>
+    </header>
 
-    <!-- JavaScript для управления подключением -->
-    <script src="index.js"></script>
+    <section class="search-bar">
+        <input type="text" placeholder="найти товар">
+        <button>🔍</button>
+    </section>
+
+    <section class="partners">
+        <img src="images/binance.png" alt="Binance">
+        <img src="images/metamask.png" alt="Metamask">
+        <img src="images/bybit.png" alt="Bybit">
+        <img src="images/trust.png" alt="Trust">
+        <img src="images/phantom.png" alt="Phantom">
+    </section>
+
+    <section class="promo">
+        <div class="promo-item">
+            <h2>Пополняйте баланс с популярных бирж или кошельков</h2>
+        </div>
+        <div class="promo-item">
+            <h2>Товары со скидками при оплате криптовалютой</h2>
+        </div>
+    </section>
+
+    <section class="sales">
+        <h2>Ликвидация на Черную Пятницу</h2>
+        <div class="products">
+            <div class="product">
+                <h3>Telegram Premium на 3 месяца</h3>
+                <p>11.99 $ <span class="discount">14.99 $ -20%</span></p>
+            </div>
+            <div class="product">
+                <h3>Telegram Stars 50 шт.</h3>
+                <p>11.99 $ <span class="discount">14.99 $ -20%</span></p>
+            </div>
+            <!-- Другие товары можно добавить здесь -->
+        </div>
+    </section>
+
+    <section class="special-offer">
+        <h3>Sui запустили свою приставку за 600$</h3>
+        <p>За покупку дают NFT, а для первых 1000 мистическую NFT.</p>
+        <button class="preorder-btn">Предзаказ</button>
+    </section>
+
+    <footer>
+        <p>Amazon — это сообщество, где поддерживается рост и расцветают возможности</p>
+        <p>For investment inquiries, please <a href="#">reach out to us</a>. For community requests, please reach out to us <a href="#">here</a>.</p>
+        <div class="social-icons">
+            <a href="#"><img src="images/telegram.png" alt="Telegram"></a>
+            <a href="#"><img src="images/discord.png" alt="Discord"></a>
+            <a href="#"><img src="images/linkedin.png" alt="LinkedIn"></a>
+        </div>
+        <a href="#" class="privacy-policy">Privacy and Policy</a>
+    </footer>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #1c1c1c;
+    color: #fff;
+    text-align: center;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: #141414;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.wallet-btn {
+    background-color: #0066ff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.search-bar {
+    margin: 20px;
+}
+
+.search-bar input {
+    padding: 10px;
+    width: 300px;
+    border-radius: 20px;
+    border: 1px solid #333;
+    margin-right: 10px;
+}
+
+.search-bar button {
+    padding: 10px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.partners {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.promo {
+    display: flex;
+    justify-content: space-around;
+    margin: 40px 0;
+    padding: 20px;
+}
+
+.promo-item {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.sales {
+    margin: 40px 0;
+}
+
+.products {
+    display: flex;
+    justify-content: space-around;
+}
+
+.product {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    width: 200px;
+}
+
+.discount {
+    color: yellow;
+    font-weight: bold;
+}
+
+.special-offer {
+    background-color: #333;
+    padding: 20px;
+    margin: 40px 0;
+    border-radius: 10px;
+}
+
+.preorder-btn {
+    background-color: #00cc44;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+footer {
+    padding: 20px;
+    background-color: #141414;
+    margin-top: 40px;
+}
+
+footer p {
+    margin-bottom: 10px;
+}
+
+footer a {
+    color: #00ccff;
+    text-decoration: none;
+}
+
+.social-icons img {
+    width: 40px;
+    margin: 0 10px;
+}
+
+.privacy-policy {
+    display: block;
+    margin-top: 10px;
+    color: white;
+}
+
+    </style>
+    <script src="script.js"></script>
 </body>
 </html>
