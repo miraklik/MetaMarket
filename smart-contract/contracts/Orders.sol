@@ -3,7 +3,6 @@
 pragma solidity ^0.8.0;
 
 import "../.deps/npm/@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./chancheprice.sol";
 
 contract Marketplace {
     // Структура объявления
@@ -17,11 +16,15 @@ contract Marketplace {
         bool sold;
     }
 
+    struct Order{
+        bool isConfirmed;
+    }
+
     address owner;
     uint public listingCount;
     uint256 public totalOrders;
     mapping(uint => Listing) public listings;
-    mapping(uint => address) public orders;
+    mapping(uint => Order) public orders;
     
 
     // Адрес контракта USDT (для работы с любой сетью, контракт адрес необходимо указать отдельно)
@@ -108,7 +111,7 @@ contract Marketplace {
         escrowBuyer[_listingId] = address(0);
     }
 
-     /*function cancelOrder(uint256 _orderId) public {
+     function cancelOrder(uint256 _orderId) public {
         // Проверяем, что заказ существует
         require(_orderId < totalOrders);
 
@@ -117,7 +120,7 @@ contract Marketplace {
 
         // Отменяем заказ
         orders[_orderId].isConfirmed = false;
-    }*/
+    }
 
     function withdrawToken() public {
         address _to = payable(owner);
