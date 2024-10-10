@@ -3,9 +3,8 @@
 pragma solidity ^0.8.0;
 
 import "../.deps/npm/@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/secu";
 
-contract Marketplace is ReentrancyGuard {
+contract Marketplace {
     // Структура объявления
     struct Listing {
         uint id;
@@ -21,13 +20,13 @@ contract Marketplace is ReentrancyGuard {
         bool isConfirmed;
     }
 
-    address owner;
+    address public owner;
     uint public listingCount;
     uint256 public totalOrders;
     mapping(uint => Listing) public listings;
     mapping(uint => Order) public orders;
 
-    // Адрес контракта USDT
+    // Адрес контракта USDT (для работы с любой сетью, контракт адрес необходимо указать отдельно)
     IERC20 public usdtToken;
 
     // Эскроу для блокировки средств
@@ -47,8 +46,13 @@ contract Marketplace is ReentrancyGuard {
         uint price
     );
 
+    event PurchaseCancelled(
+        uint indexed id,
+        address indexed buyer,
+        uint price
+    );
+
     event EscrowReleased(uint indexed listingId, address indexed seller, uint amount);
-    event EscrowCancelled(uint indexed listingId, address indexed buyer, uint amount);
 
     modifier onlyOwner() {
         require(msg.sender == owner, "Only the owner can perform this action");
@@ -71,6 +75,9 @@ contract Marketplace is ReentrancyGuard {
         require(bytes(_title).length > 0, "Title cannot be empty");
         require(bytes(_description).length > 0, "Description cannot be empty");
 
+        // Дополнительные проверки
+        require(_price <= 1e18, "Price is too high"); // Максимальная цена — 1e18 (примерно 1 USDT в wei)
+
         listingCount++;
         listings[listingCount] = Listing(
             listingCount,
@@ -86,7 +93,7 @@ contract Marketplace is ReentrancyGuard {
     }
 
     // Покупка товара с использованием USDT
-    function purchaseListing(uint _listingId) public nonReentrant {
+    function purchaseListing(uint _listingId) public {
         Listing storage listing = listings[_listingId];
         require(_listingId > 0 && _listingId <= listingCount, "Invalid listing ID");
         require(!listing.sold, "Item already sold");
@@ -94,6 +101,7 @@ contract Marketplace is ReentrancyGuard {
             usdtToken.allowance(msg.sender, address(this)) >= listing.price,
             "Not enough allowance"
         );
+        require(listing.price > 0, "Invalid listing price");
 
         // Блокируем средства в эскроу
         bool success = usdtToken.transferFrom(msg.sender, address(this), listing.price);
@@ -108,12 +116,13 @@ contract Marketplace is ReentrancyGuard {
     }
 
     // Подтверждение получения товара покупателем и выплата продавцу
-    function confirmPurchase(uint _listingId) public nonReentrant {
+    function confirmPurchase(uint _listingId) public {
         require(
             escrowBuyer[_listingId] == msg.sender,
             "Only buyer can confirm purchase"
         );
         require(escrowAmount[_listingId] > 0, "No funds in escrow");
+        require(listings[_listingId].sold, "Listing is not sold yet");
 
         Listing storage listing = listings[_listingId];
 
@@ -128,15 +137,15 @@ contract Marketplace is ReentrancyGuard {
         emit EscrowReleased(_listingId, listing.seller, escrowAmount[_listingId]);
     }
 
-    // Отмена заказа, возвращение средств покупателю
-    function cancelOrder(uint _listingId) public nonReentrant {
-        require(escrowBuyer[_listingId] == msg.sender, "Only the buyer can cancel the order");
+    // Отмена покупки, возврат средств покупателю
+    function cancelPurchase(uint _listingId) public {
+        require(escrowBuyer[_listingId] == msg.sender, "Only the buyer can cancel");
         require(escrowAmount[_listingId] > 0, "No funds in escrow");
-        require(!listings[_listingId].sold, "Order already completed, cannot cancel");
+        require(!listings[_listingId].sold, "Cannot cancel, item already sold");
 
         uint amount = escrowAmount[_listingId];
 
-        // Возвращаем средства покупателю
+        // Возврат средств покупателю
         bool success = usdtToken.transfer(escrowBuyer[_listingId], amount);
         require(success, "USDT transfer to buyer failed");
 
@@ -144,7 +153,7 @@ contract Marketplace is ReentrancyGuard {
         escrowAmount[_listingId] = 0;
         escrowBuyer[_listingId] = address(0);
 
-        emit EscrowCancelled(_listingId, msg.sender, amount);
+        emit PurchaseCancelled(_listingId, msg.sender, amount);
     }
 
     // Функция для владельца контракта вывести все токены

@@ -28,31 +28,6 @@
 					{
 						"indexed": true,
 						"internalType": "address",
-						"name": "buyer",
-						"type": "address"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					}
-				],
-				"name": "EscrowCancelled",
-				"type": "event"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": true,
-						"internalType": "uint256",
-						"name": "listingId",
-						"type": "uint256"
-					},
-					{
-						"indexed": true,
-						"internalType": "address",
 						"name": "seller",
 						"type": "address"
 					},
@@ -119,6 +94,31 @@
 						"type": "uint256"
 					}
 				],
+				"name": "PurchaseCancelled",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "buyer",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					}
+				],
 				"name": "PurchaseCompleted",
 				"type": "event"
 			},
@@ -130,7 +130,7 @@
 						"type": "uint256"
 					}
 				],
-				"name": "cancelOrder",
+				"name": "cancelPurchase",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -296,6 +296,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "uint256",
@@ -369,14 +382,6 @@
 		"remappings": []
 	},
 	"sources": {
-		"@openzeppelin/contracts/security/ReentrancyGuard.sol": {
-			"keccak256": "0xa535a5df777d44e945dd24aa43a11e44b024140fc340ad0dfe42acf4002aade1",
-			"license": "MIT",
-			"urls": [
-				"bzz-raw://41319e7f621f2dc3733511332c4fd032f8e32ad2aa7fd6f665c19741d9941a34",
-				"dweb:/ipfs/QmcYR3bd862GD1Bc7jwrU9bGxrhUu5na1oP964bDCu2id1"
-			]
-		},
 		"smart-contract/.deps/npm/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
 			"keccak256": "0xc6a8ff0ea489379b61faa647490411b80102578440ab9d84e9a957cc12164e70",
 			"license": "MIT",
@@ -386,11 +391,11 @@
 			]
 		},
 		"smart-contract/contracts/orders.sol": {
-			"keccak256": "0x6a88b94b097f62fedb85b4a684efefe28f02073c4e6a69d9d261dac17f4255db",
+			"keccak256": "0x0bd784d0fd7ea42c6d17ba6b1a8914321146f22245baad5a158f4d260cf5fc64",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://30f19f6e3fdc40d727ea449a55c8eb8cc84b88d673a313417141eb462144e7ba",
-				"dweb:/ipfs/QmPJ2GqdTUnP8EM6tNs9yxJDMz17h3Wx1UAUGvFKU2nowp"
+				"bzz-raw://9fab60d77eb8bdda14f905aeb8123a745a916d2c55fe2f46c0a2eaf4817ab094",
+				"dweb:/ipfs/QmXSdF3119wuoeNXjHka9mW9DtAAjT2VeE61PYSXjPjvC9"
 			]
 		}
 	},
