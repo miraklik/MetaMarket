@@ -25,6 +25,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "currentBalance",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -97,7 +110,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"smart-contract/contracts/payments.sol": "Payments"
+			"smart-contract/contracts/Payments.sol": "Payments"
 		},
 		"evmVersion": "shanghai",
 		"libraries": {},
@@ -111,12 +124,12 @@
 		"remappings": []
 	},
 	"sources": {
-		"smart-contract/contracts/payments.sol": {
-			"keccak256": "0x31722bc4d6c82d85e91f68e2ed1d69d5f721924ce9550ca7dd6516e6078127b1",
-			"license": "SEE LICENSE IN LICENSE",
+		"smart-contract/contracts/Payments.sol": {
+			"keccak256": "0x86fab9964aa9ea77ab546a918c19ea01761180700ce8a7a43d440d8b0da752c9",
+			"license": "MIT",
 			"urls": [
-				"bzz-raw://969308932abf5e701867b1666bd21adf58cee4897a04be55ce1260ac4ed44506",
-				"dweb:/ipfs/QmW1DmjD3QArTH4dsspcsgJEikXYP8P2GVAMkdSXaoT6vw"
+				"bzz-raw://bbbf0352c1c09dcbdfa4f64466613251940f91f5e99ec019c8c4bedff3d45b27",
+				"dweb:/ipfs/Qmc5svd3sAuL1cfPsHFGfaGMnxc2pLngoDby7PurhYLM86"
 			]
 		}
 	},
