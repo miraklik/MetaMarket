@@ -11,6 +11,11 @@
 						"internalType": "address",
 						"name": "_usdtTokenAddress",
 						"type": "address"
+					},
+					{
+						"internalType": "uint8",
+						"name": "_commissionPercent",
+						"type": "uint8"
 					}
 				],
 				"stateMutability": "nonpayable",
@@ -133,6 +138,19 @@
 				"name": "cancelPurchase",
 				"outputs": [],
 				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "commissionPercent",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -322,6 +340,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_newPercent",
+						"type": "uint256"
+					}
+				],
+				"name": "setCommissionPercent",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "totalOrders",
 				"outputs": [
@@ -391,11 +422,11 @@
 			]
 		},
 		"smart-contract/contracts/orders.sol": {
-			"keccak256": "0x0bd784d0fd7ea42c6d17ba6b1a8914321146f22245baad5a158f4d260cf5fc64",
+			"keccak256": "0x60fc1b2c7a7413220d1b33db7537928409a7342b209fc27b7eb1dc9b86a679aa",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://9fab60d77eb8bdda14f905aeb8123a745a916d2c55fe2f46c0a2eaf4817ab094",
-				"dweb:/ipfs/QmXSdF3119wuoeNXjHka9mW9DtAAjT2VeE61PYSXjPjvC9"
+				"bzz-raw://139222e63f520afbd96c2865bcb25e54e05b9f9380ee72edb33031e4c729943c",
+				"dweb:/ipfs/QmY1T9zV5kwckb2saV4giGKquVhPKKet7p3rG4pcNtuAkH"
 			]
 		}
 	},

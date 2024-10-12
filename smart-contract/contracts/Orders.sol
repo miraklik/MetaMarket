@@ -23,6 +23,7 @@ contract Marketplace {
     address public owner;
     uint public listingCount;
     uint256 public totalOrders;
+    uint public commissionPercent; // проценты комиссии 
     mapping(uint => Listing) public listings;
     mapping(uint => Order) public orders;
 
@@ -59,9 +60,10 @@ contract Marketplace {
         _;
     }
 
-    constructor(address _usdtTokenAddress) {
+    constructor(address _usdtTokenAddress, uint8 _commissionPercent) {
         owner = msg.sender; // Устанавливаем владельца контракта
         usdtToken = IERC20(_usdtTokenAddress); // Указать адрес USDT контракта
+        commissionPercent = _commissionPercent;
     }
 
     // Создание объявления
@@ -92,7 +94,7 @@ contract Marketplace {
         emit ListingCreated(listingCount, msg.sender, _title, _price);
     }
 
-    // Покупка товара с использованием USDT
+    // Покупка товара с использованием USDT и с комиссией
     function purchaseListing(uint _listingId) public {
         Listing storage listing = listings[_listingId];
         require(_listingId > 0 && _listingId <= listingCount, "Invalid listing ID");
@@ -101,18 +103,33 @@ contract Marketplace {
             usdtToken.allowance(msg.sender, address(this)) >= listing.price,
             "Not enough allowance"
         );
-        require(listing.price > 0, "Invalid listing price");
 
-        // Блокируем средства в эскроу
+        // Рассчитываем комиссию
+        uint commissionAmount = (listing.price * commissionPercent) / 100;
+        uint sellerAmount = listing.price - commissionAmount;
+
+        // Переводим полную сумму с покупателя на контракт
         bool success = usdtToken.transferFrom(msg.sender, address(this), listing.price);
-        require(success, "USDT transfer failed");
+        require(success, "Transfer failed");
 
-        escrowBuyer[_listingId] = msg.sender;
-        escrowAmount[_listingId] = listing.price;
+        // Переводим комиссию владельцу контракта
+        success = usdtToken.transfer(owner, commissionAmount);
+        require(success, "Commission transfer failed");
+
+        // Переводим оставшиеся средства продавцу
+        success = usdtToken.transfer(listing.seller, sellerAmount);
+        require(success, "Seller payment failed");
 
         listing.sold = true;
 
         emit PurchaseCompleted(_listingId, msg.sender, listing.price);
+    }
+
+    // Функция изменения процента комиссии (только для владельца контракта)
+    function setCommissionPercent(uint _newPercent) public {
+        require(msg.sender == owner, "Only owner can change commission");
+        require(_newPercent <= 100, "Commission cannot exceed 100%");
+        commissionPercent = _newPercent;
     }
 
     // Подтверждение получения товара покупателем и выплата продавцу
