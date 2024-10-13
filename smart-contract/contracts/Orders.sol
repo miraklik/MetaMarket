@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import "../.deps/npm/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -172,7 +172,7 @@ contract Marketplace {
 
         emit PurchaseCancelled(_listingId, msg.sender, amount);
     }
-
+    
     // Функция для владельца контракта вывести все токены
     function withdrawToken() public onlyOwner {
         uint balance = usdtToken.balanceOf(address(this));

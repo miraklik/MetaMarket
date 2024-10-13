@@ -2,8 +2,8 @@
 const walletConnectProvider = new WalletConnectProvider.default({
     rpc: {
         1: "https://mainnet.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734", // Ethereum mainnet
-        56: "https://bsc-mainnet.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734", // Binance Smart Chain mainnet
-        137: "https://polygon-mainnet.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734", // Polygon mainnet
+        56: "https://bsc-dataseed.binance.org/", //"https://bsc-mainnet.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734", // Binance Smart Chain mainnet
+        137: "https://polygon-rpc.com/", //"https://polygon-mainnet.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734", // Polygon mainnet
     },
 });
 
