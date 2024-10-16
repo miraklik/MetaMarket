@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить товар</title>
+    <style>
+        .form-container {
+            padding: 20px;
+            background-color: #333;
+            color: white;
+            margin: 40px auto;
+            width: 50%;
+            border-radius: 10px;
+        }
+
+        .form-container input, .form-container textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: #222;
+            color: white;
+        }
+
+        .form-container button {
+            padding: 10px 20px;
+            background-color: #00c6ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-container button:hover {
+            background-color: #0072ff;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Добавить новый товар</h1>
+    </header>
+
+    <div class="form-container">
+        <h2>Создать карточку товара</h2>
+        <form id="productForm">
+            <input type="text" id="productName" placeholder="Название товара" required>
+            <input type="number" id="productPrice" placeholder="Цена" required>
+            <textarea id="productDescription" rows="3" placeholder="Описание товара" required></textarea>
+            <input type="file" id="productImage" accept="image/*" required>
+            <button type="submit">Добавить товар</button>
+        </form>
+    </div>
+
+    <script>
+        const productForm = document.getElementById('productForm');
+
+        productForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('productName').value;
+            const price = document.getElementById('productPrice').value;
+            const description = document.getElementById('productDescription').value;
+            const image = document.getElementById('productImage').files[0];
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const imageUrl = event.target.result;
+
+                // Получаем текущий список товаров из локального хранилища
+                const products = JSON.parse(localStorage.getItem('products')) || [];
+
+                // Добавляем новый товар в список
+                const newProduct = {
+                    name: name,
+                    price: price,
+                    description: description,
+                    image: imageUrl
+                };
+                products.push(newProduct);
+
+                // Сохраняем обновленный список товаров в локальное хранилище
+                localStorage.setItem('products', JSON.stringify(products));
+
+                // Перенаправляем пользователя обратно на главную страницу
+                window.location.href = 'index.html';
+            };
+
+            reader.readAsDataURL(image); // Чтение изображения как URL
+        });
+    </script>
+</body>
+</html>

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MetaMarket</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Общие стили */
         * {
             margin: 0;
             padding: 0;
@@ -72,7 +72,20 @@
             background: linear-gradient(45deg, #0072ff, #00c6ff);
         }
 
-        /* Поисковая строка */
+        .disconnect-btn {
+            background: red;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 20px;
+        }
+
+        .disconnect-btn:hover {
+            background: darkred;
+        }
+
         .search-bar {
             margin: 40px 0;
             display: flex;
@@ -248,70 +261,120 @@
             margin-top: 20px;
             font-size: 14px;
         }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #1c1c1c;
+            color: #fff;
+            text-align: center;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: #141414;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .add-product-btn {
+            background: linear-gradient(45deg, #00cc44, #00ff88);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-product-btn:hover {
+            background: linear-gradient(45deg, #00ff88, #00cc44);
+        }
+
+        .products {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            padding: 40px 0;
+        }
+
+        .product {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 15px;
+            width: 200px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .product img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+
+        .product h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .product .price {
+            font-size: 16px;
+            font-weight: bold;
+            color: #00c6ff;
+        }
     </style>
 </head>
+
 <body>
     <header>
         <div class="navbar">
             <div class="logo">MetaMarket</div>
+            <a href="add-product.html" class="add-product-btn">Добавить товар</a>
+            <!-- Кнопка для перехода на страницу создания товара -->
             <nav>
                 <ul>
                     <li><a href="#">Акции</a></li>
                     <li><a href="#">Партнерство</a></li>
                     <li><a href="#">Помощь</a></li>
                     <li><a href="#">Контакты</a></li>
+                    <li><a href="profile.html">Профиль</a></li> <!-- кнопка профиля -->
                 </ul>
             </nav>
-            <button class="wallet-btn">Подключить кошелек</button>
+            <div id="wallet-actions">
+                <button class="wallet-btn" id="connectButton">Подключить кошелек</button>
+            </div>
         </div>
     </header>
 
-    <section class="search-bar">
-        <input type="text" placeholder="найти товар">
-        <button>🔍</button>
+    <section class="products" id="productsContainer">
+        <!-- Сюда будут добавляться карточки товаров -->
     </section>
-
-    <section class="partners">
-        <img src="images/binance.png" alt="Binance">
-        <img src="images/metamask.png" alt="Metamask">
-        <img src="images/bybit.png" alt="Bybit">
-        <img src="images/trust.png" alt="Trust">
-        <img src="images/phantom.png" alt="Phantom">
-    </section>
-
-    <section class="promo">
-        <div class="promo-item">
-            <h2>Пополняйте баланс с популярных бирж или кошельков</h2>
-        </div>
-        <div class="promo-item">
-            <h2>Товары со скидками при оплате криптовалютой</h2>
-        </div>
-    </section>
-
-    <section class="sales">
-        <h2>Ликвидация на Черную Пятницу</h2>
-        <div class="products">
-            <div class="product">
-                <h3>Telegram Premium на 3 месяца</h3>
-                <p>11.99 $ <span class="discount">14.99 $ -20%</span></p>
-            </div>
-            <div class="product">
-                <h3>Telegram Stars 50 шт.</h3>
-                <p>11.99 $ <span class="discount">14.99 $ -20%</span></p>
-            </div>
-            <!-- Другие товары можно добавить здесь -->
-        </div>
-    </section>
-
-    <section class="special-offer">
-        <h3>Sui запустили свою приставку за 600$</h3>
-        <p>За покупку дают NFT, а для первых 1000 мистическую NFT.</p>
-        <button class="preorder-btn">Предзаказ</button>
-    </section>
+    <!-- Остальной HTML код -->
 
     <footer>
         <p>MetaMarket — это сообщество, где поддерживается рост и расцветают возможности</p>
-        <p>For investment inquiries, please <a href="#">reach out to us</a>. For community requests, please reach out to us <a href="#">here</a>.</p>
+        <p>For investment inquiries, please <a href="#">reach out to us</a>. For community requests, please reach out to
+            us <a href="#">here</a>.</p>
         <div class="social-icons">
             <a href="#"><img src="images/telegram.png" alt="Telegram"></a>
             <a href="#"><img src="images/discord.png" alt="Discord"></a>
@@ -319,5 +382,193 @@
         </div>
         <a href="#" class="privacy-policy">Privacy and Policy</a>
     </footer>
+
+    <!-- Подключаем WalletConnect и Web3.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
+
+    <script>
+        let walletConnected = false;  // Переменная для отслеживания подключения кошелька
+        let connectedWalletAddress = '';  // Хранит адрес подключенного кошелька
+
+        // Настройка провайдера WalletConnect
+        const walletConnectProvider = new WalletConnectProvider.default({
+            rpc: {
+                1: "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID", // Ethereum mainnet
+                56: "https://bsc-dataseed.binance.org/", // Binance Smart Chain mainnet
+                137: "https://polygon-rpc.com/", // Polygon mainnet
+            },
+        });
+
+        // Функция для обновления интерфейса после подключения кошелька
+        function updateUIAfterConnect(address) {
+            walletConnected = true;
+            connectedWalletAddress = address;
+            const walletActionsDiv = document.getElementById('wallet-actions');
+            walletActionsDiv.innerHTML = `
+                <span>Кошелек: ${connectedWalletAddress.slice(0, 6)}...${connectedWalletAddress.slice(-4)}</span>
+                <button class="disconnect-btn" id="disconnectButton">Отключить кошелек</button>
+            `;
+            document.getElementById('disconnectButton').addEventListener('click', disconnectWallet);
+        }
+
+        // Функция для отключения кошелька
+        function disconnectWallet() {
+            walletConnected = false;
+            connectedWalletAddress = '';
+            const walletActionsDiv = document.getElementById('wallet-actions');
+            walletActionsDiv.innerHTML = `<button class="wallet-btn" id="connectButton">Подключить кошелек</button>`;
+            document.getElementById('connectButton').addEventListener('click', async () => {
+                if (!walletConnected) {
+                    await connectWallet();
+                }
+            });
+            // Если Trust Wallet, отключаем через WalletConnect
+            if (walletConnectProvider.connected) {
+                walletConnectProvider.disconnect();
+            }
+        }
+
+        // Подключение MetaMask
+        async function connectMetaMask() {
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('MetaMask обнаружен!');
+                try {
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                    console.log('Подключенный аккаунт (MetaMask):', accounts[0]);
+                    updateUIAfterConnect(accounts[0]);
+                } catch (error) {
+                    console.error('Ошибка подключения MetaMask:', error);
+                }
+            } else {
+                alert('Пожалуйста, установите MetaMask!');
+            }
+        }
+
+        // Подключение Trust Wallet через WalletConnect
+        async function connectTrustWallet() {
+            try {
+                await walletConnectProvider.enable();
+                const web3 = new Web3(walletConnectProvider);
+                const accounts = await web3.eth.getAccounts();
+                console.log('Подключенный аккаунт (Trust Wallet):', accounts[0]);
+                updateUIAfterConnect(accounts[0]);
+
+                // Подписка на изменения аккаунтов
+                walletConnectProvider.on("accountsChanged", (accounts) => {
+                    console.log("Аккаунты изменены:", accounts);
+                    updateUIAfterConnect(accounts[0]);
+                });
+
+                // Подписка на изменения сети
+                walletConnectProvider.on("chainChanged", (chainId) => {
+                    console.log("Сеть изменена:", chainId);
+                });
+
+                // Отключение провайдера
+                walletConnectProvider.on("disconnect", (code, reason) => {
+                    console.log("WalletConnect отключен:", code, reason);
+                    disconnectWallet();
+                });
+            } catch (error) {
+                console.error('Ошибка подключения Trust Wallet через WalletConnect:', error);
+            }
+        }
+
+        // Подключение Phantom для Solana
+        async function connectPhantom() {
+            if (window.solana && window.solana.isPhantom) {
+                console.log('Phantom найден!');
+                try {
+                    const response = await window.solana.connect();
+                    console.log('Подключенный аккаунт (Phantom):', response.publicKey.toString());
+                    updateUIAfterConnect(response.publicKey.toString());
+                } catch (err) {
+                    console.error('Ошибка подключения Phantom:', err);
+                }
+            } else {
+                alert('Пожалуйста, установите Phantom Wallet!');
+            }
+        }
+
+        // Универсальная функция для подключения кошелька
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                // Подключаем MetaMask
+                await connectMetaMask();
+            } else if (window.solana && window.solana.isPhantom) {
+                // Подключаем Phantom (Solana)
+                await connectPhantom();
+            } else {
+                // Подключаем Trust Wallet через WalletConnect
+                await connectTrustWallet();
+            }
+        }
+
+        // Инициализируем подключение по клику на кнопку
+        document.getElementById('connectButton').addEventListener('click', async () => {
+            if (!walletConnected) {
+                await connectWallet();
+            }
+        });
+        // Получение списка товаров (если их нужно загрузить из базы данных или локального хранилища)
+        const products = JSON.parse(localStorage.getItem('products')) || [];
+
+        // Контейнер для отображения товаров
+        const productsContainer = document.getElementById('productsContainer');
+
+        // Функция для отображения товаров на главной странице
+        function displayProducts() {
+            productsContainer.innerHTML = ''; // Очистка контейнера
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.classList.add('product');
+
+                const productImage = document.createElement('img');
+                productImage.src = product.image;
+
+                const productName = document.createElement('h3');
+                productName.textContent = product.name;
+
+                const productPrice = document.createElement('p');
+                productPrice.classList.add('price');
+                productPrice.textContent = `${product.price} $`;
+
+                const productDescription = document.createElement('p');
+                productDescription.textContent = product.description;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('delete-btn');
+                deleteButton.textContent = 'Удалить';
+                deleteButton.addEventListener('click', () => deleteProduct(index));
+
+                productCard.appendChild(productImage);
+                productCard.appendChild(productName);
+                productCard.appendChild(productPrice);
+                productCard.appendChild(productDescription);
+
+                productsContainer.appendChild(productCard);
+            });
+        }
+
+        // Функция для удаления товара
+        function deleteProduct(index) {
+            // Удаляем товар из массива
+            products.splice(index, 1);
+
+            // Сохраняем обновленный список товаров в локальное хранилище
+            localStorage.setItem('products', JSON.stringify(products));
+
+            // Обновляем отображение товаров
+            displayProducts();
+        }
+
+        // Вызов функции для отображения товаров при загрузке страницы
+        displayProducts();
+
+        // Вызов функции для отображения товаров при загрузке страницы
+        displayProducts();
+    </script>
 </body>
+
 </html>

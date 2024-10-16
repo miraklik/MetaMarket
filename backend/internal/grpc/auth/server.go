@@ -29,7 +29,7 @@ func Register(gRPC *grpc.Server, auth Auth) {
 }
 
 func (s *ServerAPI) Login(ctx context.Context, req *ssov1.LoginRequest) (*ssov1.LoginResponse, error) {
-	if err := ValidateLogin(); err != nil {
+	if err := ValidateLogin(req); err != nil {
 		return nil, err
 	}
 
@@ -44,26 +44,69 @@ func (s *ServerAPI) Login(ctx context.Context, req *ssov1.LoginRequest) (*ssov1.
 	}, nil
 }
 
-
 func (s *ServerAPI) Register(ctx context.Context, req *ssov1.RegisterRequest) (*ssov1.RegisterResponse, error) {
-	panic("implement me")
+	if err := ValidateRegister(req); err != nil {
+		return nil, err
+	}
+
+	userID, err := s.auth.RegisterNewUser(ctx, req.Email, req.Password)
+	if err != nil {
+		//TODO:...
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &ssov1.RegisterResponse{
+		UserId: userID,
+	}, nil
 }
 
 func (s *ServerAPI) IsAdmin(ctx context.Context, req *ssov1.IsAdminRequest) (*ssov1.IsAdminResponse, error) {
-	panic("implement me")
+	if err := ValidateIsAdmin(req); err != nil {
+		return nil, err
+	}
+
+	IsAdmin, err := s.auth.IsAdmin(ctx, req.UserId)
+	if err != nil {
+		//TODO:...
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &ssov1.IsAdminResponse{
+		IsAdmin: IsAdmin,
+	}, nil
 }
 
 func ValidateLogin(req *ssov1.LoginRequest) error {
-	if req.GetEmail() == ""{
+	if req.GetEmail() == "" {
 		return status.Error(codes.InvalidArgument, "email is required")
 	}
 
-	if req.GetPassword() == ""{
+	if req.GetPassword() == "" {
 		return status.Error(codes.InvalidArgument, "password is required")
 	}
 
 	if req.GetAppId() == emptyValue {
 		return status.Error(codes.InvalidArgument, "app_id is required")
+	}
+
+	return nil
+}
+
+func ValidateRegister(req *ssov1.RegisterRequest) error {
+	if req.GetEmail() == "" {
+		return status.Error(codes.InvalidArgument, "email is required")
+	}
+
+	if req.GetPassword() == "" {
+		return status.Error(codes.InvalidArgument, "password is required")
+	}
+
+	return nil
+}
+
+func ValidateIsAdmin(req *ssov1.IsAdminRequest) error {
+	if req.GetUserId() == emptyValue {
+		return status.Error(codes.InvalidArgument, "user_id is required")
 	}
 
 	return nil
