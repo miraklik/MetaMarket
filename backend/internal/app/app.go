@@ -2,9 +2,11 @@ package app
 
 import (
 	grpcapp "internal/internal/app/grpc"
+	"internal/internal/services/auth"
 	"log/slog"
-	"sqlite"
 	"time"
+
+	"gorm.io/driver/sqlite"
 )
 
 type App struct {

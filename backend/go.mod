@@ -28,4 +28,6 @@ require (
 	gorm.io/driver/sqlite v1.5.6 // indirect
 	gorm.io/gorm v1.25.7-0.20240204074919-46816ad31dde // indirect
 	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
+	"github.com/miraklik/MetaMarket/tree/main/backend/internal/storage" v0.0.1
+
 )

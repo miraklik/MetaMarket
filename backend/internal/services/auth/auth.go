@@ -7,6 +7,7 @@ import (
 	"internal/internal/domain/models"
 	"internal/internal/lib/jwt"
 	"internal/internal/lib/logger/sl"
+	"internal/internal/stroge"
 	"log/slog"
 	"time"
 
@@ -15,6 +16,8 @@ import (
 
 var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
+	ErrInvalidAppID       = errors.New("invalid app ID")
+	ErrUserExists         = errors.New("user does not exist")
 )
 
 type Auth struct {
@@ -60,7 +63,7 @@ func (a *Auth) Login(ctx context.Context, email string, password string, appID i
 
 	user, err := a.UsrProvider.User(ctx, email)
 	if err != nil {
-		if errors.Is(err) {
+		if errors.Is(err, stroge.ErrUserExists) {
 			a.log.Warn("user not found", sl.Err(err))
 
 			return "", fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
@@ -110,6 +113,11 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, password strin
 
 	id, err := a.usrSaver.SaveUser(ctx, email, passHash)
 	if err != nil {
+		if errors.Is(err, stroge.ErrUserExists) {
+			log.Warn("user already exists")
+
+			return 0, fmt.Errorf("%s: %w", op, ErrUserExists)
+		}
 		log.Error("failed to save user", sl.Err(err))
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
@@ -120,5 +128,27 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, password strin
 }
 
 func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error) {
-	panic("not")
+	op := "Auth.IsAdmin"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.Int64("userID", userID),
+	)
+
+	log.Info("checking if user is admin")
+
+	isAdmin, err := a.UsrProvider.IsAdmin(ctx, userID)
+	if err != nil {
+		if errors.Is(err, stroge.ErrAppNotFound) {
+			log.Warn("app not found")
+			return false, nil
+		}
+		log.Error("failed to check admin status", sl.Err(err))
+
+		return false, fmt.Errorf("%s: %w", op, ErrInvalidAppID)
+	}
+
+	log.Info("checked if user is admin", slog.Bool("isAdmin", isAdmin))
+
+	return isAdmin, nil
 }
