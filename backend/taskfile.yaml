@@ -1,0 +1,9 @@
+version: "3"
+
+tasks:
+  generate:
+    aliases:
+      - gen
+    desc: "Generate code from migration"
+    cmds:
+      - go run ./cmd/migration --storage-path=./storage/sso.db --migrations-path=./migrations
