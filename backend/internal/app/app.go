@@ -2,11 +2,9 @@ package app
 
 import (
 	grpcapp "internal/internal/app/grpc"
-	"internal/internal/services/auth"
+	"internal/internal/grpc/auth"
 	"log/slog"
 	"time"
-
-	"gorm.io/driver/sqlite"
 )
 
 type App struct {
@@ -14,16 +12,11 @@ type App struct {
 }
 
 func New(log *slog.Logger, grpcPort int, storagePath string, tokenTTL time.Duration) *App {
-	storage, err := sqlite.New(storagePath)
-	if err != nil {
-		panic(err)
-	}
+	gRPCapp := grpcapp.New(log, grpcPort)
 
-	authService := auth.New(log, storage, storage, storage, tokenTTL)
-
-	grpcApp := grpcapp.New(log, authService, grpcPort)
+	auth.Register(gRPCapp)
 
 	return &App{
-		GRPCServer: grpcApp,
+		GRPCServer: gRPCapp,
 	}
 }
