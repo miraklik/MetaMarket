@@ -1,14 +1,12 @@
--- * Создание таблицы с user 
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT NOT NULL UNIQUE,
     pass_hash BLOB NOT NULL
 );
 
--- * 
+
 CREATE INDEX IF NOT EXISTS idx_email ON users (email);
 
--- ! надо фикс
 CREATE TABLE IF NOT EXISTS apps (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,

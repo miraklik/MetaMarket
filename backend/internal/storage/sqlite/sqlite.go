@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"internal/internal/domain/models"
-	"internal/internal/stroge"
+	stroge "internal/internal/storage"
 
 	"github.com/mattn/go-sqlite3"
 	_ "github.com/mattn/go-sqlite3"
@@ -41,7 +41,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 	if err != nil {
 		var sqliteErr sqlite3.Error
 		// * Проверка , зарегистирован пользователь уже на сайте
-		if errors.Is(err, &sqliteErr) && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+		if errors.As(err, &sqliteErr) && sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
 			return 0, fmt.Errorf("%s: %w", op, stroge.ErrUserExists)
 		}
 
@@ -79,7 +79,30 @@ func (s *Storage) User(ctx context.Context, email string) (models.User, error) {
 	return user, nil
 }
 
-func (s *Storage) isAdmin(ctx context.Context, userID int64) (bool, error) {
+func (s *Storage) App(ctx context.Context, id int) (models.App, error) {
+	const op = "storage.sqlite.App"
+
+	stmt, err := s.db.Prepare("SELECT id, name, secret FROM apps WHERE id = ?")
+	if err != nil {
+		return models.App{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	row := stmt.QueryRowContext(ctx, id)
+
+	var App models.App
+	err = row.Scan(&App.ID, &App.Name, &App.Secret)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.App{}, fmt.Errorf("%s: %w", op, stroge.ErrAppNotFound)
+		}
+
+		return models.App{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return App, nil
+}
+
+func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	const op = "storage.sqlite.isAdmin"
 
 	stmt, err := s.db.Prepare("SELECT is_admin FROM users WHERE id = ?")
@@ -100,27 +123,4 @@ func (s *Storage) isAdmin(ctx context.Context, userID int64) (bool, error) {
 	}
 
 	return isAdmin, nil
-}
-
-func (s *Storage) App(ctx context.Context, id int) (models.App, error) {
-	const op = "storage.sqlite.App"
-
-	stmt, err := s.db.Prepare("SELECT id, email, pass_hash FROM apps WHERE id = ?")
-	if err != nil {
-		return models.App{}, fmt.Errorf("%s: %w", op, err)
-	}
-
-	row := stmt.QueryRowContext(ctx, id)
-
-	var App models.App
-	err = row.Scan(&App.ID, &App.Name, &App.Secret)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return models.App{}, fmt.Errorf("%s: %w", op, stroge.ErrUserNotFound)
-		}
-
-		return models.App{}, fmt.Errorf("%s: %w", op, err)
-	}
-
-	return App, nil
 }
