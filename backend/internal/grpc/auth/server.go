@@ -7,14 +7,12 @@ import (
 	"internal/internal/services/auth"
 	"log/slog"
 
+	stroge "internal/internal/storage"
+
 	ssov1 "github.com/GolangLessons/protos/gen/go/sso"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-)
-
-const (
-	emptyValue = 0
 )
 
 type Auth interface {
@@ -97,11 +95,11 @@ func (s *serverAPI) Register(
 
 	uid, err := s.auth.RegisterNewUser(ctx, in.GetEmail(), in.GetPassword())
 	if err != nil {
-		if errors.Is(err, auth.ErrUserExists) {
+		if errors.Is(err, stroge.ErrUserExists) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")
 		}
 
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, status.Error(codes.Internal, "failed to register user")
 	}
 
 	return &ssov1.RegisterResponse{UserId: uid}, nil
@@ -117,11 +115,11 @@ func (s *serverAPI) IsAdmin(
 
 	isAdmin, err := s.auth.IsAdmin(ctx, in.GetUserId())
 	if err != nil {
-		if errors.Is(err, auth.ErrUserNotFound) {
+		if errors.Is(err, stroge.ErrUserNotFound) {
 			return nil, status.Error(codes.NotFound, "user not found")
 		}
 
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, status.Error(codes.Internal, "failed to check admin status")
 	}
 
 	return &ssov1.IsAdminResponse{IsAdmin: isAdmin}, nil
