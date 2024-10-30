@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/backend/internal/storage/sqlite/sqlite.go" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/backend/migrations/1_init.down.sql" dialect="SQLite" />
     <file url="file://$PROJECT_DIR$/backend/migrations/1_init_up.sql" dialect="SQLite" />
     <file url="file://$PROJECT_DIR$/backend/migrations/2_add_is_admin_column_to_users_tbl.down.sql" dialect="SQLite" />
     <file url="file://$PROJECT_DIR$/backend/migrations/2_add_is_admin_column_to_users_tbl.up.sql" dialect="SQLite" />
     <file url="file://$PROJECT_DIR$/backend/migrations/3_add_app.up.sql" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/backend/tests/migrations/1_init_apps_up.sql" dialect="SQLite" />
   </component>
 </project>
