@@ -114,3 +114,15 @@ header nav ul li a:hover {
     color: #5f27cd; /* Headings in purple */
 }
 
+.add-product-btn {
+    background: linear-gradient(45deg, #00cc44, #00ff88);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-product-btn:hover {
+    background: linear-gradient(45deg, #00ff88, #00cc44);
+}

@@ -1,109 +1,33 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход</title>
-    <style>
-        body {
-            background-color: #1c1c1c;
-            font-family: 'Roboto', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .login-container {
-            background-color: #333;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            width: 400px;
-            text-align: center;
-        }
-
-        h1 {
-            color: #00c6ff;
-            margin-bottom: 30px;
-        }
-
-        input {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 30px;
-            background-color: #222;
-            color: white;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        input:focus {
-            outline: none;
-            background-color: #333;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 30px;
-            background: linear-gradient(45deg, #00c6ff, #0072ff);
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        button:hover {
-            background: linear-gradient(45deg, #0072ff, #00c6ff);
-        }
-
-        .signup-link {
-            color: #00c6ff;
-            text-decoration: none;
-            font-size: 14px;
-            display: block;
-            margin-top: 20px;
-            transition: color 0.3s ease;
-        }
-
-        .signup-link:hover {
-            color: #0072ff;
-        }
-    </style>
+    <title>Meta Market Login</title>
+    <link rel="stylesheet" href="frontend/css/login.css">
 </head>
 <body>
-
-    <div class="login-container">
-        <h1>Вход</h1>
-        <form id="loginForm">
-            <input type="text" id="nickname" placeholder="Nickname" required>
-            <input type="password" id="password" placeholder="Пароль" required>
-            <button type="submit">Войти</button>
-        </form>
-        <a href="registration.html" class="signup-link">Нет аккаунта? Зарегистрируйтесь</a>
+    <div class="container">
+        <div class="form-container">
+            <h1>Login</h1>
+            <form id="loginForm">
+                <input type="text" placeholder="login" id="login" required>
+                <input type="password" placeholder="password" id="password" required>
+                <button type="submit">ENTER</button>
+            </form>
+        </div>
+        <div class="info-container">
+            <h1>Meta Market</h1>
+            <p>
+                Welcome back to MetaMarket! Our Web3 platform empowers creators and collectors by providing a decentralized, secure, 
+                and transparent environment for trading unique digital assets, including art, collectibles, and virtual real estate. 
+                Enter your credentials to explore the digital marketplace.
+            </p>
+            <br>
+            <a href="registration.html" class="signup-link">Нет аккаунта? Зарегистрируйтесь</a>
+        </div>
     </div>
-
-    <script>
-        const loginForm = document.getElementById('loginForm');
-
-        loginForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const nickname = document.getElementById('nickname').value;
-            const password = document.getElementById('password').value;
-
-            // Логика входа, например, проверка данных пользователя
-            console.log("Nickname:", nickname);
-            console.log("Пароль:", password);
-
-            // Перенаправление на index.html после успешного входа
-            window.location.href = 'index.html';
-        });
-    </script>
-
+    <script src="frontend/js/login.js"></script>
 </body>
 </html>
+

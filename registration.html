@@ -1,130 +1,36 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация</title>
-    <style>
-        body {
-            background-color: #1c1c1c;
-            font-family: 'Roboto', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .registration-container {
-            background-color: #333;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            width: 400px;
-            text-align: center;
-        }
-
-        h1 {
-            color: #00c6ff;
-            margin-bottom: 30px;
-        }
-
-        input {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 30px;
-            background-color: #222;
-            color: white;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        input:focus {
-            outline: none;
-            background-color: #333;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 30px;
-            background: linear-gradient(45deg, #00c6ff, #0072ff);
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        button:hover {
-            background: linear-gradient(45deg, #0072ff, #00c6ff);
-        }
-
-        .login-link {
-            color: #00c6ff;
-            text-decoration: none;
-            font-size: 14px;
-            display: block;
-            margin-top: 20px;
-            transition: color 0.3s ease;
-        }
-
-        .login-link:hover {
-            color: #0072ff;
-        }
-
-        .error-message {
-            color: red;
-            font-size: 14px;
-            margin-bottom: 20px;
-            display: none;
-        }
-    </style>
+    <title>Meta Market Registration</title>
+    <link rel="stylesheet" href="frontend/css/registration.css">
 </head>
 <body>
-
-    <div class="registration-container">
-        <h1>Регистрация</h1>
-        <div class="error-message" id="error-message">Пожалуйста, заполните все поля!</div>
-        <form id="registrationForm">
-            <input type="text" id="nickname" placeholder="Никнейм" required>
-            <input type="email" id="email" placeholder="Email" required>
-            <input type="password" id="password" placeholder="Пароль" required>
-            <button type="submit">Зарегистрироваться</button>
-        </form>
-        <a href="login.html" class="login-link">Уже есть аккаунт? Войти</a>
+    <div class="container">
+        <div class="form-container">
+            <h1>Register NOW</h1>
+            <form id="register-form">
+                <input type="text" id="login" placeholder="login" id="login" required>
+                <input type="email" id="email" placeholder="email" id="email" required>
+                <input type="password" id="password" placeholder="password" id="password" required>
+                <input type="password" id="confirm password" placeholder="confirm password" id="confirm-password" required>
+                <button type="submit">COMPLETE</button>
+            </form>
+        </div>
+        <div class="info-container">
+            <h1>Meta Market</h1>
+            <p>
+                Web3 platform MetaMarket revolutionizes the digital marketplace by harnessing the power of blockchain technology.
+                It empowers creators and collectors by providing a decentralized, secure, and transparent environment for trading unique
+                digital assets, such as art, collectibles, and virtual real estate.
+            </p>
+            <br>
+            <a href="login.html" class="login-link">Есть аккаунт? Войдите</a>
+        </div>
     </div>
-
-    <script>
-        const registrationForm = document.getElementById('registrationForm');
-        const errorMessage = document.getElementById('error-message');
-
-        registrationForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const nickname = document.getElementById('nickname').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-
-            if (nickname === "" || email === "" || password === "") {
-                errorMessage.style.display = "block";
-            } else {
-                errorMessage.style.display = "none";
-
-                // Отправляем данные на сервер
-                const response = await fetch('/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nickname, email, password })
-                });
-
-                const result = await response.text();
-                alert(result); // Сообщение об успехе или ошибке
-            }
-        });
-    </script>
-
+    <script src="frontend/js/registration.js"></script>
 </body>
 </html>
+
+
