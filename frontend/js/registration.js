@@ -1,32 +1,50 @@
-const registrationForm = document.getElementById('registrationForm');
-        const errorMessage = document.getElementById('error-message');
+const registrationForm = document.getElementById('register-form');
+const errorMessage = document.getElementById('error-message');
 
-        registrationForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+registrationForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-            const login = document.getElementById('login').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const confirmPassword = document.getElementById('confirm-password').value.trim();
+    const login = document.getElementById('login').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const confirmPassword = document.getElementById('confirm-password').value.trim();
 
-            if (password !== confirmPassword) {
-                alert('Passwords do not match!');
-                return;
-            }
+    // * Проверка на длину пароля
+    if (password.length < 5) {
+        errorMessage.innerText = "Пароль должен быть не менее 5 символов.";
+        errorMessage.style.display = "block";
+        return;
+    }
 
-            if (login === "" || email === "" || password === "" || confirmPassword === "") {
-                errorMessage.style.display = "block";
-            } else {
-                errorMessage.style.display = "none";
+    // * проверка что пароли подходят
+    if (password !== confirmPassword) {
+        errorMessage.innerText = "Пароли не совпадают.";
+        errorMessage.style.display = "block";
+        return;
+    }
 
-                // Отправляем данные на сервер
-                const response = await fetch('/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nickname, email, password })
-                });
+    // * Проверка на пустые поля
+    if (login === "" || email === "" || password === "" || confirmPassword === "") {
+        errorMessage.innerText = "Все поля обязательны для заполнения.";
+        errorMessage.style.display = "block";
+        return;
+    }
 
-                const result = await response.text();
-                alert(result); // Сообщение об успехе или ошибке
-            }
+    errorMessage.style.display = "none";
+
+    // * Отправляем данные на сервер
+    try {
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nickname: login, email, password })
         });
+
+        const result = await response.text();
+        alert(result); // Сообщение об успехе или ошибке
+        window.location.href = 'login.html';
+    } catch (error) {
+        errorMessage.innerText = "Произошла ошибка при отправке данных. Пожалуйста, попробуйте позже.";
+        errorMessage.style.display = "block";
+    }
+});
