@@ -47,4 +47,12 @@ registrationForm.addEventListener('submit', async (e) => {
         errorMessage.innerText = "Произошла ошибка при отправке данных. Пожалуйста, попробуйте позже.";
         errorMessage.style.display = "block";
     }
+
+    fetch('http://localhost:44044/api/data')
+    .then(response => response.json())
+    .then(data => {
+        console.log(data.message);
+    })
+    .catch(error => console.error('Error:', error));
+
 });

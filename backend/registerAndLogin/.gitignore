@@ -1,3 +1,5 @@
-/storage
-
-*.pem
+.envrc
+.env
+bin
+tmp
+ecom
