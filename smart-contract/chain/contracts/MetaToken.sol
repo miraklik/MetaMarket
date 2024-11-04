@@ -1,19 +1,20 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.27;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 contract BadgeToken is ERC721 {
-    uint265 private _currentTokenId = 0;
+    uint256 private _currentTokenId = 0;
 
-    constructor(string _name, string _symbol) ERC721(_name, _symbol) {
+
+    constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
     }
 
     function mintTo(address to) public returns (uint256) {
-        uint256 newTokenId = _getNextTokenId;
+        uint256 newTokenId = _getNextTokenId();
         _mint(to, newTokenId);
         return newTokenId;
     }
