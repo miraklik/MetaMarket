@@ -1,17 +1,32 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
+	"database/sql"
+	"fmt"
 	"log"
 	"os"
 )
 
-func LoadConfig() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
-}
+var DB *sql.DB
 
-func GetEnv(key string) string {
-	return os.Getenv(key)
+func InitDB() {
+	connStr := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_PORT"),
+	)
+
+	var err error
+	DB, err = sql.Open("mysql", connStr)
+	if err != nil {
+		log.Fatalf("Error connecting to database: %v", err)
+	}
+
+	if err = DB.Ping(); err != nil {
+		log.Fatalf("Error pinging database: %v", err)
+	}
+
+	log.Println("DB: Connected to database")
 }
