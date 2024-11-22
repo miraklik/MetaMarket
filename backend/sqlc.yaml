@@ -1,0 +1,7 @@
+version: "2"
+packages:
+  - name: "db"
+    path: "./backend/db"
+    queries: "./backend/db/queries"
+    schema: "./backend/db/migrations"
+    engine: "postgresql"
