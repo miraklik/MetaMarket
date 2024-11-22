@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-func ValidateToAddress(owner string) error {
+func ValidateEthereumAddress(owner string) error {
 	if !common.IsHexAddress(owner) {
 		return fmt.Errorf("invalid address: %s", owner)
 	}

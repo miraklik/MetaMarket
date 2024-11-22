@@ -54,6 +54,13 @@ func NewEthereumService(rpcURL, contractAddress, privateKey, abiJSON string) (*E
 	}, nil
 }
 
+// CheckOwnership checks whether the given token ID is owned by the given Ethereum address.
+//
+// It will query the smart contract and compare the owner of the token ID with the given ownerAddress.
+//
+// If the owner matches, it will return true; otherwise, it will return false.
+//
+// If there is an error during the smart contract query, it will return false and log the error.
 func (es *EthereumService) CheckOwnership(tokenID string, ownerAddress string) bool {
 	tokenIDBigInt := new(big.Int)
 	tokenIDBigInt.SetString(tokenID, 10)
@@ -68,14 +75,6 @@ func (es *EthereumService) CheckOwnership(tokenID string, ownerAddress string) b
 	}
 
 	return actualOwner == owner
-}
-
-func (es *EthereumService) ValidateEthereumAddress(address string) error {
-	if !common.IsHexAddress(address) {
-		return fmt.Errorf("invalid address: %s", address)
-	}
-
-	return nil
 }
 
 // GetNFTs returns a list of NFTs owned by the given address. Currently, this
@@ -916,9 +915,40 @@ func (es *EthereumService) MintNFT(recipient string) error {
 
 	tx, err := contract.Transact(auth, "ListingCreated", recipientAddress)
 	if err != nil {
-		return fmt.Errorf("Failde to mint NFT: %w", err)
+		return fmt.Errorf("failed to mint NFT: %w", err)
 	}
 
 	fmt.Printf("NFT minted successfully! Transaction hash: %s\n", tx.Hash().Hex())
+	return nil
+}
+
+func (es *EthereumService) TransferNFT(from string, to string, tokenID string) error {
+	fromAddress := common.HexToAddress(from)
+	toAddress := common.HexToAddress(to)
+	tokenIDBigInt := new(big.Int)
+	tokenIDBigInt.SetString(tokenID, 10)
+
+	if fromAddress == (common.Address{}) || toAddress == (common.Address{}) {
+		return fmt.Errorf("invalid address")
+	}
+
+	auth, err := bind.NewKeyedTransactorWithChainID(es.PrivateKey, big.NewInt(1)) // Укажите правильный ChainID
+	if err != nil {
+		return fmt.Errorf("failed to create transactor: %w", err)
+	}
+
+	auth.GasLimit = uint64(300000)
+	gasPrice, err := es.Client.SuggestGasPrice(context.Background())
+	if err != nil {
+		return fmt.Errorf("failed to suggest gas price: %w", err)
+	}
+	auth.GasPrice = gasPrice
+
+	tx, err := es.Contract.Transact(auth, "safeTransferFrom", fromAddress, toAddress, tokenIDBigInt)
+	if err != nil {
+		return fmt.Errorf("failed to transfer NFT: %w", err)
+	}
+
+	log.Printf("Transfer successful! Transaction hash: %s", tx.Hash().Hex())
 	return nil
 }

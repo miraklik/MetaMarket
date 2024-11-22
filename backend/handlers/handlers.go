@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"net/http"
 	"nft-marketplace/services"
+	"nft-marketplace/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -49,7 +50,7 @@ func MintNFT(db *sql.DB, ethService *services.EthereumService) gin.HandlerFunc {
 			return
 		}
 
-		if err := services.ValidateEthereumAddress(request.Recipient); err != nil {
+		if err := utils.ValidateEthereumAddress(request.Recipient); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid recipient address"})
 			return
 		}
@@ -83,7 +84,7 @@ func BuyNFT(db *sql.DB, ethService *services.EthereumService) gin.HandlerFunc {
 			return
 		}
 
-		if err := services.ValidateEthereumAddress(request.Buyer); err != nil {
+		if err := utils.ValidateEthereumAddress(request.Buyer); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid buyer address: " + err.Error()})
 			return
 		}
