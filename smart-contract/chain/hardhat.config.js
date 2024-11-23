@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
+require("@nomiclabs/hardhat-ethers");
 require("dotenv").config();
 
 module.exports = {
@@ -36,5 +37,9 @@ module.exports = {
       url: "https://mainnet.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734",
       accounts: [process.env.PRIVATE_KEY],
     },
+    sepolia: {
+      url: "https://goerli.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734",
+      accounts: [process.env.PRIVATE_KEY]
+    }
   },
 };

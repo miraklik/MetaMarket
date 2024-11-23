@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
@@ -123,7 +123,10 @@ contract Marketplace {
      */
     function purchaseListing(uint256 _listingId) external payable nonReentrant {
         Listing storage listing = listings[_listingId];
-        require(_listingId > 0 && _listingId <= listingCount, "Invalid listing ID");
+        require(
+            _listingId > 0 && _listingId <= listingCount,
+            "Invalid listing ID"
+        );
         require(!listing.sold, "Item already sold");
         require(msg.value == listing.price, "Incorrect payment amount");
 
@@ -132,18 +135,26 @@ contract Marketplace {
         uint256 commissionAmount = (listing.price * commissionPercent) / 100;
         uint256 sellerAmount = listing.price - commissionAmount;
 
-        // Transfer commission to the marketplace owner
+    
         (bool commissionSent, ) = owner.call{value: commissionAmount}("");
         require(commissionSent, "Failed to send commission");
 
-        // Transfer payment to the seller
+
         (bool sellerPaid, ) = listing.seller.call{value: sellerAmount}("");
         require(sellerPaid, "Failed to send payment to seller");
 
-        // Transfer NFT to the buyer
-        nftContract.safeTransferFrom(listing.seller, msg.sender, listing.tokenId);
+        nftContract.safeTransferFrom(
+            listing.seller,
+            msg.sender,
+            listing.tokenId
+        );
 
-        emit PurchaseCompleted(_listingId, msg.sender, listing.tokenId, listing.price);
+        emit PurchaseCompleted(
+            _listingId,
+            msg.sender,
+            listing.tokenId,
+            listing.price
+        );
     }
 
     /**
@@ -152,7 +163,10 @@ contract Marketplace {
      */
     function cancelListing(uint256 _listingId) external {
         Listing storage listing = listings[_listingId];
-        require(_listingId > 0 && _listingId <= listingCount, "Invalid listing ID");
+        require(
+            _listingId > 0 && _listingId <= listingCount,
+            "Invalid listing ID"
+        );
         require(listing.seller == msg.sender, "You are not the seller");
         require(!listing.sold, "Item already sold");
 
@@ -186,12 +200,16 @@ contract Marketplace {
     }
 
     /**
-    * @notice Returns the token ID owned by `_owner` at a specific `index`.
-    * @param _owner Address of the token owner.
-    * @param index Index in the list of the `_owner`'s tokens.
-    * @return tokenId The ID of the token owned by the `_owner` at the given index.
-    */
-    function tokenOfOwnerByIndex(address _owner, uint256 index) public view returns (uint256 tokenId) {
+     * @notice Returns the token ID owned by `_owner` at a specific `index`.
+     * @param _owner Address of the token owner.
+     * @param index Index in the list of the `_owner`'s tokens.
+     * @return tokenId The ID of the token owned by the `_owner` at the given index.
+     */
+    function tokenOfOwnerByIndex(address _owner, uint256 index)
+        public
+        view
+        returns (uint256 tokenId)
+    {
         return nftEnumerable.tokenOfOwnerByIndex(_owner, index);
     }
 }

@@ -9,13 +9,13 @@
 				"inputs": [
 					{
 						"internalType": "address",
-						"name": "_usdtTokenAddress",
+						"name": "_nftContractAddress",
 						"type": "address"
 					},
 					{
-						"internalType": "uint8",
+						"internalType": "uint256",
 						"name": "_commissionPercent",
-						"type": "uint8"
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "nonpayable",
@@ -25,9 +25,41 @@
 				"anonymous": false,
 				"inputs": [
 					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newPercent",
+						"type": "uint256"
+					}
+				],
+				"name": "CommissionUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"name": "FundsWithdrawn",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
 						"indexed": true,
 						"internalType": "uint256",
-						"name": "listingId",
+						"name": "id",
 						"type": "uint256"
 					},
 					{
@@ -35,15 +67,9 @@
 						"internalType": "address",
 						"name": "seller",
 						"type": "address"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
 					}
 				],
-				"name": "EscrowReleased",
+				"name": "ListingCancelled",
 				"type": "event"
 			},
 			{
@@ -63,9 +89,9 @@
 					},
 					{
 						"indexed": false,
-						"internalType": "string",
-						"name": "title",
-						"type": "string"
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
 					},
 					{
 						"indexed": false,
@@ -95,27 +121,8 @@
 					{
 						"indexed": false,
 						"internalType": "uint256",
-						"name": "price",
+						"name": "tokenId",
 						"type": "uint256"
-					}
-				],
-				"name": "PurchaseCancelled",
-				"type": "event"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": true,
-						"internalType": "uint256",
-						"name": "id",
-						"type": "uint256"
-					},
-					{
-						"indexed": true,
-						"internalType": "address",
-						"name": "buyer",
-						"type": "address"
 					},
 					{
 						"indexed": false,
@@ -135,7 +142,7 @@
 						"type": "uint256"
 					}
 				],
-				"name": "cancelPurchase",
+				"name": "cancelListing",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -157,31 +164,8 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
-						"name": "_listingId",
+						"name": "_tokenId",
 						"type": "uint256"
-					}
-				],
-				"name": "confirmPurchase",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "string",
-						"name": "_title",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "_description",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "_imageIPFSHash",
-						"type": "string"
 					},
 					{
 						"internalType": "uint256",
@@ -192,44 +176,6 @@
 				"name": "createListing",
 				"outputs": [],
 				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "escrowAmount",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "escrowBuyer",
-				"outputs": [
-					{
-						"internalType": "address",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -266,19 +212,9 @@
 						"type": "address"
 					},
 					{
-						"internalType": "string",
-						"name": "title",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "description",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "imageIPFSHash",
-						"type": "string"
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
 					},
 					{
 						"internalType": "uint256",
@@ -295,19 +231,26 @@
 				"type": "function"
 			},
 			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"name": "orders",
+				"inputs": [],
+				"name": "nftContract",
 				"outputs": [
 					{
-						"internalType": "bool",
-						"name": "isConfirmed",
-						"type": "bool"
+						"internalType": "contract IERC721",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "nftEnumerable",
+				"outputs": [
+					{
+						"internalType": "contract IERC721Enumerable",
+						"name": "",
+						"type": "address"
 					}
 				],
 				"stateMutability": "view",
@@ -336,7 +279,7 @@
 				],
 				"name": "purchaseListing",
 				"outputs": [],
-				"stateMutability": "nonpayable",
+				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
@@ -353,12 +296,23 @@
 				"type": "function"
 			},
 			{
-				"inputs": [],
-				"name": "totalOrders",
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "index",
+						"type": "uint256"
+					}
+				],
+				"name": "tokenOfOwnerByIndex",
 				"outputs": [
 					{
 						"internalType": "uint256",
-						"name": "",
+						"name": "tokenId",
 						"type": "uint256"
 					}
 				],
@@ -367,33 +321,119 @@
 			},
 			{
 				"inputs": [],
-				"name": "usdtToken",
-				"outputs": [
-					{
-						"internalType": "contract IERC20",
-						"name": "",
-						"type": "address"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "withdrawToken",
+				"name": "withdrawFunds",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
 			}
 		],
 		"devdoc": {
+			"details": "This contract facilitates the listing and sale of ERC721 tokens with added enumerable support.",
 			"kind": "dev",
-			"methods": {},
+			"methods": {
+				"cancelListing(uint256)": {
+					"params": {
+						"_listingId": "ID of the listing to cancel."
+					}
+				},
+				"constructor": {
+					"details": "Initializes the marketplace with an ERC721 contract and commission percentage.",
+					"params": {
+						"_commissionPercent": "Marketplace commission percentage.",
+						"_nftContractAddress": "Address of the ERC721 token contract."
+					}
+				},
+				"createListing(uint256,uint256)": {
+					"params": {
+						"_price": "Sale price in wei.",
+						"_tokenId": "ID of the token to sell."
+					}
+				},
+				"purchaseListing(uint256)": {
+					"params": {
+						"_listingId": "ID of the listing to purchase."
+					}
+				},
+				"setCommissionPercent(uint256)": {
+					"params": {
+						"_newPercent": "New commission percentage."
+					}
+				},
+				"tokenOfOwnerByIndex(address,uint256)": {
+					"params": {
+						"_owner": "Address of the token owner.",
+						"index": "Index in the list of the `_owner`'s tokens."
+					},
+					"returns": {
+						"tokenId": "The ID of the token owned by the `_owner` at the given index."
+					}
+				}
+			},
+			"stateVariables": {
+				"listings": {
+					"details": "Stores all listings by their unique ID."
+				},
+				"unlocked": {
+					"details": "Reentrancy guard modifier."
+				}
+			},
+			"title": "NFT Marketplace",
 			"version": 1
 		},
 		"userdoc": {
+			"events": {
+				"CommissionUpdated(uint256)": {
+					"notice": "Event emitted when the marketplace commission is updated."
+				},
+				"FundsWithdrawn(uint256,address)": {
+					"notice": "Event emitted when funds are withdrawn from the contract."
+				},
+				"ListingCancelled(uint256,address)": {
+					"notice": "Event emitted when a listing is cancelled."
+				},
+				"ListingCreated(uint256,address,uint256,uint256)": {
+					"notice": "Event emitted when a new listing is created."
+				},
+				"PurchaseCompleted(uint256,address,uint256,uint256)": {
+					"notice": "Event emitted when an NFT is purchased."
+				}
+			},
 			"kind": "user",
-			"methods": {},
+			"methods": {
+				"cancelListing(uint256)": {
+					"notice": "Cancels an active listing."
+				},
+				"commissionPercent()": {
+					"notice": "Commission percentage charged by the marketplace."
+				},
+				"createListing(uint256,uint256)": {
+					"notice": "Creates a listing to sell an NFT."
+				},
+				"listingCount()": {
+					"notice": "Total number of listings created."
+				},
+				"nftContract()": {
+					"notice": "Interface for the ERC721 token contract."
+				},
+				"nftEnumerable()": {
+					"notice": "Interface for enumerable ERC721 functionality."
+				},
+				"owner()": {
+					"notice": "Owner of the marketplace."
+				},
+				"purchaseListing(uint256)": {
+					"notice": "Purchases an NFT from an active listing."
+				},
+				"setCommissionPercent(uint256)": {
+					"notice": "Updates the marketplace commission percentage."
+				},
+				"tokenOfOwnerByIndex(address,uint256)": {
+					"notice": "Returns the token ID owned by `_owner` at a specific `index`."
+				},
+				"withdrawFunds()": {
+					"notice": "Withdraws all funds from the contract."
+				}
+			},
 			"version": 1
 		}
 	},
@@ -413,20 +453,36 @@
 		"remappings": []
 	},
 	"sources": {
-		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
-			"keccak256": "0xe06a3f08a987af6ad2e1c1e774405d4fe08f1694b67517438b467cecf0da0ef7",
+		"@openzeppelin/contracts/token/ERC721/IERC721.sol": {
+			"keccak256": "0x5dc63d1c6a12fe1b17793e1745877b2fcbe1964c3edfd0a482fac21ca8f18261",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://df6f0c459663c9858b6cba2cda1d14a7d05a985bed6d2de72bd8e78c25ee79db",
-				"dweb:/ipfs/QmeTTxZ7qVk9rjEv2R4CpCwdf8UMCcRqDNMvzNxHc3Fnn9"
+				"bzz-raw://6b7f97c5960a50fd1822cb298551ffc908e37b7893a68d6d08bce18a11cb0f11",
+				"dweb:/ipfs/QmQQvxBytoY1eBt3pRQDmvH2hZ2yjhs12YqVfzGm7KSURq"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol": {
+			"keccak256": "0x3d6954a93ac198a2ffa384fa58ccf18e7e235263e051a394328002eff4e073de",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://1f58c799bd939d3951c94893e83ef86acd56989d1d7db7f9d180c515e29e28ff",
+				"dweb:/ipfs/QmTgAxHAAys4kq9ZfU9YB24MWYoHLGAKSxnYUigPFrNW7g"
+			]
+		},
+		"@openzeppelin/contracts/utils/introspection/IERC165.sol": {
+			"keccak256": "0x79796192ec90263f21b464d5bc90b777a525971d3de8232be80d9c4f9fb353b8",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://f6fda447a62815e8064f47eff0dd1cf58d9207ad69b5d32280f8d7ed1d1e4621",
+				"dweb:/ipfs/QmfDRc7pxfaXB2Dh9np5Uf29Na3pQ7tafRS684wd3GLjVL"
 			]
 		},
 		"contracts/Orders.sol": {
-			"keccak256": "0x1e527cccc2acd8f2166c87d0b36579a8515f48293ffd85d7858e892cefebb83b",
+			"keccak256": "0xd3f3071dbf4cf9b37f766a51126e5098d11e9b6dbea8b23a6db34b2ee786e4a3",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://a36244d2ffe46102975aade8ff694b9cb88ff1236a2e8b431b3e7ea2f079efde",
-				"dweb:/ipfs/QmYVRJUFRSbnb7AsQn6CBvPVThFrjGry2aUZXdBK1DpuFt"
+				"bzz-raw://0bac10f1e8ba3c8e7c6dafaac5d8a3af3f7b29c0f66065b25e9ce6b032fa0fa7",
+				"dweb:/ipfs/QmSTpD9RdV8LCztgqb2RyGo9uirHcvrzS31LHhwho6Q5Zg"
 			]
 		}
 	},
