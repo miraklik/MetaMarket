@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0
-
 pragma solidity ^0.8.20;
 
 contract MonToken {
@@ -29,9 +28,7 @@ contract MonToken {
 
     constructor(uint256 _totalSupply) {
         owner = msg.sender;
-
         totalSupply = _totalSupply;
-
         balanceOf[msg.sender] = totalSupply;
     }
 
