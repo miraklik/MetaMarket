@@ -439,7 +439,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/Orders.sol": "Marketplace"
+			"smart-contract/chain/contracts/Orders.sol": "Marketplace"
 		},
 		"evmVersion": "shanghai",
 		"libraries": {},
@@ -477,7 +477,7 @@
 				"dweb:/ipfs/QmfDRc7pxfaXB2Dh9np5Uf29Na3pQ7tafRS684wd3GLjVL"
 			]
 		},
-		"contracts/Orders.sol": {
+		"smart-contract/chain/contracts/Orders.sol": {
 			"keccak256": "0xd3f3071dbf4cf9b37f766a51126e5098d11e9b6dbea8b23a6db34b2ee786e4a3",
 			"license": "GPL-3.0",
 			"urls": [

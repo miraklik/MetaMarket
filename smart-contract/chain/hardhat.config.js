@@ -38,6 +38,10 @@ module.exports = {
       accounts: [process.env.PRIVATE_KEY],
     },
     sepolia: {
+      url: "https://sepolia.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734",
+      accounts: [process.env.PRIVATE_KEY]
+    },
+    goerli: {
       url: "https://goerli.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734",
       accounts: [process.env.PRIVATE_KEY]
     }

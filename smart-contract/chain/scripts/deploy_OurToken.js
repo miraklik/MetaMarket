@@ -1,1 +1,0 @@
-const token = await BadgeToken.deploy('MetaToke','META')

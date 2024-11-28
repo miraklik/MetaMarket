@@ -1,7 +1,10 @@
 package config
 
 import (
-	"github.com/spf13/viper"
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -21,22 +24,23 @@ type Config struct {
 	IPFSNodeAddress string `mapstructure:"IPFS_NODE_ADDRESS"`
 }
 
-func LoadConfig(path string) (Config, error) {
-	var config Config
-
-	viper.AddConfigPath(path)
-	viper.SetConfigName("app")
-	viper.SetConfigType("env")
-
-	viper.AutomaticEnv()
-
-	if err := viper.ReadInConfig(); err != nil {
-		return config, err
+func LoadConfig() *Config {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Failed to load .env file:", err)
 	}
 
-	if err := viper.Unmarshal(&config); err != nil {
-		return config, err
+	return &Config{
+		DBHost:          os.Getenv("DBHost"),
+		DBName:          os.Getenv("DBName"),
+		DBPort:          os.Getenv("DBPort"),
+		DBUser:          os.Getenv("DBUser"),
+		DBPass:          os.Getenv("DBPassword"),
+		ServerAddress:   os.Getenv("SERVER_ADDRESS"),
+		BlockChainRPC:   os.Getenv("BLOCKCHAIN_RPC"),
+		PrivateKey:      os.Getenv("PRIVATE_KEY"),
+		MarketplaceABI:  os.Getenv("MARKETPLACE_ABI"),
+		ContractAddress: os.Getenv("CONTRACT_ADDRESS"),
+		IPFSNodeAddress: os.Getenv("IPFS_NODE_ADDRESS"),
 	}
-
-	return config, nil
 }

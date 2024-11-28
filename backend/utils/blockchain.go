@@ -17,5 +17,3 @@ func ConnectEthereum(repURL string) (*ethclient.Client, error) {
 	log.Println("Successfully connected to Ethereum client")
 	return client, nil
 }
-
-func CheckSing()

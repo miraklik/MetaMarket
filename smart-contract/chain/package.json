@@ -23,7 +23,7 @@
     "chai": "^4.5.0",
     "ethereum-waffle": "^4.0.10",
     "ethers": "^6.13.4",
-    "hardhat": "^2.22.15",
+    "hardhat": "^2.22.16",
     "hardhat-gas-reporter": "^1.0.8",
     "solidity-coverage": "^0.8.3",
     "typechain": "^8.3.2"
