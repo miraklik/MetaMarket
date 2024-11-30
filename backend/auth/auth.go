@@ -2,6 +2,7 @@ package auth
 
 import (
 	"net/http"
+	"nft-marketplace/db"
 	"nft-marketplace/utils"
 
 	"github.com/gin-gonic/gin"
@@ -56,19 +57,19 @@ func (s *Server) Login(c *gin.Context) {
 
 	user := User{Username: input.Username, Password: input.Password}
 
-	token, err := s.LoginCheck(input.Username, input.Password)
+	token, err := s.LoginCheck(user.Username, user.Password)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusAccepted, gin.H{"message": "User logged in"})
+	c.JSON(http.StatusAccepted, gin.H{"token": token})
 }
 
 func (s *Server) LoginCheck(username, password string) (string, error) {
 	var err error
 
-	user := User{}
+	user := db.User{}
 
 	if err = s.db.Model(User{}).Where("username=?", username).Take(&user).Error; err != nil {
 		return "", err

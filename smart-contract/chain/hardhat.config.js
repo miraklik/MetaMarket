@@ -2,6 +2,7 @@ require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-ethers");
 require("dotenv").config();
 
+const { APIKEY_EHTMAINNET, APIKEY_EHTSEPOLIA, APIKEY_BSCTESTNET, APIKEY_POLMAINNET, APIKEY_ARBSEPOLIA, APIKEY_STRKSEPOLIA, APIKEY_ARBMAINNET,APIKEY_OPMAINNET, APIKEY_OPSEPOLIA, APIKEY_STRKMAINNET, APIKEY_POLAMOY, APIKEY_BSCMAINNET, APIKEY_OPBNBMAINNET, APIKEY_MANTELMAINNET, PRIVATE_KEY } = process.env; 
 module.exports = {
   solidity: {
     version: "0.8.20", // Везде используйте версию 0.8.20
@@ -14,36 +15,60 @@ module.exports = {
   },
   networks: {
     bsc: {
-      url: "https://bscrpc.com/",
-      accounts: [process.env.PRIVATE_KEY],
+      url: APIKEY_BSCMAINNET,
+      accounts: [`0x${PRIVATE_KEY}`],
     },
     polygon: {
-      url: "https://polygon-rpc.com/",
-      accounts: [process.env.PRIVATE_KEY],
+      url: APIKEY_POLMAINNET,
+      accounts: [`0x${PRIVATE_KEY}`],
     },
     bscTestnet: {
-      url: "https://data-seed-prebsc-1-s1.binance.org:8545/",
-      accounts: [process.env.PRIVATE_KEY],
+      url: APIKEY_BSCTESTNET,
+      accounts: [`0x${PRIVATE_KEY}`],
     },
     polygonTestnet: {
-      url: "https://rpc-mumbai.maticvigil.com",
-      accounts: [process.env.PRIVATE_KEY],
+      url: APIKEY_POLAMOY,
+      accounts: [`0x${PRIVATE_KEY}`],
     },
     ethereum: {
-      url: "https://eth.public-rpc.com/",
-      accounts: [process.env.PRIVATE_KEY],
+      url: APIKEY_EHTMAINNET,
+      accounts: [`0x${PRIVATE_KEY}`],
     },
-    ethereumTestnet: {
-      url: "https://mainnet.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734",
-      accounts: [process.env.PRIVATE_KEY],
+    ethereumSepolia: {
+      url: APIKEY_EHTSEPOLIA,
+      accounts: [`0x${PRIVATE_KEY}`],
     },
-    sepolia: {
-      url: "https://sepolia.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734",
-      accounts: [process.env.PRIVATE_KEY]
+    starknet: {
+      url: APIKEY_STRKMAINNET,
+      accounts: [`0x${PRIVATE_KEY}`]
     },
-    goerli: {
-      url: "https://goerli.infura.io/v3/dfa0335a8d2b4364bd669159aa3dc734",
-      accounts: [process.env.PRIVATE_KEY]
+    arbitrum: {
+      url: APIKEY_ARBMAINNET,
+      accounts: [`0x${PRIVATE_KEY}`]
+    },
+    optimism: {
+      url: APIKEY_OPMAINNET,
+      accounts: [`0x${PRIVATE_KEY}`]
+    },
+    opBNB: {
+      url: APIKEY_OPBNBMAINNET,
+      accounts: [`0x${PRIVATE_KEY}`]
+    },
+    arbitrumSepolia: {
+      url: APIKEY_ARBSEPOLIA,
+      accounts: [`0x${PRIVATE_KEY}`]
+    },
+    optimismSepolia: {
+      url: APIKEY_OPSEPOLIA,
+      accounts: [`0x${PRIVATE_KEY}`]
+    },
+    starknetSepolia: {
+      url: APIKEY_STRKSEPOLIA,
+      accounts: [`0x${PRIVATE_KEY}`]
+    },
+    mantle: {
+      url: APIKEY_MANTELMAINNET,
+      accounts: [`0x${PRIVATE_KEY}`]
     }
   },
 };
