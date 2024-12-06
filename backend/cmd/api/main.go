@@ -2,9 +2,8 @@ package main
 
 import (
 	"log"
-	"nft-marketplace/auth"
 	"nft-marketplace/db"
-	"nft-marketplace/middleware"
+	"nft-marketplace/handlers"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +12,7 @@ import (
 )
 
 func DBInit() *gorm.DB {
-	db, err := db.Setup()
+	db, err := db.ConnectDB()
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}
@@ -26,18 +25,13 @@ func SetupRouter() *gin.Engine {
 
 	db := DBInit()
 
-	server := auth.NewServer(db)
+	server := handlers.NewServer(db)
 
 	router := r.Group("/api")
 
+	//router.Use(middleware.JwtAuthMiddleware())
 	router.POST("/register", server.Register)
 	router.POST("/login", server.Login)
-
-	authorized := r.Group("/api/admin")
-
-	authorized.Use(middleware.JwtAuthMiddleware())
-	authorized.GET("/groceries", server.GetGroceries)
-	authorized.POST("/groceries", server.PostGrocery)
 
 	return r
 }
@@ -50,6 +44,5 @@ func main() {
 
 	r := SetupRouter()
 
-	log.Fatal(r.Run(":" + port))
-
+	log.Fatal(r.Run(port))
 }

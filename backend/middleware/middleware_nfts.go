@@ -2,64 +2,36 @@ package middleware
 
 import (
 	"database/sql"
-	"errors"
-	"fmt"
 	"net/http"
-	"nft-marketplace/utils"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
+	"gorm.io/gorm"
 )
-
-const (
-	AuthorizationHeader    = "Authorization"
-	BearerPrefix           = "Bearer "
-	UserRoleHeader         = "X-User-Role"
-	BuyerIDHeader          = "X-Buyer-ID"
-	ErrorUnauthorized      = "Unauthorized"
-	ErrorInvalidToken      = "Invalid token"
-	ErrorDatabase          = "Database error"
-	ErrorNotFound          = "No NFTs found"
-	ErrorInsufficientFunds = "Insufficient funds"
-)
-
-// parseToken parses the given token string and returns the underlying claims.
-func parseToken(tokenStr, secretKey string) (jwt.MapClaims, error) {
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(secretKey), nil
-	})
-
-	if err != nil || !token.Valid {
-		return nil, errors.New(ErrorInvalidToken)
-	}
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil, errors.New("invalid claims")
-	}
-
-	return claims, nil
-}
 
 // getUserBalance gets the balance of a user from the database.
-func getUserBalance(db *sql.DB, userID string) (float64, error) {
+func getUserBalance(db *gorm.DB, userID string) (float64, error) {
 	var balance float64
-	query := "SELECT balance FROM users WHERE id = $1"
-	err := db.QueryRow(query, userID).Scan(&balance)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return 0, sql.ErrNoRows
+	query := "SELECT balance FROM users WHERE id = ?"
+
+	result := db.Raw(query, userID).Scan(&balance)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return 0, gorm.ErrRecordNotFound
 		}
-		return 0, err
+		return 0, result.Error
 	}
+
 	return balance, nil
 }
 
-// GetNFTs is a middleware function that checks the Authorization header for a valid Bearer token. If the token is valid, it queries the database for the NFTs associated with the user ID present in the token. If the query succeeds, it returns the list of NFTs in the response body. If the token is invalid or the query fails, it returns an appropriate error response.
-func GetNFTs(secretKey string, db *sql.DB) gin.HandlerFunc {
+// GetNFTs is a middleware function that retrieves a list of NFTs owned by the authenticated user.
+// It requires a valid JWT in the Authorization header with the Bearer prefix. The function
+// extracts the user ID from the token claims and queries the database for NFTs associated with
+// the user ID. If the token is missing, invalid, or the user ID is not found, it responds with
+// an unauthorized error. If the query is successful but no NFTs are found, it responds with a
+// not found error. Otherwise, it returns the list of NFTs with a status code 200.
+func GetNFTs(secretKey string, db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenStr := c.GetHeader(AuthorizationHeader)
 		if tokenStr == "" || !strings.HasPrefix(tokenStr, BearerPrefix) {
@@ -68,7 +40,7 @@ func GetNFTs(secretKey string, db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		claims, err := parseToken(strings.TrimPrefix(tokenStr, BearerPrefix), secretKey)
+		claims, err := parseToken(strings.TrimPrefix(tokenStr, BearerPrefix))
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 			c.Abort()
@@ -83,7 +55,7 @@ func GetNFTs(secretKey string, db *sql.DB) gin.HandlerFunc {
 		}
 
 		query := `SELECT nft_name FROM nfts WHERE owner_id = $1`
-		rows, err := db.Query(query, userID)
+		rows, err := db.Raw(query, userID).Rows()
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": ErrorDatabase})
 			return
@@ -131,7 +103,7 @@ func MintNFT() gin.HandlerFunc {
 // a database error, it responds with the appropriate error message.
 // If the buyer's balance is zero or negative, it responds with a payment required error.
 // If all validations pass, the request proceeds to the next handler.
-func BuyNFT(db *sql.DB) gin.HandlerFunc {
+func BuyNFT(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		buyerID := c.GetHeader(BuyerIDHeader)
 		if buyerID == "" {
@@ -155,18 +127,6 @@ func BuyNFT(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		c.Next()
-	}
-}
-
-func JwtAuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		err := utils.ValidateToken(c)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			c.Abort()
-			return
-		}
 		c.Next()
 	}
 }

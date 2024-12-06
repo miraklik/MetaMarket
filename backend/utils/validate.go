@@ -30,3 +30,11 @@ func ValidateAmount(amount string) error {
 
 	return nil
 }
+
+func ValidatePassword(password string) error {
+	if len(password) < 5 {
+		return fmt.Errorf("password must be at least 8 characters long")
+	}
+
+	return nil
+}

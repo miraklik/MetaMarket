@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.22+commit.4fc1097e"
+		"version": "0.8.20+commit.a1b79de6"
 	},
 	"language": "Solidity",
 	"output": {
@@ -32,6 +32,19 @@
 					}
 				],
 				"name": "CommissionUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "message",
+						"type": "string"
+					}
+				],
+				"name": "Debug",
 				"type": "event"
 			},
 			{
@@ -163,32 +176,19 @@
 			{
 				"inputs": [
 					{
-						"internalType": "uint256",
+						"internalType": "uint128",
 						"name": "_tokenId",
-						"type": "uint256"
+						"type": "uint128"
 					},
 					{
-						"internalType": "uint256",
+						"internalType": "uint128",
 						"name": "_price",
-						"type": "uint256"
+						"type": "uint128"
 					}
 				],
 				"name": "createListing",
 				"outputs": [],
 				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "listingCount",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -202,29 +202,19 @@
 				"name": "listings",
 				"outputs": [
 					{
-						"internalType": "uint256",
-						"name": "id",
-						"type": "uint256"
-					},
-					{
 						"internalType": "address",
 						"name": "seller",
 						"type": "address"
 					},
 					{
-						"internalType": "uint256",
+						"internalType": "uint128",
 						"name": "tokenId",
-						"type": "uint256"
+						"type": "uint128"
 					},
 					{
-						"internalType": "uint256",
+						"internalType": "uint128",
 						"name": "price",
-						"type": "uint256"
-					},
-					{
-						"internalType": "bool",
-						"name": "sold",
-						"type": "bool"
+						"type": "uint128"
 					}
 				],
 				"stateMutability": "view",
@@ -261,7 +251,7 @@
 				"name": "owner",
 				"outputs": [
 					{
-						"internalType": "address",
+						"internalType": "address payable",
 						"name": "",
 						"type": "address"
 					}
@@ -325,6 +315,10 @@
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "receive"
 			}
 		],
 		"devdoc": {
@@ -343,7 +337,7 @@
 						"_nftContractAddress": "Address of the ERC721 token contract."
 					}
 				},
-				"createListing(uint256,uint256)": {
+				"createListing(uint128,uint128)": {
 					"params": {
 						"_price": "Sale price in wei.",
 						"_tokenId": "ID of the token to sell."
@@ -406,11 +400,8 @@
 				"commissionPercent()": {
 					"notice": "Commission percentage charged by the marketplace."
 				},
-				"createListing(uint256,uint256)": {
+				"createListing(uint128,uint128)": {
 					"notice": "Creates a listing to sell an NFT."
-				},
-				"listingCount()": {
-					"notice": "Total number of listings created."
 				},
 				"nftContract()": {
 					"notice": "Interface for the ERC721 token contract."
@@ -439,7 +430,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"smart-contract/chain/contracts/Orders.sol": "Marketplace"
+			"contracts/Orders.sol": "Marketplace"
 		},
 		"evmVersion": "shanghai",
 		"libraries": {},
@@ -477,12 +468,12 @@
 				"dweb:/ipfs/QmfDRc7pxfaXB2Dh9np5Uf29Na3pQ7tafRS684wd3GLjVL"
 			]
 		},
-		"smart-contract/chain/contracts/Orders.sol": {
-			"keccak256": "0xd3f3071dbf4cf9b37f766a51126e5098d11e9b6dbea8b23a6db34b2ee786e4a3",
+		"contracts/Orders.sol": {
+			"keccak256": "0x475e2d6c1430e3e9e8a7054c6152e12a19406ee38d00dbf39477d703261b1b8a",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://0bac10f1e8ba3c8e7c6dafaac5d8a3af3f7b29c0f66065b25e9ce6b032fa0fa7",
-				"dweb:/ipfs/QmSTpD9RdV8LCztgqb2RyGo9uirHcvrzS31LHhwho6Q5Zg"
+				"bzz-raw://cba6e3235fb1a4f847a88bfb75c64d8e8f8cc02045af89f183e2866cf4c055b0",
+				"dweb:/ipfs/QmUVmxX1RTuEZshSSsQjaoUSHdUcitimSUivfqK97dm4Lp"
 			]
 		}
 	},

@@ -1,3 +1,5 @@
 .env
 
 /keystore
+
+docker-compose.yml

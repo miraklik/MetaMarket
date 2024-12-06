@@ -355,11 +355,11 @@
 	},
 	"sources": {
 		"contracts/MetaToken.sol": {
-			"keccak256": "0x9913a19c5a01576dfd539c3f6e1fa49980e05f34bcd49ffc7fdd1277f9a64bd6",
+			"keccak256": "0x2f497bd49c95448e1572b38743e788c7176a32f3efa63df19104a5efed134d51",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://8fe7a09c86bd0f5e2b7360101ca43d3880537e7e93e08cdd2861e9eaa021eaed",
-				"dweb:/ipfs/QmVd8jTKjSTnSi8NTL5hSMGP6L6dNRdfYqfCZdBCUNb2Z9"
+				"bzz-raw://988b22389ef2f5ab46ba048ba5d027cb5a714991f53451a4c5f8ba3bdc99b2a7",
+				"dweb:/ipfs/QmU7wfMkyxz6xHcAWYc6g5zoVtRkgvZJ2FmngBVGroUA5J"
 			]
 		}
 	},

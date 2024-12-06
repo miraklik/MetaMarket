@@ -11,18 +11,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 contract Marketplace {
     /// @notice Represents a listing on the marketplace.
     struct Listing {
-        uint256 id;
         address seller;
-        uint256 tokenId;
-        uint256 price;
-        bool sold;
+        uint128 tokenId;
+        uint128 price;
     }
 
     /// @notice Owner of the marketplace.
-    address public owner;
-
-    /// @notice Total number of listings created.
-    uint256 public listingCount;
+    address payable public owner;
 
     /// @notice Commission percentage charged by the marketplace.
     uint256 public commissionPercent;
@@ -76,6 +71,8 @@ contract Marketplace {
         unlocked = 1;
     }
 
+    receive() external payable {}
+
     /**
      * @dev Initializes the marketplace with an ERC721 contract and commission percentage.
      * @param _nftContractAddress Address of the ERC721 token contract.
@@ -83,7 +80,7 @@ contract Marketplace {
      */
     constructor(address _nftContractAddress, uint256 _commissionPercent) {
         require(_commissionPercent <= 100, "Commission cannot exceed 100%");
-        owner = msg.sender;
+        owner = payable(msg.sender);
         nftContract = IERC721(_nftContractAddress);
         nftEnumerable = IERC721Enumerable(_nftContractAddress);
         commissionPercent = _commissionPercent;
@@ -94,28 +91,36 @@ contract Marketplace {
      * @param _tokenId ID of the token to sell.
      * @param _price Sale price in wei.
      */
-    function createListing(uint256 _tokenId, uint256 _price) external {
+    function createListing(uint128 _tokenId, uint128 _price) external {
         require(_price > 0, "Price must be greater than 0");
+        emit Debug("Passed price check");
+
+        address tokenOwner = nftContract.ownerOf(_tokenId);
+        emit Debug("Owner retrieved");
+
         require(
-            nftContract.ownerOf(_tokenId) == msg.sender,
+            tokenOwner == msg.sender,
             "You are not the owner of this token"
         );
+        emit Debug("Ownership verified");
+
+        bool isApproved = (nftContract.getApproved(_tokenId) == address(this) ||
+            nftContract.isApprovedForAll(msg.sender, address(this)));
         require(
-            nftContract.getApproved(_tokenId) == address(this),
+            isApproved,
             "Marketplace is not approved to transfer this token"
         );
+        emit Debug("Approval verified");
 
-        listingCount++;
-        listings[listingCount] = Listing(
-            listingCount,
-            msg.sender,
-            _tokenId,
-            _price,
-            false
-        );
+        uint256 id = uint256(keccak256(abi.encodePacked(_tokenId, msg.sender)));
+        require(listings[id].seller == address(0), "Listing already exists");
+        emit Debug("Unique listing ID verified");
 
-        emit ListingCreated(listingCount, msg.sender, _tokenId, _price);
+        listings[id] = Listing(msg.sender, uint128(_tokenId), uint128(_price));
+        emit ListingCreated(id, msg.sender, _tokenId, _price);
     }
+
+    event Debug(string message);
 
     /**
      * @notice Purchases an NFT from an active listing.
@@ -123,26 +128,21 @@ contract Marketplace {
      */
     function purchaseListing(uint256 _listingId) external payable nonReentrant {
         Listing storage listing = listings[_listingId];
-        require(
-            _listingId > 0 && _listingId <= listingCount,
-            "Invalid listing ID"
-        );
-        require(!listing.sold, "Item already sold");
+        require(listing.price > 0, "Invalid or inactive listing");
         require(msg.value == listing.price, "Incorrect payment amount");
 
-        listing.sold = true;
+        uint256 commissionAmount = (msg.value * commissionPercent) / 100;
+        uint256 sellerAmount = msg.value - commissionAmount;
 
-        uint256 commissionAmount = (listing.price * commissionPercent) / 100;
-        uint256 sellerAmount = listing.price - commissionAmount;
-
-    
+        // Transfer commission to owner
         (bool commissionSent, ) = owner.call{value: commissionAmount}("");
         require(commissionSent, "Failed to send commission");
 
-
+        // Transfer payment to seller
         (bool sellerPaid, ) = listing.seller.call{value: sellerAmount}("");
         require(sellerPaid, "Failed to send payment to seller");
 
+        // Transfer NFT to buyer
         nftContract.safeTransferFrom(
             listing.seller,
             msg.sender,
@@ -155,6 +155,9 @@ contract Marketplace {
             listing.tokenId,
             listing.price
         );
+
+        // Delete listing to save gas
+        delete listings[_listingId];
     }
 
     /**
@@ -163,12 +166,8 @@ contract Marketplace {
      */
     function cancelListing(uint256 _listingId) external {
         Listing storage listing = listings[_listingId];
-        require(
-            _listingId > 0 && _listingId <= listingCount,
-            "Invalid listing ID"
-        );
+        require(listing.price > 0, "Invalid or inactive listing");
         require(listing.seller == msg.sender, "You are not the seller");
-        require(!listing.sold, "Item already sold");
 
         delete listings[_listingId];
 
