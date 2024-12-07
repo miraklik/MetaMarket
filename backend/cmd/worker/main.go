@@ -72,7 +72,7 @@ func createListing(marketplaceInstance *marketplace.Marketplace, client *ethclie
 
 	addressContract := common.HexToAddress(cfg.ContractAddress)
 
-	gasPrice := big.NewInt(50000000000) // 50 gwei
+	gasPrice := big.NewInt(5000000)
 	auth.GasPrice = gasPrice
 
 	callMsg := ethereum.CallMsg{
@@ -84,7 +84,7 @@ func createListing(marketplaceInstance *marketplace.Marketplace, client *ethclie
 	if err != nil {
 		log.Fatalf("Failed to estimate gas: %v", err)
 	}
-	auth.GasLimit = estimatedGasLimit
+	auth.GasLimit = uint64(float64(estimatedGasLimit) * 1.2)
 
 	balance, err := client.BalanceAt(context.Background(), auth.From, nil)
 	if err != nil {
@@ -98,7 +98,7 @@ func createListing(marketplaceInstance *marketplace.Marketplace, client *ethclie
 	title := "Test NFT"
 	description := "TNFT"
 	imageHash := "QmTestIPFSHash"
-	price := big.NewInt(1000000000000000)
+	price := big.NewInt(100000000)
 
 	tx, err := marketplaceInstance.CreateListing(auth, title, description, imageHash, price)
 	if err != nil {
@@ -122,7 +122,7 @@ func purchaseListing(marketplaceInstance *marketplace.Marketplace, client *ethcl
 		log.Fatalf("Failed to create transactor: %v", err)
 	}
 
-	auth.GasLimit = uint64(100000)
+	auth.GasLimit = uint64(300000)
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Fatalf("Failed to suggest gas price: %v", err)
