@@ -7,12 +7,12 @@ import (
 	"nft-marketplace/accounts"
 	marketplace "nft-marketplace/blockchain"
 	"nft-marketplace/config"
-	"nft-marketplace/db"
 	"nft-marketplace/handlers"
 	"nft-marketplace/middleware"
 	"nft-marketplace/services"
 	"nft-marketplace/utils"
 	"os"
+	"time"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -33,35 +33,41 @@ func main() {
 		log.Fatalf("Failed to connect to Ethereum client: %v", err)
 	}
 
-	db, err := db.ConnectDB()
-	if err != nil {
-		log.Fatalf("Failed to connect to the database: %v", err)
-	}
-
-	go processMarketplaceOperations(client, cfg)
+	ctx, cancel := context.WithCancel(context.Background())
+	go processMarketplaceOperations(ctx, client, *cfg)
 
 	router := gin.Default()
 
 	middlewareNFTs := router.Group("/nfts")
 
-	middlewareNFTs.Use(middleware.MintNFT())
-	router.POST("/CreateNFT", handlers.MintNFT(db, &services.EthereumService{}))
-	middlewareNFTs.Use(middleware.GetNFTs(cfg.PrivateKey, db))
-	router.POST("/collection/:token_id", handlers.GetNFTs(db, &services.EthereumService{}))
-	middlewareNFTs.Use(middleware.BuyNFT(db))
-	router.POST("/BuyNFT", handlers.BuyNFT(db, &services.EthereumService{}))
+	middlewareNFTs.Use(middleware.MintNFT(&services.EthereumService{}))
+	router.POST("/Create", handlers.MintNFT(&services.EthereumService{}))
+	middlewareNFTs.Use(middleware.GetNFTs(&services.EthereumService{}))
+	router.POST("/collection/nfts", handlers.GetNFTs(&services.EthereumService{}))
+	middlewareNFTs.Use(middleware.BuyNFT(&services.EthereumService{}))
+	router.POST("/Buy", handlers.BuyNFT(&services.EthereumService{}))
 
 	router.Run(os.Getenv("SERVER_ADDRESS"))
+	cancel()
 }
 
-func processMarketplaceOperations(client *ethclient.Client, cfg *config.Config) {
+func processMarketplaceOperations(ctx context.Context, client *ethclient.Client, cfg config.Config) {
 	contractAddress := common.HexToAddress(cfg.ContractAddress)
 	marketplaceInstance, err := marketplace.NewMarketplace(contractAddress, client)
 	if err != nil {
 		log.Fatalf("Failed to instantiate contract: %v", err)
 	}
-	createListing(marketplaceInstance, client, *cfg)
-	purchaseListing(marketplaceInstance, client, *cfg)
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("Marketplace operations stopped")
+			return
+		default:
+			createListing(marketplaceInstance, client, cfg)
+			purchaseListing(marketplaceInstance, client, cfg)
+			time.Sleep(time.Minute)
+		}
+	}
 }
 
 func createListing(marketplaceInstance *marketplace.Marketplace, client *ethclient.Client, cfg config.Config) {

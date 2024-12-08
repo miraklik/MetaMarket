@@ -32,7 +32,7 @@ type NFTContract struct {
 // It takes two string parameters: rpcURL and contractAddress. The rpcURL is the
 // URL of the Ethereum node to connect to, and the contractAddress is the address
 // of the smart contract to interact with.
-func NewEthereumService(rpcURL, contractAddress, privateKey, abiJSON string) (*EthereumService, error) {
+func NewEthereumService(rpcURL, contractAddress, privateKey, abiJSON string, chainID *big.Int) (*EthereumService, error) {
 	client, err := ethclient.Dial(rpcURL)
 	if err != nil {
 		return nil, err
@@ -47,6 +47,18 @@ func NewEthereumService(rpcURL, contractAddress, privateKey, abiJSON string) (*E
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse contract ABI: %w", err)
 	}
+
+	auth, err := bind.NewKeyedTransactorWithChainID(pk, chainID)
+	if err != nil {
+		return nil, err
+	}
+
+	auth.GasLimit = uint64(300000)
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	auth.GasPrice = gasPrice
 
 	contract := bind.NewBoundContract(common.HexToAddress(contractAddress), parsedABI, client, client, client)
 
@@ -81,10 +93,18 @@ func (es *EthereumService) CheckOwnership(tokenID string, ownerAddress string) b
 	return actualOwner == owner
 }
 
+func (es *EthereumService) GetBalance(address common.Address) (*big.Int, error) {
+	var balance big.Int
+	err := es.Contract.Call(nil, &[]interface{}{balance}, "balanceOf", address)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch balance: %w", err)
+	}
+	return &balance, nil
+}
+
 // GetNFTs returns a list of NFTs owned by the given address. Currently, this
 // function is not implemented and will return an error.
 func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
-	// ABI контракта
 	contractABI := `[
 	{
 		"inputs": [
@@ -499,7 +519,7 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 	return tokens, nil
 }
 
-func (es *EthereumService) MintNFT(recipient string) error {
+func (es *EthereumService) MintNFT(recipient string, tokenID string) error {
 	recipientAddress := common.HexToAddress(recipient)
 	if recipientAddress == (common.Address{}) {
 		return fmt.Errorf("invalid recioient address")
@@ -863,13 +883,12 @@ func (es *EthereumService) MintNFT(recipient string) error {
 	return nil
 }
 
-func (es *EthereumService) TransferNFT(from string, to string, tokenID string) error {
-	fromAddress := common.HexToAddress(from)
-	toAddress := common.HexToAddress(to)
+func (es *EthereumService) TransferNFT(buyer, tokenID string) error {
+	buyerAddress := common.HexToAddress(buyer)
 	tokenIDBigInt := new(big.Int)
 	tokenIDBigInt.SetString(tokenID, 10)
 
-	if fromAddress == (common.Address{}) || toAddress == (common.Address{}) {
+	if buyerAddress == (common.Address{}) {
 		return fmt.Errorf("invalid address")
 	}
 
@@ -885,7 +904,7 @@ func (es *EthereumService) TransferNFT(from string, to string, tokenID string) e
 	}
 	auth.GasPrice = gasPrice
 
-	tx, err := es.Contract.Transact(auth, "safeTransferFrom", fromAddress, toAddress, tokenIDBigInt)
+	tx, err := es.Contract.Transact(auth, "safeTransferFrom", es.ContractAddress, buyer, tokenIDBigInt)
 	if err != nil {
 		return fmt.Errorf("failed to transfer NFT: %w", err)
 	}
