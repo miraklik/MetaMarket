@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +11,7 @@
         <header>
             <nav>
                 <ul>
-                    <li><a href="#">Dashboard</a></li>
+                    <li><a href="index.html">Dashboard</a></li>
                     <li><a href="#">Favorites</a></li>
                     <li><a href="#">Transactions</a></li>
                     <li><a href="#">Support</a></li>
@@ -27,9 +26,10 @@
                     <div class="avatar">Ξ</div>
                     <div class="user-details">
                         <h2>Web3 User</h2>
-                        <button class="connect-wallet">Connect Wallet</button>
-                        <p>Wallet Address: <span id="wallet-address">Not Connected</span></p>
-                        <button class="logout">Disconnect</button>
+                        <br>
+                        <div id="wallet-actions">
+                            <button class="wallet-btn" id="connectButton">Подключить кошелек</button>
+                        </div>
                     </div>
                 </div>
                 <div class="balance-status">
@@ -58,8 +58,10 @@
             </section>
         </main>
     </div>
-
-    <script src="js/profile.js"></script>
+    <script src="frontend/js/wallet.js"></script>
+    <script src="frontend/js/wallet2.js"></script>
+    <script src="frontend/js/profile.js"></script>
 </body>
 </html>
+
 

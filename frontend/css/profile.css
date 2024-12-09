@@ -127,3 +127,31 @@ header nav ul li a:hover {
 .add-product-btn:hover {
     background: linear-gradient(45deg, #00ff88, #00cc44);
 }
+
+.wallet-btn {
+    background: linear-gradient(45deg, #00c6ff, #0072ff);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.wallet-btn:hover {
+    background: linear-gradient(45deg, #0072ff, #00c6ff);
+}
+
+.disconnect-btn {
+    background: red;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 20px;
+}
+
+.disconnect-btn:hover {
+    background: darkred;
+}

@@ -17,7 +17,7 @@ let walletConnected = false;  // Переменная для отслежива�
             const walletActionsDiv = document.getElementById('wallet-actions');
             walletActionsDiv.innerHTML = `
                 <span>Кошелек: ${connectedWalletAddress.slice(0, 6)}...${connectedWalletAddress.slice(-4)}</span>
-                <button class="disconnect-btn" id="disconnectButton">Отключить кошелек</button>
+                <button class="v56_34" id="disconnectButton">Disconnect</button>
             `;
             document.getElementById('disconnectButton').addEventListener('click', disconnectWallet);
         }
@@ -27,7 +27,7 @@ let walletConnected = false;  // Переменная для отслежива�
             walletConnected = false;
             connectedWalletAddress = '';
             const walletActionsDiv = document.getElementById('wallet-actions');
-            walletActionsDiv.innerHTML = `<button class="wallet-btn" id="connectButton">Подключить кошелек</button>`;
+            walletActionsDiv.innerHTML = `<button class="v56_34" id="connectButton">Connect</button>`;
             document.getElementById('connectButton').addEventListener('click', async () => {
                 if (!walletConnected) {
                     await connectWallet();
@@ -121,6 +121,7 @@ let walletConnected = false;  // Переменная для отслежива�
                 await connectWallet();
             }
         });
+        
         // Получение списка товаров (если их нужно загрузить из базы данных или локального хранилища)
         const products = JSON.parse(localStorage.getItem('products')) || [];
 
