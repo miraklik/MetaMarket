@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.20+commit.a1b79de6"
+		"version": "0.8.22+commit.4fc1097e"
 	},
 	"language": "Solidity",
 	"output": {
@@ -146,6 +146,25 @@
 				],
 				"name": "PurchaseCompleted",
 				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					}
+				],
+				"name": "balanceOf",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
 			},
 			{
 				"inputs": [
@@ -469,11 +488,11 @@
 			]
 		},
 		"contracts/Orders.sol": {
-			"keccak256": "0x475e2d6c1430e3e9e8a7054c6152e12a19406ee38d00dbf39477d703261b1b8a",
+			"keccak256": "0x576277224c072b0b2f613ae570215bf819117f184f8faf8879777f11cf1b03ca",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://cba6e3235fb1a4f847a88bfb75c64d8e8f8cc02045af89f183e2866cf4c055b0",
-				"dweb:/ipfs/QmUVmxX1RTuEZshSSsQjaoUSHdUcitimSUivfqK97dm4Lp"
+				"bzz-raw://7cb5e104fea5d024ef34fba7195439464e12809a0168ec26f073c00423927845",
+				"dweb:/ipfs/QmNsvfnznDmwcSzz8L2VMhBfuXR2XcfZfxvEypjAoRQrey"
 			]
 		}
 	},

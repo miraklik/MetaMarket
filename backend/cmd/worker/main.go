@@ -16,6 +16,7 @@ import (
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -32,6 +33,19 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to connect to Ethereum client: %v", err)
 	}
+	defer client.Close()
+
+	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
+	if err != nil {
+		log.Fatalf("Invalid private key: %v", err)
+	}
+
+	etherService := &services.EthereumService{
+		Client:          client,
+		ContractAddress: common.HexToAddress(cfg.ContractAddress),
+		PrivateKey:      privateKey,
+		Contract:        nil,
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	go processMarketplaceOperations(ctx, client, *cfg)
@@ -40,12 +54,12 @@ func main() {
 
 	middlewareNFTs := router.Group("/nfts")
 
-	middlewareNFTs.Use(middleware.MintNFT(&services.EthereumService{}))
-	router.POST("/Create", handlers.MintNFT(&services.EthereumService{}))
-	middlewareNFTs.Use(middleware.GetNFTs(&services.EthereumService{}))
-	router.POST("/collection/nfts", handlers.GetNFTs(&services.EthereumService{}))
-	middlewareNFTs.Use(middleware.BuyNFT(&services.EthereumService{}))
-	router.POST("/Buy", handlers.BuyNFT(&services.EthereumService{}))
+	middlewareNFTs.Use(middleware.MintNFT(etherService))
+	router.POST("/Create", handlers.MintNFT(etherService))
+	middlewareNFTs.Use(middleware.GetNFTs(etherService))
+	router.GET("/collection/nfts", handlers.GetNFTs(etherService))
+	middlewareNFTs.Use(middleware.BuyNFT(etherService))
+	router.POST("/Buy", handlers.BuyNFT(etherService))
 
 	router.Run(os.Getenv("SERVER_ADDRESS"))
 	cancel()
@@ -96,17 +110,16 @@ func createListing(marketplaceInstance *marketplace.Marketplace, client *ethclie
 	if err != nil {
 		log.Fatalf("Failed to retrieve balance: %v", err)
 	}
+
 	txCost := new(big.Int).Mul(gasPrice, big.NewInt(int64(auth.GasLimit)))
 	if balance.Cmp(txCost) < 0 {
 		log.Fatalf("Insufficient funds: balance %s, required %s", balance, txCost)
 	}
 
-	title := "Test NFT"
-	description := "TNFT"
-	imageHash := "QmTestIPFSHash"
-	price := big.NewInt(100000000)
+	price := big.NewInt(1000000000)
+	tokenID := big.NewInt(1)
 
-	tx, err := marketplaceInstance.CreateListing(auth, title, description, imageHash, price)
+	tx, err := marketplaceInstance.CreateListing(auth, tokenID, price)
 	if err != nil {
 		log.Fatalf("Failed to create listing: %v", err)
 	}

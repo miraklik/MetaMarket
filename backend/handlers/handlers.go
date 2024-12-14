@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"nft-marketplace/services"
 	"nft-marketplace/utils"
@@ -26,22 +27,23 @@ import (
 // status code 200.
 func GetNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var request struct {
-			Owner string `json:"owner"`
+		type Request struct {
+			Accounts string `json:"accounts"`
 		}
 
-		if err := c.ShouldBindJSON(&request); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		var req Request
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 			return
 		}
 
-		if !common.IsHexAddress(request.Owner) {
+		if !common.IsHexAddress(req.Accounts) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid owner address"})
 			return
 		}
 
-		owner := common.HexToAddress(request.Owner)
-		nfts, err := ethService.GetNFTs(owner)
+		accounts := common.HexToAddress(req.Accounts)
+		nfts, err := ethService.GetNFTs(accounts)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch NFTs: " + err.Error()})
 			return
@@ -66,6 +68,7 @@ func MintNFT(ethService *services.EthereumService) gin.HandlerFunc {
 		var request struct {
 			Recipient string `json:"recipient"`
 			TokenID   string `json:"token_id"`
+			Price     string `json:"price"`
 		}
 
 		if err := c.ShouldBindJSON(&request); err != nil {
@@ -78,7 +81,12 @@ func MintNFT(ethService *services.EthereumService) gin.HandlerFunc {
 			return
 		}
 
-		err := ethService.MintNFT(request.Recipient, request.TokenID)
+		if err := utils.ValidatePrice(request.Price); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid price"})
+			return
+		}
+
+		err := ethService.MintNFT(request.Recipient, request.TokenID, request.Price)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -114,8 +122,9 @@ func BuyNFT(ethService *services.EthereumService) gin.HandlerFunc {
 			return
 		}
 
-		err := ethService.TransferNFT(request.Buyer, request.TokenID)
+		err := ethService.TransferNFT(request.TokenID, request.Buyer)
 		if err != nil {
+			log.Printf("Error during NFT transfer: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to transfer NFT: " + err.Error()})
 			return
 		}

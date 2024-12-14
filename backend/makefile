@@ -10,4 +10,7 @@ migrate-up:
 migrate-down:
 	go run cmd/main.go migrate down
 
-.PHONY: run migrate-up migrate-down
+docker:
+	docker-compose up --build
+
+.PHONY: run migrations migrate-up migrate-down, docker

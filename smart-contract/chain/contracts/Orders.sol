@@ -211,4 +211,8 @@ contract Marketplace {
     {
         return nftEnumerable.tokenOfOwnerByIndex(_owner, index);
     }
+
+    function balanceOf(address account) public view returns (uint256) {
+        return account.balance;
+    }
 }

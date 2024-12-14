@@ -56,9 +56,9 @@ func GetNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 	}
 }
 
+// MintNFT is a middleware function that mints a new NFT. It retrieves the user's address from the User-Address header
+// and verifies its presence. If the user address is missing, it responds with an unauthorized error.
 func MintNFT(ethService *services.EthereumService) gin.HandlerFunc {
-	// MintNFT is a middleware function that mints a new NFT. It retrieves the user's address from the User-Address header
-	// and verifies its presence. If the user address is missing, it responds with an unauthorized error.
 	return func(c *gin.Context) {
 		userAddress := c.GetHeader("User-Address")
 		if !common.IsHexAddress(userAddress) {

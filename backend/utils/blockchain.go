@@ -11,7 +11,6 @@ import (
 )
 
 func ConnectEthereum(repURL string) (*ethclient.Client, error) {
-
 	client, err := ethclient.Dial(repURL)
 	if err != nil {
 		log.Fatal("Failed to connect to Ethereum client:", err)

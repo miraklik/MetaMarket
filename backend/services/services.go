@@ -32,30 +32,35 @@ type NFTContract struct {
 // It takes two string parameters: rpcURL and contractAddress. The rpcURL is the
 // URL of the Ethereum node to connect to, and the contractAddress is the address
 // of the smart contract to interact with.
-func NewEthereumService(rpcURL, contractAddress, privateKey, abiJSON string, chainID *big.Int) (*EthereumService, error) {
-	client, err := ethclient.Dial(rpcURL)
+func NewEthereumService(rpcURL, contractAddress, privateKeyHex, abiJSON string, chainID *big.Int) (*EthereumService, error) {
+	privateKey, err := crypto.HexToECDSA(privateKeyHex)
 	if err != nil {
-		return nil, err
+		log.Printf("Invalid private key: %v", err)
+		return nil, fmt.Errorf("invalid private key: %w", err)
 	}
 
-	pk, err := crypto.HexToECDSA(privateKey)
+	client, err := ethclient.Dial(rpcURL)
 	if err != nil {
-		return nil, fmt.Errorf("invalid private key: %w", err)
+		log.Printf("Failed to connect to Ethereum client: %v", err)
+		return nil, err
 	}
 
 	parsedABI, err := abi.JSON(strings.NewReader(abiJSON))
 	if err != nil {
+		log.Printf("Failed to parse contract ABI: %v", err)
 		return nil, fmt.Errorf("failed to parse contract ABI: %w", err)
 	}
 
-	auth, err := bind.NewKeyedTransactorWithChainID(pk, chainID)
+	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
 	if err != nil {
+		log.Printf("Failed to create transactor: %v", err)
 		return nil, err
 	}
 
 	auth.GasLimit = uint64(300000)
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
+		log.Printf("Failed to suggest gas price: %v", err)
 		return nil, err
 	}
 	auth.GasPrice = gasPrice
@@ -65,7 +70,7 @@ func NewEthereumService(rpcURL, contractAddress, privateKey, abiJSON string, cha
 	return &EthereumService{
 		Client:          client,
 		ContractAddress: common.HexToAddress(contractAddress),
-		PrivateKey:      pk,
+		PrivateKey:      privateKey,
 		Contract:        contract,
 	}, nil
 }
@@ -97,6 +102,7 @@ func (es *EthereumService) GetBalance(address common.Address) (*big.Int, error) 
 	var balance big.Int
 	err := es.Contract.Call(nil, &[]interface{}{balance}, "balanceOf", address)
 	if err != nil {
+		log.Printf("Failed to fetch balance: %v", err)
 		return nil, fmt.Errorf("failed to fetch balance: %w", err)
 	}
 	return &balance, nil
@@ -104,19 +110,21 @@ func (es *EthereumService) GetBalance(address common.Address) (*big.Int, error) 
 
 // GetNFTs returns a list of NFTs owned by the given address. Currently, this
 // function is not implemented and will return an error.
-func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
+func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) {
+	log.Printf("Getting NFTs for address: %s\n", accounts.Hex())
+
 	contractABI := `[
 	{
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_usdtTokenAddress",
+				"name": "_nftContractAddress",
 				"type": "address"
 			},
 			{
-				"internalType": "uint8",
+				"internalType": "uint256",
 				"name": "_commissionPercent",
-				"type": "uint8"
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -126,9 +134,54 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 		"anonymous": false,
 		"inputs": [
 			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newPercent",
+				"type": "uint256"
+			}
+		],
+		"name": "CommissionUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "Debug",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "FundsWithdrawn",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
 				"indexed": true,
 				"internalType": "uint256",
-				"name": "listingId",
+				"name": "id",
 				"type": "uint256"
 			},
 			{
@@ -136,15 +189,9 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 				"internalType": "address",
 				"name": "seller",
 				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
 			}
 		],
-		"name": "EscrowReleased",
+		"name": "ListingCancelled",
 		"type": "event"
 	},
 	{
@@ -164,9 +211,9 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
-				"name": "title",
-				"type": "string"
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
 			},
 			{
 				"indexed": false,
@@ -196,27 +243,8 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 			{
 				"indexed": false,
 				"internalType": "uint256",
-				"name": "price",
+				"name": "tokenId",
 				"type": "uint256"
-			}
-		],
-		"name": "PurchaseCancelled",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "buyer",
-				"type": "address"
 			},
 			{
 				"indexed": false,
@@ -231,12 +259,31 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 	{
 		"inputs": [
 			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
 				"internalType": "uint256",
 				"name": "_listingId",
 				"type": "uint256"
 			}
 		],
-		"name": "cancelPurchase",
+		"name": "cancelListing",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -257,37 +304,14 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "_listingId",
-				"type": "uint256"
-			}
-		],
-		"name": "confirmPurchase",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "_title",
-				"type": "string"
+				"internalType": "uint128",
+				"name": "_tokenId",
+				"type": "uint128"
 			},
 			{
-				"internalType": "string",
-				"name": "_description",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_imageIPFSHash",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
+				"internalType": "uint128",
 				"name": "_price",
-				"type": "uint256"
+				"type": "uint128"
 			}
 		],
 		"name": "createListing",
@@ -303,29 +327,33 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 				"type": "uint256"
 			}
 		],
-		"name": "escrowAmount",
+		"name": "listings",
 		"outputs": [
 			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
+				"internalType": "address",
+				"name": "seller",
+				"type": "address"
+			},
+			{
+				"internalType": "uint128",
+				"name": "tokenId",
+				"type": "uint128"
+			},
+			{
+				"internalType": "uint128",
+				"name": "price",
+				"type": "uint128"
 			}
 		],
 		"stateMutability": "view",
 		"type": "function"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "escrowBuyer",
+		"inputs": [],
+		"name": "nftContract",
 		"outputs": [
 			{
-				"internalType": "address",
+				"internalType": "contract IERC721",
 				"name": "",
 				"type": "address"
 			}
@@ -335,80 +363,12 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 	},
 	{
 		"inputs": [],
-		"name": "listingCount",
+		"name": "nftEnumerable",
 		"outputs": [
 			{
-				"internalType": "uint256",
+				"internalType": "contract IERC721Enumerable",
 				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "listings",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "id",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "seller",
 				"type": "address"
-			},
-			{
-				"internalType": "string",
-				"name": "title",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "description",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "imageIPFSHash",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "price",
-				"type": "uint256"
-			},
-			{
-				"internalType": "bool",
-				"name": "sold",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"name": "orders",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "isConfirmed",
-				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -419,7 +379,7 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 		"name": "owner",
 		"outputs": [
 			{
-				"internalType": "address",
+				"internalType": "address payable",
 				"name": "",
 				"type": "address"
 			}
@@ -437,7 +397,7 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 		],
 		"name": "purchaseListing",
 		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -454,8 +414,274 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "index",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenOfOwnerByIndex",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
-		"name": "totalOrders",
+		"name": "withdrawFunds",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	}
+]`
+
+	parsedABI, err := abi.JSON(strings.NewReader(contractABI))
+	if err != nil {
+		log.Printf("Failed to parse ABI: %v", err)
+		return nil, err
+	}
+
+	contract := bind.NewBoundContract(es.ContractAddress, parsedABI, es.Client, es.Client, es.Client)
+
+	var balance big.Int
+	err = contract.Call(nil, &[]interface{}{&balance}, "balanceOf", accounts)
+	if err != nil {
+		log.Printf("Failed to call balanceOf: %v", err)
+		return nil, err
+	}
+
+	tokens := make([]*big.Int, 0, balance.Uint64())
+	for i := uint64(0); i < balance.Uint64(); i++ {
+		var tokenId big.Int
+		err := contract.Call(nil, &[]interface{}{tokenId}, "tokenOfOwnerByIndex", accounts, big.NewInt(int64(i)))
+		if err != nil {
+			log.Printf("Failed to call tokenOfOwnerByIndex: %v", err)
+			return nil, err
+		}
+		tokens = append(tokens, &tokenId)
+	}
+	return tokens, nil
+}
+
+func (es *EthereumService) MintNFT(recipient, tokenID, price string) error {
+	log.Printf("Minting NFT with token ID %s for recipient %s with price %s\n", tokenID, recipient, price)
+
+	if !common.IsHexAddress(recipient) {
+		log.Printf("Invalid recipient address: %s", recipient)
+		return fmt.Errorf("invalid recipient address")
+	}
+
+	recipientAddress := common.HexToAddress(recipient)
+	if recipientAddress == (common.Address{}) {
+		log.Printf("Invalid recipient address: %s", recipient)
+		return fmt.Errorf("invalid recioient address")
+	}
+
+	tokenIDBigInt := new(big.Int)
+	if _, ok := tokenIDBigInt.SetString(tokenID, 10); !ok {
+		log.Printf("Invalid token ID: %s", tokenID)
+		return fmt.Errorf("invalid token ID: %s", tokenID)
+	}
+
+	priceBigInt := new(big.Int)
+	if _, ok := priceBigInt.SetString(price, 10); !ok {
+		log.Printf("Invalid price: %s", price)
+		return fmt.Errorf("invalid price: %s", price)
+	}
+
+	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
+	if err != nil {
+		log.Printf("Invalid to load private key: %v", err)
+		return fmt.Errorf("invalid to load private key: %w", err)
+	}
+
+	ChainID, err := es.Client.ChainID(context.Background())
+	if err != nil {
+		log.Printf("Failed to get chain ID: %v", err)
+		return fmt.Errorf("failed to get chain ID: %w", err)
+	}
+
+	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, ChainID)
+	if err != nil {
+		log.Printf("Invalid to create transaction: %v", err)
+		return fmt.Errorf("invalid to create transaction: %w", err)
+	}
+
+	auth.GasLimit = uint64(300000)
+	gasPrice, err := es.Client.SuggestGasPrice(context.Background())
+	if err != nil {
+		log.Printf("Invalid to suggest gas price: %v", err)
+		return fmt.Errorf("invalid to suggest gas price: %w", err)
+	}
+	auth.GasPrice = gasPrice
+
+	contractABI := `[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_nftContractAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_commissionPercent",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newPercent",
+				"type": "uint256"
+			}
+		],
+		"name": "CommissionUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "Debug",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "FundsWithdrawn",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "seller",
+				"type": "address"
+			}
+		],
+		"name": "ListingCancelled",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "seller",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			}
+		],
+		"name": "ListingCreated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "buyer",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			}
+		],
+		"name": "PurchaseCompleted",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -467,11 +693,84 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_listingId",
+				"type": "uint256"
+			}
+		],
+		"name": "cancelListing",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"inputs": [],
-		"name": "usdtToken",
+		"name": "commissionPercent",
 		"outputs": [
 			{
-				"internalType": "contract IERC20",
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint128",
+				"name": "_tokenId",
+				"type": "uint128"
+			},
+			{
+				"internalType": "uint128",
+				"name": "_price",
+				"type": "uint128"
+			}
+		],
+		"name": "createListing",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "listings",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "seller",
+				"type": "address"
+			},
+			{
+				"internalType": "uint128",
+				"name": "tokenId",
+				"type": "uint128"
+			},
+			{
+				"internalType": "uint128",
+				"name": "price",
+				"type": "uint128"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nftContract",
+		"outputs": [
+			{
+				"internalType": "contract IERC721",
 				"name": "",
 				"type": "address"
 			}
@@ -481,401 +780,104 @@ func (es *EthereumService) GetNFTs(owner common.Address) ([]*big.Int, error) {
 	},
 	{
 		"inputs": [],
-		"name": "withdrawToken",
+		"name": "nftEnumerable",
+		"outputs": [
+			{
+				"internalType": "contract IERC721Enumerable",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address payable",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_listingId",
+				"type": "uint256"
+			}
+		],
+		"name": "purchaseListing",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_newPercent",
+				"type": "uint256"
+			}
+		],
+		"name": "setCommissionPercent",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "index",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenOfOwnerByIndex",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdrawFunds",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
 	}
 ]`
 
 	parsedABI, err := abi.JSON(strings.NewReader(contractABI))
 	if err != nil {
-		return nil, err
-	}
-
-	contract := bind.NewBoundContract(es.ContractAddress, parsedABI, es.Client, es.Client, es.Client)
-
-	var balance big.Int
-
-	err = contract.Call(nil, &[]interface{}{balance}, "balanceOf", owner)
-	if err != nil {
-		return nil, err
-	}
-
-	tokenCount := balance.Uint64()
-	tokens := []*big.Int{}
-
-	for i := uint64(0); i < tokenCount; i++ {
-		var tokenID big.Int
-
-		err := contract.Call(nil, &[]interface{}{tokenID}, "tokenOfOwnerByIndex", owner, big.NewInt(int64(i)))
-		if err != nil {
-			return nil, err
-		}
-
-		tokens = append(tokens, &tokenID)
-	}
-
-	return tokens, nil
-}
-
-func (es *EthereumService) MintNFT(recipient string, tokenID string) error {
-	recipientAddress := common.HexToAddress(recipient)
-	if recipientAddress == (common.Address{}) {
-		return fmt.Errorf("invalid recioient address")
-	}
-
-	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
-	if err != nil {
-		return fmt.Errorf("invalid to load private key: %w", err)
-	}
-
-	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(1))
-	if err != nil {
-		return fmt.Errorf("invalid to create transaction: %w", err)
-	}
-
-	auth.GasLimit = uint64(300000)
-	gasPrice, err := es.Client.SuggestGasPrice(context.Background())
-	if err != nil {
-		return fmt.Errorf("invalid to suggest gas price: %w", err)
-	}
-
-	auth.GasPrice = gasPrice
-
-	contractABI := `[
-		{
-			"inputs": [
-				{
-					"internalType": "address",
-					"name": "_nftContractAddress",
-					"type": "address"
-				},
-				{
-					"internalType": "uint256",
-					"name": "_commissionPercent",
-					"type": "uint256"
-				}
-			],
-			"stateMutability": "nonpayable",
-			"type": "constructor"
-		},
-		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "newPercent",
-					"type": "uint256"
-				}
-			],
-			"name": "CommissionUpdated",
-			"type": "event"
-		},
-		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "amount",
-					"type": "uint256"
-				},
-				{
-					"indexed": true,
-					"internalType": "address",
-					"name": "owner",
-					"type": "address"
-				}
-			],
-			"name": "FundsWithdrawn",
-			"type": "event"
-		},
-		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": true,
-					"internalType": "uint256",
-					"name": "id",
-					"type": "uint256"
-				},
-				{
-					"indexed": true,
-					"internalType": "address",
-					"name": "seller",
-					"type": "address"
-				}
-			],
-			"name": "ListingCancelled",
-			"type": "event"
-		},
-		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": true,
-					"internalType": "uint256",
-					"name": "id",
-					"type": "uint256"
-				},
-				{
-					"indexed": true,
-					"internalType": "address",
-					"name": "seller",
-					"type": "address"
-				},
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "tokenId",
-					"type": "uint256"
-				},
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "price",
-					"type": "uint256"
-				}
-			],
-			"name": "ListingCreated",
-			"type": "event"
-		},
-		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": true,
-					"internalType": "uint256",
-					"name": "id",
-					"type": "uint256"
-				},
-				{
-					"indexed": true,
-					"internalType": "address",
-					"name": "buyer",
-					"type": "address"
-				},
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "tokenId",
-					"type": "uint256"
-				},
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "price",
-					"type": "uint256"
-				}
-			],
-			"name": "PurchaseCompleted",
-			"type": "event"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "uint256",
-					"name": "_listingId",
-					"type": "uint256"
-				}
-			],
-			"name": "cancelListing",
-			"outputs": [],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "commissionPercent",
-			"outputs": [
-				{
-					"internalType": "uint256",
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "uint256",
-					"name": "_tokenId",
-					"type": "uint256"
-				},
-				{
-					"internalType": "uint256",
-					"name": "_price",
-					"type": "uint256"
-				}
-			],
-			"name": "createListing",
-			"outputs": [],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "listingCount",
-			"outputs": [
-				{
-					"internalType": "uint256",
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "uint256",
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"name": "listings",
-			"outputs": [
-				{
-					"internalType": "uint256",
-					"name": "id",
-					"type": "uint256"
-				},
-				{
-					"internalType": "address",
-					"name": "seller",
-					"type": "address"
-				},
-				{
-					"internalType": "uint256",
-					"name": "tokenId",
-					"type": "uint256"
-				},
-				{
-					"internalType": "uint256",
-					"name": "price",
-					"type": "uint256"
-				},
-				{
-					"internalType": "bool",
-					"name": "sold",
-					"type": "bool"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "nftContract",
-			"outputs": [
-				{
-					"internalType": "contract IERC721",
-					"name": "",
-					"type": "address"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "nftEnumerable",
-			"outputs": [
-				{
-					"internalType": "contract IERC721Enumerable",
-					"name": "",
-					"type": "address"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "owner",
-			"outputs": [
-				{
-					"internalType": "address",
-					"name": "",
-					"type": "address"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "uint256",
-					"name": "_listingId",
-					"type": "uint256"
-				}
-			],
-			"name": "purchaseListing",
-			"outputs": [],
-			"stateMutability": "payable",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "uint256",
-					"name": "_newPercent",
-					"type": "uint256"
-				}
-			],
-			"name": "setCommissionPercent",
-			"outputs": [],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "address",
-					"name": "_owner",
-					"type": "address"
-				},
-				{
-					"internalType": "uint256",
-					"name": "index",
-					"type": "uint256"
-				}
-			],
-			"name": "tokenOfOwnerByIndex",
-			"outputs": [
-				{
-					"internalType": "uint256",
-					"name": "tokenId",
-					"type": "uint256"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "withdrawFunds",
-			"outputs": [],
-			"stateMutability": "nonpayable",
-			"type": "function"vv
-		}
-	]`
-
-	parsedABI, err := abi.JSON(strings.NewReader(contractABI))
-	if err != nil {
+		log.Printf("invalid to parse ABI: %v", err)
 		return fmt.Errorf("invalid to parse ABI: %w", err)
 	}
 
 	contract := bind.NewBoundContract(es.ContractAddress, parsedABI, es.Client, es.Client, es.Client)
 
-	tx, err := contract.Transact(auth, "ListingCreated", recipientAddress)
+	tx, err := contract.Transact(auth, "createListing", tokenIDBigInt, tokenIDBigInt)
 	if err != nil {
+		log.Printf("failed to mint NFT: %v", err)
 		return fmt.Errorf("failed to mint NFT: %w", err)
 	}
 
@@ -883,29 +885,399 @@ func (es *EthereumService) MintNFT(recipient string, tokenID string) error {
 	return nil
 }
 
-func (es *EthereumService) TransferNFT(buyer, tokenID string) error {
-	buyerAddress := common.HexToAddress(buyer)
-	tokenIDBigInt := new(big.Int)
-	tokenIDBigInt.SetString(tokenID, 10)
+func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
+	log.Printf("Starting NFT transfer: tokenID=%s, buyer=%s", tokenID, buyer)
 
+	buyerAddress := common.HexToAddress(buyer)
 	if buyerAddress == (common.Address{}) {
+		log.Printf("invalid buyer address")
 		return fmt.Errorf("invalid address")
 	}
+	tokenIDBigInt := new(big.Int)
+	if _, ok := tokenIDBigInt.SetString(tokenID, 10); !ok {
+		log.Printf("invalid token ID")
+		return fmt.Errorf("invalid token ID")
+	}
 
-	auth, err := bind.NewKeyedTransactorWithChainID(es.PrivateKey, big.NewInt(1)) // Укажите правильный ChainID
+	chainID, err := es.Client.ChainID(context.Background())
 	if err != nil {
+		log.Printf("failed to get chain ID: %v", err)
+		return fmt.Errorf("failed to get chain ID: %w", err)
+	}
+
+	if es.PrivateKey == nil {
+		log.Printf("invalid private key")
+		return fmt.Errorf("invalid private key")
+	}
+
+	auth, err := bind.NewKeyedTransactorWithChainID(es.PrivateKey, chainID)
+	if err != nil {
+		log.Printf("failed to create transactor: %v", err)
 		return fmt.Errorf("failed to create transactor: %w", err)
+	}
+
+	_, err = es.Client.NetworkID(context.Background())
+	if err != nil {
+		log.Printf("failed to get network ID: %v", err)
+		return fmt.Errorf("failed to get network ID: %w", err)
 	}
 
 	auth.GasLimit = uint64(300000)
 	gasPrice, err := es.Client.SuggestGasPrice(context.Background())
 	if err != nil {
+		log.Printf("failed to suggest gas price: %v", err)
 		return fmt.Errorf("failed to suggest gas price: %w", err)
 	}
 	auth.GasPrice = gasPrice
 
-	tx, err := es.Contract.Transact(auth, "safeTransferFrom", es.ContractAddress, buyer, tokenIDBigInt)
+	contractABI := `[
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_nftContractAddress",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_commissionPercent",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "newPercent",
+				"type": "uint256"
+			}
+		],
+		"name": "CommissionUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "string",
+				"name": "message",
+				"type": "string"
+			}
+		],
+		"name": "Debug",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			}
+		],
+		"name": "FundsWithdrawn",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "seller",
+				"type": "address"
+			}
+		],
+		"name": "ListingCancelled",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "seller",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			}
+		],
+		"name": "ListingCreated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "uint256",
+				"name": "id",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "buyer",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "price",
+				"type": "uint256"
+			}
+		],
+		"name": "PurchaseCompleted",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_listingId",
+				"type": "uint256"
+			}
+		],
+		"name": "cancelListing",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "commissionPercent",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint128",
+				"name": "_tokenId",
+				"type": "uint128"
+			},
+			{
+				"internalType": "uint128",
+				"name": "_price",
+				"type": "uint128"
+			}
+		],
+		"name": "createListing",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "listings",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "seller",
+				"type": "address"
+			},
+			{
+				"internalType": "uint128",
+				"name": "tokenId",
+				"type": "uint128"
+			},
+			{
+				"internalType": "uint128",
+				"name": "price",
+				"type": "uint128"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nftContract",
+		"outputs": [
+			{
+				"internalType": "contract IERC721",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "nftEnumerable",
+		"outputs": [
+			{
+				"internalType": "contract IERC721Enumerable",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address payable",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_listingId",
+				"type": "uint256"
+			}
+		],
+		"name": "purchaseListing",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_newPercent",
+				"type": "uint256"
+			}
+		],
+		"name": "setCommissionPercent",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "index",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenOfOwnerByIndex",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "tokenId",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdrawFunds",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	}
+]`
+
+	parsedABI, err := abi.JSON(strings.NewReader(contractABI))
 	if err != nil {
+		log.Printf("Failed to parse contract ABI: %v", err)
+		return fmt.Errorf("failed to parse contract ABI: %w", err)
+	}
+
+	contract := bind.NewBoundContract(es.ContractAddress, parsedABI, es.Client, es.Client, es.Client)
+
+	tx, err := contract.Transact(auth, "purchaseListing", tokenIDBigInt)
+	if err != nil {
+		log.Printf("Failed to transfer NFT: %v", err)
 		return fmt.Errorf("failed to transfer NFT: %w", err)
 	}
 

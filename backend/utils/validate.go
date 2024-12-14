@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"math/big"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -34,6 +35,18 @@ func ValidateAmount(amount string) error {
 func ValidatePassword(password string) error {
 	if len(password) < 5 {
 		return fmt.Errorf("password must be at least 8 characters long")
+	}
+
+	return nil
+}
+
+func ValidatePrice(price string) error {
+	priceInt, err := strconv.Atoi(price)
+	if err != nil {
+		return fmt.Errorf("invalid price: %s", price)
+	}
+	if priceInt < 0 {
+		return fmt.Errorf("price must be greater than 0")
 	}
 
 	return nil

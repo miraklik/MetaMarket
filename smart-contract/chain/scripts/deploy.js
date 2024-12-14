@@ -1,30 +1,39 @@
 const { ethers } = require("hardhat");
-require("dotenv").config(); 
+require("dotenv").config();
 
 async function main() {
     const [deployer] = await ethers.getSigners();
-
     console.log("Deploying contract with the account:", deployer.address);
 
     const balance = await deployer.getBalance();
     console.log("Deployer's balance:", ethers.utils.formatEther(balance), "ETH");
 
-    const nftContractAddress = "0xd9145CCE52D386f254917e481eB44e9943F39138"; // Замените на адрес вашего ERC721 контракта
-    const commissionPercent = 2;
+    if (balance.lt(ethers.utils.parseEther("0.01"))) {
+        throw new Error("Insufficient balance for deployment. Ensure the deployer wallet has enough ETH.");
+    }
 
-    const Marketplace = await ethers.getContractFactory("Marketplace");
+    const nftContractAddress = "0x9823dda4Bac5331a6dFe7A2883075A7f3D72Bb64";
+    const commissionPercent = 1;
 
-    const marketplace = await Marketplace.deploy(nftContractAddress, commissionPercent);
+    try {
+        const Marketplace = await ethers.getContractFactory("Marketplace");
+        const marketplace = await Marketplace.deploy(nftContractAddress, commissionPercent);
 
-    console.log("Waiting for deployment...");
-    await marketplace.deployed();
+        console.log("Deployment transaction hash:", marketplace.deployTransaction.hash);
+        console.log("Waiting for deployment confirmation...");
 
-    console.log("Marketplace deployed to:", marketplace.address);
+        await marketplace.deployed();
+
+        console.log("Marketplace deployed to:", marketplace.address);
+    } catch (error) {
+        console.error("Error during deployment:", error);
+        throw error;
+    }
 }
 
 main()
     .then(() => process.exit(0))
     .catch((error) => {
-        console.error(error);
+        console.error("Deployment failed:", error);
         process.exit(1);
     });

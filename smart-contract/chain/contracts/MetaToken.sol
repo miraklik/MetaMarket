@@ -6,7 +6,7 @@ contract MonToken {
 
     string public constant symbol = "META";
 
-    uint256 public decimals = 18;
+    uint256 public constant decimals = 18;
 
     uint256 public totalSupply;
 

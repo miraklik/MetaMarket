@@ -48,6 +48,9 @@ func parseToken(tokenStr string) (jwt.MapClaims, error) {
 	return claims, nil
 }
 
+// JwtAuthMiddleware is a middleware function that validates the JWT token in the
+// Authorization header. If the token is invalid or missing, it responds with a 401
+// Unauthorized response. Otherwise, it calls the next handler in the chain.
 func JwtAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		err := utils.ValidateToken(c)
