@@ -31,7 +31,7 @@ var (
 
 // MarketplaceMetaData contains all meta data concerning the Marketplace contract.
 var MarketplaceMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_nftContractAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_commissionPercent\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newPercent\",\"type\":\"uint256\"}],\"name\":\"CommissionUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"message\",\"type\":\"string\"}],\"name\":\"Debug\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"FundsWithdrawn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"}],\"name\":\"ListingCancelled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"}],\"name\":\"ListingCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"buyer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"}],\"name\":\"PurchaseCompleted\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_listingId\",\"type\":\"uint256\"}],\"name\":\"cancelListing\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"commissionPercent\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint128\",\"name\":\"_tokenId\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"_price\",\"type\":\"uint128\"}],\"name\":\"createListing\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"listings\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"},{\"internalType\":\"uint128\",\"name\":\"tokenId\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"price\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"nftContract\",\"outputs\":[{\"internalType\":\"contractIERC721\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"nftEnumerable\",\"outputs\":[{\"internalType\":\"contractIERC721Enumerable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"addresspayable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_listingId\",\"type\":\"uint256\"}],\"name\":\"purchaseListing\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_newPercent\",\"type\":\"uint256\"}],\"name\":\"setCommissionPercent\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"tokenOfOwnerByIndex\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawFunds\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_nftContractAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_commissionPercent\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newPercent\",\"type\":\"uint256\"}],\"name\":\"CommissionUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"message\",\"type\":\"string\"}],\"name\":\"Debug\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"FundsWithdrawn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"}],\"name\":\"ListingCancelled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"ListingCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"buyer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"PurchaseCompleted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"Name\",\"type\":\"string\"}],\"name\":\"TokenCreated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_listingId\",\"type\":\"uint256\"}],\"name\":\"cancelListing\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"commissionPercent\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint128\",\"name\":\"_tokenId\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"_price\",\"type\":\"uint128\"},{\"internalType\":\"string\",\"name\":\"_name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_description\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_symbol\",\"type\":\"string\"}],\"name\":\"createListing\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"listings\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"},{\"internalType\":\"uint128\",\"name\":\"tokenId\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"price\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"nftContract\",\"outputs\":[{\"internalType\":\"contractIERC721\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"nftEnumerable\",\"outputs\":[{\"internalType\":\"contractIERC721Enumerable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"addresspayable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"pendingWithdrawals\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_listingId\",\"type\":\"uint256\"}],\"name\":\"purchaseListing\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_newPercent\",\"type\":\"uint256\"}],\"name\":\"setCommissionPercent\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"tokenOfOwnerByIndex\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawFunds\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
 }
 
 // MarketplaceABI is the input ABI used to generate the binding from.
@@ -385,6 +385,37 @@ func (_Marketplace *MarketplaceCallerSession) Owner() (common.Address, error) {
 	return _Marketplace.Contract.Owner(&_Marketplace.CallOpts)
 }
 
+// PendingWithdrawals is a free data retrieval call binding the contract method 0xf3f43703.
+//
+// Solidity: function pendingWithdrawals(address ) view returns(uint256)
+func (_Marketplace *MarketplaceCaller) PendingWithdrawals(opts *bind.CallOpts, arg0 common.Address) (*big.Int, error) {
+	var out []interface{}
+	err := _Marketplace.contract.Call(opts, &out, "pendingWithdrawals", arg0)
+
+	if err != nil {
+		return *new(*big.Int), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(*big.Int)).(**big.Int)
+
+	return out0, err
+
+}
+
+// PendingWithdrawals is a free data retrieval call binding the contract method 0xf3f43703.
+//
+// Solidity: function pendingWithdrawals(address ) view returns(uint256)
+func (_Marketplace *MarketplaceSession) PendingWithdrawals(arg0 common.Address) (*big.Int, error) {
+	return _Marketplace.Contract.PendingWithdrawals(&_Marketplace.CallOpts, arg0)
+}
+
+// PendingWithdrawals is a free data retrieval call binding the contract method 0xf3f43703.
+//
+// Solidity: function pendingWithdrawals(address ) view returns(uint256)
+func (_Marketplace *MarketplaceCallerSession) PendingWithdrawals(arg0 common.Address) (*big.Int, error) {
+	return _Marketplace.Contract.PendingWithdrawals(&_Marketplace.CallOpts, arg0)
+}
+
 // TokenOfOwnerByIndex is a free data retrieval call binding the contract method 0x2f745c59.
 //
 // Solidity: function tokenOfOwnerByIndex(address _owner, uint256 index) view returns(uint256 tokenId)
@@ -437,25 +468,25 @@ func (_Marketplace *MarketplaceTransactorSession) CancelListing(_listingId *big.
 	return _Marketplace.Contract.CancelListing(&_Marketplace.TransactOpts, _listingId)
 }
 
-// CreateListing is a paid mutator transaction binding the contract method 0x9acaa6fb.
+// CreateListing is a paid mutator transaction binding the contract method 0x096c316a.
 //
-// Solidity: function createListing(uint128 _tokenId, uint128 _price) returns()
-func (_Marketplace *MarketplaceTransactor) CreateListing(opts *bind.TransactOpts, _tokenId *big.Int, _price *big.Int) (*types.Transaction, error) {
-	return _Marketplace.contract.Transact(opts, "createListing", _tokenId, _price)
+// Solidity: function createListing(uint128 _tokenId, uint128 _price, string _name, string _description, string _symbol) returns()
+func (_Marketplace *MarketplaceTransactor) CreateListing(opts *bind.TransactOpts, _tokenId *big.Int, _price *big.Int, _name string, _description string, _symbol string) (*types.Transaction, error) {
+	return _Marketplace.contract.Transact(opts, "createListing", _tokenId, _price, _name, _description, _symbol)
 }
 
-// CreateListing is a paid mutator transaction binding the contract method 0x9acaa6fb.
+// CreateListing is a paid mutator transaction binding the contract method 0x096c316a.
 //
-// Solidity: function createListing(uint128 _tokenId, uint128 _price) returns()
-func (_Marketplace *MarketplaceSession) CreateListing(_tokenId *big.Int, _price *big.Int) (*types.Transaction, error) {
-	return _Marketplace.Contract.CreateListing(&_Marketplace.TransactOpts, _tokenId, _price)
+// Solidity: function createListing(uint128 _tokenId, uint128 _price, string _name, string _description, string _symbol) returns()
+func (_Marketplace *MarketplaceSession) CreateListing(_tokenId *big.Int, _price *big.Int, _name string, _description string, _symbol string) (*types.Transaction, error) {
+	return _Marketplace.Contract.CreateListing(&_Marketplace.TransactOpts, _tokenId, _price, _name, _description, _symbol)
 }
 
-// CreateListing is a paid mutator transaction binding the contract method 0x9acaa6fb.
+// CreateListing is a paid mutator transaction binding the contract method 0x096c316a.
 //
-// Solidity: function createListing(uint128 _tokenId, uint128 _price) returns()
-func (_Marketplace *MarketplaceTransactorSession) CreateListing(_tokenId *big.Int, _price *big.Int) (*types.Transaction, error) {
-	return _Marketplace.Contract.CreateListing(&_Marketplace.TransactOpts, _tokenId, _price)
+// Solidity: function createListing(uint128 _tokenId, uint128 _price, string _name, string _description, string _symbol) returns()
+func (_Marketplace *MarketplaceTransactorSession) CreateListing(_tokenId *big.Int, _price *big.Int, _name string, _description string, _symbol string) (*types.Transaction, error) {
+	return _Marketplace.Contract.CreateListing(&_Marketplace.TransactOpts, _tokenId, _price, _name, _description, _symbol)
 }
 
 // PurchaseListing is a paid mutator transaction binding the contract method 0x169d5a7d.
@@ -1177,16 +1208,20 @@ func (it *MarketplaceListingCreatedIterator) Close() error {
 
 // MarketplaceListingCreated represents a ListingCreated event raised by the Marketplace contract.
 type MarketplaceListingCreated struct {
-	Id      *big.Int
-	Seller  common.Address
-	TokenId *big.Int
-	Price   *big.Int
-	Raw     types.Log // Blockchain specific contextual infos
+	Id          *big.Int
+	Seller      common.Address
+	TokenId     *big.Int
+	Price       *big.Int
+	Name        string
+	Description string
+	Symbol      string
+	Timestamp   *big.Int
+	Raw         types.Log // Blockchain specific contextual infos
 }
 
-// FilterListingCreated is a free log retrieval operation binding the contract event 0x12dc294b81a709d694b1337a350a12a00076c19a77a25aab67a5f0c07e0f164d.
+// FilterListingCreated is a free log retrieval operation binding the contract event 0x693b06f4bb6c1a1b5219c0784872e9c5c33bd38b3caa6f37d18fea94839e1a53.
 //
-// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price)
+// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price, string name, string description, string symbol, uint256 timestamp)
 func (_Marketplace *MarketplaceFilterer) FilterListingCreated(opts *bind.FilterOpts, id []*big.Int, seller []common.Address) (*MarketplaceListingCreatedIterator, error) {
 
 	var idRule []interface{}
@@ -1205,9 +1240,9 @@ func (_Marketplace *MarketplaceFilterer) FilterListingCreated(opts *bind.FilterO
 	return &MarketplaceListingCreatedIterator{contract: _Marketplace.contract, event: "ListingCreated", logs: logs, sub: sub}, nil
 }
 
-// WatchListingCreated is a free log subscription operation binding the contract event 0x12dc294b81a709d694b1337a350a12a00076c19a77a25aab67a5f0c07e0f164d.
+// WatchListingCreated is a free log subscription operation binding the contract event 0x693b06f4bb6c1a1b5219c0784872e9c5c33bd38b3caa6f37d18fea94839e1a53.
 //
-// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price)
+// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price, string name, string description, string symbol, uint256 timestamp)
 func (_Marketplace *MarketplaceFilterer) WatchListingCreated(opts *bind.WatchOpts, sink chan<- *MarketplaceListingCreated, id []*big.Int, seller []common.Address) (event.Subscription, error) {
 
 	var idRule []interface{}
@@ -1251,9 +1286,9 @@ func (_Marketplace *MarketplaceFilterer) WatchListingCreated(opts *bind.WatchOpt
 	}), nil
 }
 
-// ParseListingCreated is a log parse operation binding the contract event 0x12dc294b81a709d694b1337a350a12a00076c19a77a25aab67a5f0c07e0f164d.
+// ParseListingCreated is a log parse operation binding the contract event 0x693b06f4bb6c1a1b5219c0784872e9c5c33bd38b3caa6f37d18fea94839e1a53.
 //
-// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price)
+// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price, string name, string description, string symbol, uint256 timestamp)
 func (_Marketplace *MarketplaceFilterer) ParseListingCreated(log types.Log) (*MarketplaceListingCreated, error) {
 	event := new(MarketplaceListingCreated)
 	if err := _Marketplace.contract.UnpackLog(event, "ListingCreated", log); err != nil {
@@ -1332,16 +1367,17 @@ func (it *MarketplacePurchaseCompletedIterator) Close() error {
 
 // MarketplacePurchaseCompleted represents a PurchaseCompleted event raised by the Marketplace contract.
 type MarketplacePurchaseCompleted struct {
-	Id      *big.Int
-	Buyer   common.Address
-	TokenId *big.Int
-	Price   *big.Int
-	Raw     types.Log // Blockchain specific contextual infos
+	Id        *big.Int
+	Buyer     common.Address
+	TokenId   *big.Int
+	Price     *big.Int
+	Timestamp *big.Int
+	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterPurchaseCompleted is a free log retrieval operation binding the contract event 0x8a851ef52cc28a8639e6693c30f783523b6305558901b362a7e4f6369ecec90b.
+// FilterPurchaseCompleted is a free log retrieval operation binding the contract event 0xe29b93709a7ac5e91a6057482d1df985483725988417e08dec23377234003c80.
 //
-// Solidity: event PurchaseCompleted(uint256 indexed id, address indexed buyer, uint256 tokenId, uint256 price)
+// Solidity: event PurchaseCompleted(uint256 indexed id, address indexed buyer, uint256 tokenId, uint256 price, uint256 timestamp)
 func (_Marketplace *MarketplaceFilterer) FilterPurchaseCompleted(opts *bind.FilterOpts, id []*big.Int, buyer []common.Address) (*MarketplacePurchaseCompletedIterator, error) {
 
 	var idRule []interface{}
@@ -1360,9 +1396,9 @@ func (_Marketplace *MarketplaceFilterer) FilterPurchaseCompleted(opts *bind.Filt
 	return &MarketplacePurchaseCompletedIterator{contract: _Marketplace.contract, event: "PurchaseCompleted", logs: logs, sub: sub}, nil
 }
 
-// WatchPurchaseCompleted is a free log subscription operation binding the contract event 0x8a851ef52cc28a8639e6693c30f783523b6305558901b362a7e4f6369ecec90b.
+// WatchPurchaseCompleted is a free log subscription operation binding the contract event 0xe29b93709a7ac5e91a6057482d1df985483725988417e08dec23377234003c80.
 //
-// Solidity: event PurchaseCompleted(uint256 indexed id, address indexed buyer, uint256 tokenId, uint256 price)
+// Solidity: event PurchaseCompleted(uint256 indexed id, address indexed buyer, uint256 tokenId, uint256 price, uint256 timestamp)
 func (_Marketplace *MarketplaceFilterer) WatchPurchaseCompleted(opts *bind.WatchOpts, sink chan<- *MarketplacePurchaseCompleted, id []*big.Int, buyer []common.Address) (event.Subscription, error) {
 
 	var idRule []interface{}
@@ -1406,12 +1442,157 @@ func (_Marketplace *MarketplaceFilterer) WatchPurchaseCompleted(opts *bind.Watch
 	}), nil
 }
 
-// ParsePurchaseCompleted is a log parse operation binding the contract event 0x8a851ef52cc28a8639e6693c30f783523b6305558901b362a7e4f6369ecec90b.
+// ParsePurchaseCompleted is a log parse operation binding the contract event 0xe29b93709a7ac5e91a6057482d1df985483725988417e08dec23377234003c80.
 //
-// Solidity: event PurchaseCompleted(uint256 indexed id, address indexed buyer, uint256 tokenId, uint256 price)
+// Solidity: event PurchaseCompleted(uint256 indexed id, address indexed buyer, uint256 tokenId, uint256 price, uint256 timestamp)
 func (_Marketplace *MarketplaceFilterer) ParsePurchaseCompleted(log types.Log) (*MarketplacePurchaseCompleted, error) {
 	event := new(MarketplacePurchaseCompleted)
 	if err := _Marketplace.contract.UnpackLog(event, "PurchaseCompleted", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
+}
+
+// MarketplaceTokenCreatedIterator is returned from FilterTokenCreated and is used to iterate over the raw logs and unpacked data for TokenCreated events raised by the Marketplace contract.
+type MarketplaceTokenCreatedIterator struct {
+	Event *MarketplaceTokenCreated // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  ethereum.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *MarketplaceTokenCreatedIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(MarketplaceTokenCreated)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(MarketplaceTokenCreated)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *MarketplaceTokenCreatedIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *MarketplaceTokenCreatedIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// MarketplaceTokenCreated represents a TokenCreated event raised by the Marketplace contract.
+type MarketplaceTokenCreated struct {
+	TokenID *big.Int
+	Name    string
+	Raw     types.Log // Blockchain specific contextual infos
+}
+
+// FilterTokenCreated is a free log retrieval operation binding the contract event 0x5d3ac5872118b949a1f8db596134a0e1587ecf18f2203bb1e3ea420c3c3f8fa9.
+//
+// Solidity: event TokenCreated(uint256 indexed tokenID, string Name)
+func (_Marketplace *MarketplaceFilterer) FilterTokenCreated(opts *bind.FilterOpts, tokenID []*big.Int) (*MarketplaceTokenCreatedIterator, error) {
+
+	var tokenIDRule []interface{}
+	for _, tokenIDItem := range tokenID {
+		tokenIDRule = append(tokenIDRule, tokenIDItem)
+	}
+
+	logs, sub, err := _Marketplace.contract.FilterLogs(opts, "TokenCreated", tokenIDRule)
+	if err != nil {
+		return nil, err
+	}
+	return &MarketplaceTokenCreatedIterator{contract: _Marketplace.contract, event: "TokenCreated", logs: logs, sub: sub}, nil
+}
+
+// WatchTokenCreated is a free log subscription operation binding the contract event 0x5d3ac5872118b949a1f8db596134a0e1587ecf18f2203bb1e3ea420c3c3f8fa9.
+//
+// Solidity: event TokenCreated(uint256 indexed tokenID, string Name)
+func (_Marketplace *MarketplaceFilterer) WatchTokenCreated(opts *bind.WatchOpts, sink chan<- *MarketplaceTokenCreated, tokenID []*big.Int) (event.Subscription, error) {
+
+	var tokenIDRule []interface{}
+	for _, tokenIDItem := range tokenID {
+		tokenIDRule = append(tokenIDRule, tokenIDItem)
+	}
+
+	logs, sub, err := _Marketplace.contract.WatchLogs(opts, "TokenCreated", tokenIDRule)
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(MarketplaceTokenCreated)
+				if err := _Marketplace.contract.UnpackLog(event, "TokenCreated", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseTokenCreated is a log parse operation binding the contract event 0x5d3ac5872118b949a1f8db596134a0e1587ecf18f2203bb1e3ea420c3c3f8fa9.
+//
+// Solidity: event TokenCreated(uint256 indexed tokenID, string Name)
+func (_Marketplace *MarketplaceFilterer) ParseTokenCreated(log types.Log) (*MarketplaceTokenCreated, error) {
+	event := new(MarketplaceTokenCreated)
+	if err := _Marketplace.contract.UnpackLog(event, "TokenCreated", log); err != nil {
 		return nil, err
 	}
 	event.Raw = log

@@ -57,9 +57,10 @@ func main() {
 	middlewareNFTs.Use(middleware.MintNFT(etherService))
 	router.POST("/Create", handlers.MintNFT(etherService))
 	middlewareNFTs.Use(middleware.GetNFTs(etherService))
-	router.GET("/collection/nfts", handlers.GetNFTs(etherService))
+	router.GET("/nfts/:id", handlers.GetNFTs(etherService))
 	middlewareNFTs.Use(middleware.BuyNFT(etherService))
 	router.POST("/Buy", handlers.BuyNFT(etherService))
+	router.GET("/Search", handlers.SearchNFTs(etherService))
 
 	router.Run(os.Getenv("SERVER_ADDRESS"))
 	cancel()
@@ -77,14 +78,14 @@ func processMarketplaceOperations(ctx context.Context, client *ethclient.Client,
 			log.Println("Marketplace operations stopped")
 			return
 		default:
-			createListing(marketplaceInstance, client, cfg)
-			purchaseListing(marketplaceInstance, client, cfg)
+			createListing(marketplaceInstance, client, cfg, big.NewInt(1), big.NewInt(1000000000000000000), "Test NFT", "This is a test NFT", "TEST")
+			purchaseListing(marketplaceInstance, client, cfg, big.NewInt(1))
 			time.Sleep(time.Minute)
 		}
 	}
 }
 
-func createListing(marketplaceInstance *marketplace.Marketplace, client *ethclient.Client, cfg config.Config) {
+func createListing(marketplaceInstance *marketplace.Marketplace, client *ethclient.Client, cfg config.Config, tokenID *big.Int, price *big.Int, name string, description string, symbol string) {
 	auth, err := accounts.GetTransactor(cfg.PrivateKey, client)
 	if err != nil {
 		log.Fatalf("Failed to create transactor: %v", err)
@@ -116,10 +117,7 @@ func createListing(marketplaceInstance *marketplace.Marketplace, client *ethclie
 		log.Fatalf("Insufficient funds: balance %s, required %s", balance, txCost)
 	}
 
-	price := big.NewInt(1000000000)
-	tokenID := big.NewInt(1)
-
-	tx, err := marketplaceInstance.CreateListing(auth, tokenID, price)
+	tx, err := marketplaceInstance.CreateListing(auth, tokenID, price, name, description, symbol)
 	if err != nil {
 		log.Fatalf("Failed to create listing: %v", err)
 	}
@@ -135,7 +133,7 @@ func createListing(marketplaceInstance *marketplace.Marketplace, client *ethclie
 	log.Printf("Transaction succeeded. Hash: %s", tx.Hash().Hex())
 }
 
-func purchaseListing(marketplaceInstance *marketplace.Marketplace, client *ethclient.Client, cfg config.Config) {
+func purchaseListing(marketplaceInstance *marketplace.Marketplace, client *ethclient.Client, cfg config.Config, listingID *big.Int) {
 	auth, err := accounts.GetTransactor(cfg.PrivateKey, client)
 	if err != nil {
 		log.Fatalf("Failed to create transactor: %v", err)
@@ -148,7 +146,6 @@ func purchaseListing(marketplaceInstance *marketplace.Marketplace, client *ethcl
 	}
 	auth.GasPrice = gasPrice
 
-	listingID := big.NewInt(1)
 	tx, err := marketplaceInstance.PurchaseListing(auth, listingID)
 	if err != nil {
 		log.Fatalf("Failed to purchase listing: %v", err)

@@ -111,6 +111,30 @@
 						"internalType": "uint256",
 						"name": "price",
 						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "description",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "symbol",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
 					}
 				],
 				"name": "ListingCreated",
@@ -142,9 +166,34 @@
 						"internalType": "uint256",
 						"name": "price",
 						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
 					}
 				],
 				"name": "PurchaseCompleted",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "tokenID",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "Name",
+						"type": "string"
+					}
+				],
+				"name": "TokenCreated",
 				"type": "event"
 			},
 			{
@@ -203,6 +252,21 @@
 						"internalType": "uint128",
 						"name": "_price",
 						"type": "uint128"
+					},
+					{
+						"internalType": "string",
+						"name": "_name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_description",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_symbol",
+						"type": "string"
 					}
 				],
 				"name": "createListing",
@@ -273,6 +337,25 @@
 						"internalType": "address payable",
 						"name": "",
 						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "pendingWithdrawals",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -356,7 +439,7 @@
 						"_nftContractAddress": "Address of the ERC721 token contract."
 					}
 				},
-				"createListing(uint128,uint128)": {
+				"createListing(uint128,uint128,string,string,string)": {
 					"params": {
 						"_price": "Sale price in wei.",
 						"_tokenId": "ID of the token to sell."
@@ -386,6 +469,12 @@
 				"listings": {
 					"details": "Stores all listings by their unique ID."
 				},
+				"pendingWithdrawals": {
+					"details": "Pending withdrawals for sellers."
+				},
+				"tokenToListingId": {
+					"details": "Maps token IDs to their active listing ID."
+				},
 				"unlocked": {
 					"details": "Reentrancy guard modifier."
 				}
@@ -404,11 +493,14 @@
 				"ListingCancelled(uint256,address)": {
 					"notice": "Event emitted when a listing is cancelled."
 				},
-				"ListingCreated(uint256,address,uint256,uint256)": {
+				"ListingCreated(uint256,address,uint256,uint256,string,string,string,uint256)": {
 					"notice": "Event emitted when a new listing is created."
 				},
-				"PurchaseCompleted(uint256,address,uint256,uint256)": {
+				"PurchaseCompleted(uint256,address,uint256,uint256,uint256)": {
 					"notice": "Event emitted when an NFT is purchased."
+				},
+				"TokenCreated(uint256,string)": {
+					"notice": "Event emitted when a token create "
 				}
 			},
 			"kind": "user",
@@ -419,7 +511,7 @@
 				"commissionPercent()": {
 					"notice": "Commission percentage charged by the marketplace."
 				},
-				"createListing(uint128,uint128)": {
+				"createListing(uint128,uint128,string,string,string)": {
 					"notice": "Creates a listing to sell an NFT."
 				},
 				"nftContract()": {
@@ -488,11 +580,11 @@
 			]
 		},
 		"contracts/Orders.sol": {
-			"keccak256": "0x576277224c072b0b2f613ae570215bf819117f184f8faf8879777f11cf1b03ca",
+			"keccak256": "0x06bf5e7a93f5a67100adc384d438075cac90bcd2746b28ee51b28c7b80d7a3ef",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://7cb5e104fea5d024ef34fba7195439464e12809a0168ec26f073c00423927845",
-				"dweb:/ipfs/QmNsvfnznDmwcSzz8L2VMhBfuXR2XcfZfxvEypjAoRQrey"
+				"bzz-raw://f28a012c1751a3525d05e6294598172f7a0d41d1bd231025b3f2d5c64f1a1b7e",
+				"dweb:/ipfs/QmafyY9kQfJYXZUzmH8cc2yJCowrDkcRQE2iGGip4oWVQX"
 			]
 		}
 	},

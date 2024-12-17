@@ -41,7 +41,7 @@ func ValidatePassword(password string) error {
 }
 
 func ValidatePrice(price string) error {
-	priceInt, err := strconv.Atoi(price)
+	priceInt, err := strconv.ParseFloat(price, 32)
 	if err != nil {
 		return fmt.Errorf("invalid price: %s", price)
 	}

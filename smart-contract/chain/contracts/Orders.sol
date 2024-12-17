@@ -25,6 +25,12 @@ contract Marketplace {
     /// @dev Stores all listings by their unique ID.
     mapping(uint256 => Listing) public listings;
 
+    /// @dev Maps token IDs to their active listing ID.
+    mapping(uint256 => uint256) private tokenToListingId;
+
+    /// @dev Pending withdrawals for sellers.
+    mapping(address => uint256) public pendingWithdrawals;
+
     /// @notice Interface for the ERC721 token contract.
     IERC721 public nftContract;
 
@@ -36,7 +42,11 @@ contract Marketplace {
         uint256 indexed id,
         address indexed seller,
         uint256 tokenId,
-        uint256 price
+        uint256 price,
+        string name,
+        string description,
+        string symbol,
+        uint256 timestamp
     );
 
     /// @notice Event emitted when an NFT is purchased.
@@ -44,8 +54,12 @@ contract Marketplace {
         uint256 indexed id,
         address indexed buyer,
         uint256 tokenId,
-        uint256 price
+        uint256 price,
+        uint256 timestamp
     );
+
+    /// @notice Event emitted when a token create 
+    event TokenCreated(uint256 indexed tokenID, string Name);
 
     /// @notice Event emitted when a listing is cancelled.
     event ListingCancelled(uint256 indexed id, address indexed seller);
@@ -79,7 +93,7 @@ contract Marketplace {
      * @param _commissionPercent Marketplace commission percentage.
      */
     constructor(address _nftContractAddress, uint256 _commissionPercent) {
-        require(_commissionPercent <= 100, "Commission cannot exceed 100%");
+        require(_commissionPercent <= 50, "Commission cannot exceed 50%");
         owner = payable(msg.sender);
         nftContract = IERC721(_nftContractAddress);
         nftEnumerable = IERC721Enumerable(_nftContractAddress);
@@ -91,7 +105,7 @@ contract Marketplace {
      * @param _tokenId ID of the token to sell.
      * @param _price Sale price in wei.
      */
-    function createListing(uint128 _tokenId, uint128 _price) external {
+    function createListing(uint128 _tokenId, uint128 _price, string calldata _name, string calldata _description, string calldata _symbol) external {
         require(_price > 0, "Price must be greater than 0");
         emit Debug("Passed price check");
 
@@ -104,20 +118,22 @@ contract Marketplace {
         );
         emit Debug("Ownership verified");
 
-        bool isApproved = (nftContract.getApproved(_tokenId) == address(this) ||
-            nftContract.isApprovedForAll(msg.sender, address(this)));
         require(
-            isApproved,
+            nftContract.getApproved(_tokenId) == address(this) ||
+                nftContract.isApprovedForAll(msg.sender, address(this)),
             "Marketplace is not approved to transfer this token"
         );
         emit Debug("Approval verified");
 
+        require(tokenToListingId[_tokenId] == 0, "Token is already listed");
+
         uint256 id = uint256(keccak256(abi.encodePacked(_tokenId, msg.sender)));
-        require(listings[id].seller == address(0), "Listing already exists");
+        listings[id] = Listing(msg.sender, _tokenId, _price);
+        tokenToListingId[_tokenId] = id;
         emit Debug("Unique listing ID verified");
 
-        listings[id] = Listing(msg.sender, uint128(_tokenId), uint128(_price));
-        emit ListingCreated(id, msg.sender, _tokenId, _price);
+        emit ListingCreated(id, msg.sender, _tokenId, _price, _name, _description, _symbol, block.timestamp);
+        emit TokenCreated(_tokenId, _name);
     }
 
     event Debug(string message);
@@ -134,14 +150,6 @@ contract Marketplace {
         uint256 commissionAmount = (msg.value * commissionPercent) / 100;
         uint256 sellerAmount = msg.value - commissionAmount;
 
-        // Transfer commission to owner
-        (bool commissionSent, ) = owner.call{value: commissionAmount}("");
-        require(commissionSent, "Failed to send commission");
-
-        // Transfer payment to seller
-        (bool sellerPaid, ) = listing.seller.call{value: sellerAmount}("");
-        require(sellerPaid, "Failed to send payment to seller");
-
         // Transfer NFT to buyer
         nftContract.safeTransferFrom(
             listing.seller,
@@ -149,15 +157,21 @@ contract Marketplace {
             listing.tokenId
         );
 
+        // Update pending withdrawals
+        pendingWithdrawals[owner] += commissionAmount;
+        pendingWithdrawals[listing.seller] += sellerAmount;
+
         emit PurchaseCompleted(
             _listingId,
             msg.sender,
             listing.tokenId,
-            listing.price
+            listing.price,
+            block.timestamp
         );
 
-        // Delete listing to save gas
+        // Remove listing
         delete listings[_listingId];
+        delete tokenToListingId[listing.tokenId];
     }
 
     /**
@@ -170,6 +184,7 @@ contract Marketplace {
         require(listing.seller == msg.sender, "You are not the seller");
 
         delete listings[_listingId];
+        delete tokenToListingId[listing.tokenId];
 
         emit ListingCancelled(_listingId, msg.sender);
     }
@@ -179,7 +194,7 @@ contract Marketplace {
      * @param _newPercent New commission percentage.
      */
     function setCommissionPercent(uint256 _newPercent) external onlyOwner {
-        require(_newPercent <= 100, "Commission cannot exceed 100%");
+        require(_newPercent <= 50, "Commission cannot exceed 100%");
         commissionPercent = _newPercent;
 
         emit CommissionUpdated(_newPercent);
@@ -188,14 +203,15 @@ contract Marketplace {
     /**
      * @notice Withdraws all funds from the contract.
      */
-    function withdrawFunds() external onlyOwner nonReentrant {
-        uint256 balance = address(this).balance;
+    function withdrawFunds() external nonReentrant {
+        uint256 balance = pendingWithdrawals[msg.sender];
         require(balance > 0, "No funds to withdraw");
 
-        (bool success, ) = owner.call{value: balance}("");
+        pendingWithdrawals[msg.sender] = 0;
+        (bool success, ) = msg.sender.call{value: balance}("");
         require(success, "Withdraw failed");
 
-        emit FundsWithdrawn(balance, owner);
+        emit FundsWithdrawn(balance, msg.sender);
     }
 
     /**
@@ -208,7 +224,7 @@ contract Marketplace {
         public
         view
         returns (uint256 tokenId)
-    {
+    {   
         return nftEnumerable.tokenOfOwnerByIndex(_owner, index);
     }
 
