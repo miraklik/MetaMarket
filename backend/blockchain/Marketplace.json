@@ -108,24 +108,6 @@
 			},
 			{
 				"indexed": false,
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "description",
-				"type": "string"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "symbol",
-				"type": "string"
-			},
-			{
-				"indexed": false,
 				"internalType": "uint256",
 				"name": "timestamp",
 				"type": "uint256"
@@ -183,7 +165,7 @@
 			{
 				"indexed": false,
 				"internalType": "string",
-				"name": "Name",
+				"name": "name",
 				"type": "string"
 			}
 		],
@@ -250,16 +232,6 @@
 			{
 				"internalType": "string",
 				"name": "_name",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_description",
-				"type": "string"
-			},
-			{
-				"internalType": "string",
-				"name": "_symbol",
 				"type": "string"
 			}
 		],

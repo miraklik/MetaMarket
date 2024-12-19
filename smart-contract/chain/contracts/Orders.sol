@@ -43,9 +43,6 @@ contract Marketplace {
         address indexed seller,
         uint256 tokenId,
         uint256 price,
-        string name,
-        string description,
-        string symbol,
         uint256 timestamp
     );
 
@@ -58,8 +55,8 @@ contract Marketplace {
         uint256 timestamp
     );
 
-    /// @notice Event emitted when a token create 
-    event TokenCreated(uint256 indexed tokenID, string Name);
+    /// @notice Event emitted when a token is created
+    event TokenCreated(uint256 indexed tokenID, string name);
 
     /// @notice Event emitted when a listing is cancelled.
     event ListingCancelled(uint256 indexed id, address indexed seller);
@@ -105,7 +102,7 @@ contract Marketplace {
      * @param _tokenId ID of the token to sell.
      * @param _price Sale price in wei.
      */
-    function createListing(uint128 _tokenId, uint128 _price, string calldata _name, string calldata _description, string calldata _symbol) external {
+    function createListing(uint128 _tokenId, uint128 _price, string calldata _name) external {
         require(_price > 0, "Price must be greater than 0");
         emit Debug("Passed price check");
 
@@ -132,7 +129,7 @@ contract Marketplace {
         tokenToListingId[_tokenId] = id;
         emit Debug("Unique listing ID verified");
 
-        emit ListingCreated(id, msg.sender, _tokenId, _price, _name, _description, _symbol, block.timestamp);
+        emit ListingCreated(id, msg.sender, _tokenId, _price, block.timestamp);
         emit TokenCreated(_tokenId, _name);
     }
 

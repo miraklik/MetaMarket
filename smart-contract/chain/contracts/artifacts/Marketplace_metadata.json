@@ -114,24 +114,6 @@
 					},
 					{
 						"indexed": false,
-						"internalType": "string",
-						"name": "name",
-						"type": "string"
-					},
-					{
-						"indexed": false,
-						"internalType": "string",
-						"name": "description",
-						"type": "string"
-					},
-					{
-						"indexed": false,
-						"internalType": "string",
-						"name": "symbol",
-						"type": "string"
-					},
-					{
-						"indexed": false,
 						"internalType": "uint256",
 						"name": "timestamp",
 						"type": "uint256"
@@ -189,7 +171,7 @@
 					{
 						"indexed": false,
 						"internalType": "string",
-						"name": "Name",
+						"name": "name",
 						"type": "string"
 					}
 				],
@@ -256,16 +238,6 @@
 					{
 						"internalType": "string",
 						"name": "_name",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "_description",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "_symbol",
 						"type": "string"
 					}
 				],
@@ -439,7 +411,7 @@
 						"_nftContractAddress": "Address of the ERC721 token contract."
 					}
 				},
-				"createListing(uint128,uint128,string,string,string)": {
+				"createListing(uint128,uint128,string)": {
 					"params": {
 						"_price": "Sale price in wei.",
 						"_tokenId": "ID of the token to sell."
@@ -493,14 +465,14 @@
 				"ListingCancelled(uint256,address)": {
 					"notice": "Event emitted when a listing is cancelled."
 				},
-				"ListingCreated(uint256,address,uint256,uint256,string,string,string,uint256)": {
+				"ListingCreated(uint256,address,uint256,uint256,uint256)": {
 					"notice": "Event emitted when a new listing is created."
 				},
 				"PurchaseCompleted(uint256,address,uint256,uint256,uint256)": {
 					"notice": "Event emitted when an NFT is purchased."
 				},
 				"TokenCreated(uint256,string)": {
-					"notice": "Event emitted when a token create "
+					"notice": "Event emitted when a token is created"
 				}
 			},
 			"kind": "user",
@@ -511,7 +483,7 @@
 				"commissionPercent()": {
 					"notice": "Commission percentage charged by the marketplace."
 				},
-				"createListing(uint128,uint128,string,string,string)": {
+				"createListing(uint128,uint128,string)": {
 					"notice": "Creates a listing to sell an NFT."
 				},
 				"nftContract()": {
@@ -580,11 +552,11 @@
 			]
 		},
 		"contracts/Orders.sol": {
-			"keccak256": "0x06bf5e7a93f5a67100adc384d438075cac90bcd2746b28ee51b28c7b80d7a3ef",
+			"keccak256": "0x328dff0f2c80245a73e38dec1e2a89958826ac6e51c53234457dd910675c0829",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://f28a012c1751a3525d05e6294598172f7a0d41d1bd231025b3f2d5c64f1a1b7e",
-				"dweb:/ipfs/QmafyY9kQfJYXZUzmH8cc2yJCowrDkcRQE2iGGip4oWVQX"
+				"bzz-raw://9884a051a40dc7cba98e871fb0c81f42dd95b70365f1f228f877e5cbf82f8633",
+				"dweb:/ipfs/QmXjDdEyTsXqviqBk1G7kkmejvACc1AwcNgNbAjogrxuFx"
 			]
 		}
 	},

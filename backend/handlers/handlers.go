@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"nft-marketplace/db"
 	"nft-marketplace/services"
 	"nft-marketplace/utils"
 
@@ -74,6 +75,8 @@ func MintNFT(ethService *services.EthereumService) gin.HandlerFunc {
 			Recipient   string `json:"recipient"`
 		}
 
+		var s Server
+
 		if err := c.ShouldBindJSON(&request); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
@@ -89,9 +92,34 @@ func MintNFT(ethService *services.EthereumService) gin.HandlerFunc {
 			return
 		}
 
+		switch {
+		case request.Name == "":
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Name is required"})
+			return
+		case request.Symbol == "":
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Symbol is required"})
+			return
+		case request.Description == "":
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Description is required"})
+			return
+		}
+
+		nfts := db.Nfts{
+			Name:        request.Name,
+			Symbol:      request.Symbol,
+			Description: request.Description,
+			Price:       request.Price,
+		}
+
 		err := ethService.MintNFT(request.TokenID, request.Name, request.Symbol, request.Description, request.Price, request.Recipient)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			log.Printf("MintNFT error: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to mint NFT on blockchain: " + err.Error()})
+			return
+		}
+
+		if err := s.db.Create(&nfts).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create NFT: " + err.Error()})
 			return
 		}
 

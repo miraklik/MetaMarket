@@ -26,6 +26,10 @@ func ConnectDB() (*gorm.DB, error) {
 		log.Fatal("Failed to migrate the database:", err)
 	}
 
+	if err := db.AutoMigrate(&Nfts{}); err != nil {
+		log.Fatal("Failed to migrate the database:", err)
+	}
+
 	log.Println("Connected to the database")
 	return db, nil
 }

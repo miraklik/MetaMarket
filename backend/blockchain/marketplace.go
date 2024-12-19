@@ -31,7 +31,7 @@ var (
 
 // MarketplaceMetaData contains all meta data concerning the Marketplace contract.
 var MarketplaceMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_nftContractAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_commissionPercent\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newPercent\",\"type\":\"uint256\"}],\"name\":\"CommissionUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"message\",\"type\":\"string\"}],\"name\":\"Debug\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"FundsWithdrawn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"}],\"name\":\"ListingCancelled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"description\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"ListingCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"buyer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"PurchaseCompleted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"Name\",\"type\":\"string\"}],\"name\":\"TokenCreated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_listingId\",\"type\":\"uint256\"}],\"name\":\"cancelListing\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"commissionPercent\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint128\",\"name\":\"_tokenId\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"_price\",\"type\":\"uint128\"},{\"internalType\":\"string\",\"name\":\"_name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_description\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"_symbol\",\"type\":\"string\"}],\"name\":\"createListing\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"listings\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"},{\"internalType\":\"uint128\",\"name\":\"tokenId\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"price\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"nftContract\",\"outputs\":[{\"internalType\":\"contractIERC721\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"nftEnumerable\",\"outputs\":[{\"internalType\":\"contractIERC721Enumerable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"addresspayable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"pendingWithdrawals\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_listingId\",\"type\":\"uint256\"}],\"name\":\"purchaseListing\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_newPercent\",\"type\":\"uint256\"}],\"name\":\"setCommissionPercent\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"tokenOfOwnerByIndex\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawFunds\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_nftContractAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_commissionPercent\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"newPercent\",\"type\":\"uint256\"}],\"name\":\"CommissionUpdated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"string\",\"name\":\"message\",\"type\":\"string\"}],\"name\":\"Debug\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"FundsWithdrawn\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"}],\"name\":\"ListingCancelled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"ListingCreated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"id\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"buyer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"price\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"PurchaseCompleted\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokenID\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"}],\"name\":\"TokenCreated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_listingId\",\"type\":\"uint256\"}],\"name\":\"cancelListing\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"commissionPercent\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint128\",\"name\":\"_tokenId\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"_price\",\"type\":\"uint128\"},{\"internalType\":\"string\",\"name\":\"_name\",\"type\":\"string\"}],\"name\":\"createListing\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"name\":\"listings\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"seller\",\"type\":\"address\"},{\"internalType\":\"uint128\",\"name\":\"tokenId\",\"type\":\"uint128\"},{\"internalType\":\"uint128\",\"name\":\"price\",\"type\":\"uint128\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"nftContract\",\"outputs\":[{\"internalType\":\"contractIERC721\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"nftEnumerable\",\"outputs\":[{\"internalType\":\"contractIERC721Enumerable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"addresspayable\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"pendingWithdrawals\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_listingId\",\"type\":\"uint256\"}],\"name\":\"purchaseListing\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_newPercent\",\"type\":\"uint256\"}],\"name\":\"setCommissionPercent\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"index\",\"type\":\"uint256\"}],\"name\":\"tokenOfOwnerByIndex\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"tokenId\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"withdrawFunds\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
 }
 
 // MarketplaceABI is the input ABI used to generate the binding from.
@@ -468,25 +468,25 @@ func (_Marketplace *MarketplaceTransactorSession) CancelListing(_listingId *big.
 	return _Marketplace.Contract.CancelListing(&_Marketplace.TransactOpts, _listingId)
 }
 
-// CreateListing is a paid mutator transaction binding the contract method 0x096c316a.
+// CreateListing is a paid mutator transaction binding the contract method 0xa6b77511.
 //
-// Solidity: function createListing(uint128 _tokenId, uint128 _price, string _name, string _description, string _symbol) returns()
-func (_Marketplace *MarketplaceTransactor) CreateListing(opts *bind.TransactOpts, _tokenId *big.Int, _price *big.Int, _name string, _description string, _symbol string) (*types.Transaction, error) {
-	return _Marketplace.contract.Transact(opts, "createListing", _tokenId, _price, _name, _description, _symbol)
+// Solidity: function createListing(uint128 _tokenId, uint128 _price, string _name) returns()
+func (_Marketplace *MarketplaceTransactor) CreateListing(opts *bind.TransactOpts, _tokenId *big.Int, _price *big.Int, _name string) (*types.Transaction, error) {
+	return _Marketplace.contract.Transact(opts, "createListing", _tokenId, _price, _name)
 }
 
-// CreateListing is a paid mutator transaction binding the contract method 0x096c316a.
+// CreateListing is a paid mutator transaction binding the contract method 0xa6b77511.
 //
-// Solidity: function createListing(uint128 _tokenId, uint128 _price, string _name, string _description, string _symbol) returns()
-func (_Marketplace *MarketplaceSession) CreateListing(_tokenId *big.Int, _price *big.Int, _name string, _description string, _symbol string) (*types.Transaction, error) {
-	return _Marketplace.Contract.CreateListing(&_Marketplace.TransactOpts, _tokenId, _price, _name, _description, _symbol)
+// Solidity: function createListing(uint128 _tokenId, uint128 _price, string _name) returns()
+func (_Marketplace *MarketplaceSession) CreateListing(_tokenId *big.Int, _price *big.Int, _name string) (*types.Transaction, error) {
+	return _Marketplace.Contract.CreateListing(&_Marketplace.TransactOpts, _tokenId, _price, _name)
 }
 
-// CreateListing is a paid mutator transaction binding the contract method 0x096c316a.
+// CreateListing is a paid mutator transaction binding the contract method 0xa6b77511.
 //
-// Solidity: function createListing(uint128 _tokenId, uint128 _price, string _name, string _description, string _symbol) returns()
-func (_Marketplace *MarketplaceTransactorSession) CreateListing(_tokenId *big.Int, _price *big.Int, _name string, _description string, _symbol string) (*types.Transaction, error) {
-	return _Marketplace.Contract.CreateListing(&_Marketplace.TransactOpts, _tokenId, _price, _name, _description, _symbol)
+// Solidity: function createListing(uint128 _tokenId, uint128 _price, string _name) returns()
+func (_Marketplace *MarketplaceTransactorSession) CreateListing(_tokenId *big.Int, _price *big.Int, _name string) (*types.Transaction, error) {
+	return _Marketplace.Contract.CreateListing(&_Marketplace.TransactOpts, _tokenId, _price, _name)
 }
 
 // PurchaseListing is a paid mutator transaction binding the contract method 0x169d5a7d.
@@ -1208,20 +1208,17 @@ func (it *MarketplaceListingCreatedIterator) Close() error {
 
 // MarketplaceListingCreated represents a ListingCreated event raised by the Marketplace contract.
 type MarketplaceListingCreated struct {
-	Id          *big.Int
-	Seller      common.Address
-	TokenId     *big.Int
-	Price       *big.Int
-	Name        string
-	Description string
-	Symbol      string
-	Timestamp   *big.Int
-	Raw         types.Log // Blockchain specific contextual infos
+	Id        *big.Int
+	Seller    common.Address
+	TokenId   *big.Int
+	Price     *big.Int
+	Timestamp *big.Int
+	Raw       types.Log // Blockchain specific contextual infos
 }
 
-// FilterListingCreated is a free log retrieval operation binding the contract event 0x693b06f4bb6c1a1b5219c0784872e9c5c33bd38b3caa6f37d18fea94839e1a53.
+// FilterListingCreated is a free log retrieval operation binding the contract event 0xa3941cfa07eecf2734875ab71cea0e47395be644da6e17b039a7e29efba74ef9.
 //
-// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price, string name, string description, string symbol, uint256 timestamp)
+// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price, uint256 timestamp)
 func (_Marketplace *MarketplaceFilterer) FilterListingCreated(opts *bind.FilterOpts, id []*big.Int, seller []common.Address) (*MarketplaceListingCreatedIterator, error) {
 
 	var idRule []interface{}
@@ -1240,9 +1237,9 @@ func (_Marketplace *MarketplaceFilterer) FilterListingCreated(opts *bind.FilterO
 	return &MarketplaceListingCreatedIterator{contract: _Marketplace.contract, event: "ListingCreated", logs: logs, sub: sub}, nil
 }
 
-// WatchListingCreated is a free log subscription operation binding the contract event 0x693b06f4bb6c1a1b5219c0784872e9c5c33bd38b3caa6f37d18fea94839e1a53.
+// WatchListingCreated is a free log subscription operation binding the contract event 0xa3941cfa07eecf2734875ab71cea0e47395be644da6e17b039a7e29efba74ef9.
 //
-// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price, string name, string description, string symbol, uint256 timestamp)
+// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price, uint256 timestamp)
 func (_Marketplace *MarketplaceFilterer) WatchListingCreated(opts *bind.WatchOpts, sink chan<- *MarketplaceListingCreated, id []*big.Int, seller []common.Address) (event.Subscription, error) {
 
 	var idRule []interface{}
@@ -1286,9 +1283,9 @@ func (_Marketplace *MarketplaceFilterer) WatchListingCreated(opts *bind.WatchOpt
 	}), nil
 }
 
-// ParseListingCreated is a log parse operation binding the contract event 0x693b06f4bb6c1a1b5219c0784872e9c5c33bd38b3caa6f37d18fea94839e1a53.
+// ParseListingCreated is a log parse operation binding the contract event 0xa3941cfa07eecf2734875ab71cea0e47395be644da6e17b039a7e29efba74ef9.
 //
-// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price, string name, string description, string symbol, uint256 timestamp)
+// Solidity: event ListingCreated(uint256 indexed id, address indexed seller, uint256 tokenId, uint256 price, uint256 timestamp)
 func (_Marketplace *MarketplaceFilterer) ParseListingCreated(log types.Log) (*MarketplaceListingCreated, error) {
 	event := new(MarketplaceListingCreated)
 	if err := _Marketplace.contract.UnpackLog(event, "ListingCreated", log); err != nil {
@@ -1530,7 +1527,7 @@ type MarketplaceTokenCreated struct {
 
 // FilterTokenCreated is a free log retrieval operation binding the contract event 0x5d3ac5872118b949a1f8db596134a0e1587ecf18f2203bb1e3ea420c3c3f8fa9.
 //
-// Solidity: event TokenCreated(uint256 indexed tokenID, string Name)
+// Solidity: event TokenCreated(uint256 indexed tokenID, string name)
 func (_Marketplace *MarketplaceFilterer) FilterTokenCreated(opts *bind.FilterOpts, tokenID []*big.Int) (*MarketplaceTokenCreatedIterator, error) {
 
 	var tokenIDRule []interface{}
@@ -1547,7 +1544,7 @@ func (_Marketplace *MarketplaceFilterer) FilterTokenCreated(opts *bind.FilterOpt
 
 // WatchTokenCreated is a free log subscription operation binding the contract event 0x5d3ac5872118b949a1f8db596134a0e1587ecf18f2203bb1e3ea420c3c3f8fa9.
 //
-// Solidity: event TokenCreated(uint256 indexed tokenID, string Name)
+// Solidity: event TokenCreated(uint256 indexed tokenID, string name)
 func (_Marketplace *MarketplaceFilterer) WatchTokenCreated(opts *bind.WatchOpts, sink chan<- *MarketplaceTokenCreated, tokenID []*big.Int) (event.Subscription, error) {
 
 	var tokenIDRule []interface{}
@@ -1589,7 +1586,7 @@ func (_Marketplace *MarketplaceFilterer) WatchTokenCreated(opts *bind.WatchOpts,
 
 // ParseTokenCreated is a log parse operation binding the contract event 0x5d3ac5872118b949a1f8db596134a0e1587ecf18f2203bb1e3ea420c3c3f8fa9.
 //
-// Solidity: event TokenCreated(uint256 indexed tokenID, string Name)
+// Solidity: event TokenCreated(uint256 indexed tokenID, string name)
 func (_Marketplace *MarketplaceFilterer) ParseTokenCreated(log types.Log) (*MarketplaceTokenCreated, error) {
 	event := new(MarketplaceTokenCreated)
 	if err := _Marketplace.contract.UnpackLog(event, "TokenCreated", log); err != nil {
