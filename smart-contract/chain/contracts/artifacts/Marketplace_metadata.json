@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.22+commit.4fc1097e"
+		"version": "0.8.20+commit.a1b79de6"
 	},
 	"language": "Solidity",
 	"output": {
@@ -160,25 +160,6 @@
 				"type": "event"
 			},
 			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": true,
-						"internalType": "uint256",
-						"name": "tokenID",
-						"type": "uint256"
-					},
-					{
-						"indexed": false,
-						"internalType": "string",
-						"name": "name",
-						"type": "string"
-					}
-				],
-				"name": "TokenCreated",
-				"type": "event"
-			},
-			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -234,11 +215,6 @@
 						"internalType": "uint128",
 						"name": "_price",
 						"type": "uint128"
-					},
-					{
-						"internalType": "string",
-						"name": "_name",
-						"type": "string"
 					}
 				],
 				"name": "createListing",
@@ -411,7 +387,7 @@
 						"_nftContractAddress": "Address of the ERC721 token contract."
 					}
 				},
-				"createListing(uint128,uint128,string)": {
+				"createListing(uint128,uint128)": {
 					"params": {
 						"_price": "Sale price in wei.",
 						"_tokenId": "ID of the token to sell."
@@ -470,9 +446,6 @@
 				},
 				"PurchaseCompleted(uint256,address,uint256,uint256,uint256)": {
 					"notice": "Event emitted when an NFT is purchased."
-				},
-				"TokenCreated(uint256,string)": {
-					"notice": "Event emitted when a token is created"
 				}
 			},
 			"kind": "user",
@@ -483,7 +456,7 @@
 				"commissionPercent()": {
 					"notice": "Commission percentage charged by the marketplace."
 				},
-				"createListing(uint128,uint128,string)": {
+				"createListing(uint128,uint128)": {
 					"notice": "Creates a listing to sell an NFT."
 				},
 				"nftContract()": {
@@ -552,11 +525,11 @@
 			]
 		},
 		"contracts/Orders.sol": {
-			"keccak256": "0x328dff0f2c80245a73e38dec1e2a89958826ac6e51c53234457dd910675c0829",
+			"keccak256": "0xb4e5624c8439ff71601b715b98c9f3c0611c5f9e9776c3ad085ceb8290ff7182",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://9884a051a40dc7cba98e871fb0c81f42dd95b70365f1f228f877e5cbf82f8633",
-				"dweb:/ipfs/QmXjDdEyTsXqviqBk1G7kkmejvACc1AwcNgNbAjogrxuFx"
+				"bzz-raw://0c6b14e44be4a1243ae8a54c2375436176a8e8517b6f6b19dd9c1a142c2be2a7",
+				"dweb:/ipfs/QmUsW5L1jEqgiYCAv39RMw97m9aehjCmT3syUXkmAbDxrr"
 			]
 		}
 	},

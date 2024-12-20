@@ -270,25 +270,6 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 		"type": "event"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "uint256",
-				"name": "tokenID",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			}
-		],
-		"name": "TokenCreated",
-		"type": "event"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -344,11 +325,6 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 				"internalType": "uint128",
 				"name": "_price",
 				"type": "uint128"
-			},
-			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
 			}
 		],
 		"name": "createListing",
@@ -535,7 +511,7 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 }
 
 // MintNFT creates a new NFT and lists it on the marketplace with the given name, symbol, description, and price.
-func (es *EthereumService) MintNFT(tokenID, name, symbol, description, price, recipient string) error {
+func (es *EthereumService) MintNFT(tokenID, price, recipient string) error {
 	log.Printf("Minting NFT with token ID: %s for recipient: %s with price: %s, name: %s, symbol: %s, description: %s", tokenID, recipient, price, name, symbol, description)
 
 	if !common.IsHexAddress(recipient) {
@@ -743,25 +719,6 @@ func (es *EthereumService) MintNFT(tokenID, name, symbol, description, price, re
 		"type": "event"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "uint256",
-				"name": "tokenID",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			}
-		],
-		"name": "TokenCreated",
-		"type": "event"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -817,11 +774,6 @@ func (es *EthereumService) MintNFT(tokenID, name, symbol, description, price, re
 				"internalType": "uint128",
 				"name": "_price",
 				"type": "uint128"
-			},
-			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
 			}
 		],
 		"name": "createListing",
@@ -987,7 +939,7 @@ func (es *EthereumService) MintNFT(tokenID, name, symbol, description, price, re
 
 	contract := bind.NewBoundContract(es.ContractAddress, parsedABI, es.Client, es.Client, es.Client)
 
-	tx, err := contract.Transact(auth, "createListing", tokenIDBigInt, priceBigInt, name)
+	tx, err := contract.Transact(auth, "createListing", tokenIDBigInt, priceBigInt)
 	if err != nil {
 		log.Printf("failed to mint NFT: %v", err)
 		return fmt.Errorf("failed to mint NFT: %w", err)
@@ -1214,25 +1166,6 @@ func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
 		"type": "event"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "uint256",
-				"name": "tokenID",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			}
-		],
-		"name": "TokenCreated",
-		"type": "event"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -1288,11 +1221,6 @@ func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
 				"internalType": "uint128",
 				"name": "_price",
 				"type": "uint128"
-			},
-			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
 			}
 		],
 		"name": "createListing",

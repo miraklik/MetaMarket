@@ -118,7 +118,7 @@ func (s *DB_Server) MintNFT(ethService *services.EthereumService) gin.HandlerFun
 			Price:       request.Price,
 		}
 
-		err := ethService.MintNFT(request.TokenID, request.Name, request.Symbol, request.Description, request.Price, request.Recipient)
+		err := ethService.MintNFT(request.TokenID, request.Price, request.Recipient)
 		if err != nil {
 			log.Printf("MintNFT error: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to mint NFT on blockchain: " + err.Error()})

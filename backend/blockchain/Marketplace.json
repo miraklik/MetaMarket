@@ -154,25 +154,6 @@
 		"type": "event"
 	},
 	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "uint256",
-				"name": "tokenID",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "name",
-				"type": "string"
-			}
-		],
-		"name": "TokenCreated",
-		"type": "event"
-	},
-	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -228,11 +209,6 @@
 				"internalType": "uint128",
 				"name": "_price",
 				"type": "uint128"
-			},
-			{
-				"internalType": "string",
-				"name": "_name",
-				"type": "string"
 			}
 		],
 		"name": "createListing",
