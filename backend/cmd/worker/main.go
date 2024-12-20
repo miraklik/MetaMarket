@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"nft-marketplace/config"
+	"nft-marketplace/db"
 	"nft-marketplace/handlers"
 	"nft-marketplace/middleware"
 	"nft-marketplace/services"
@@ -13,13 +14,25 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"gorm.io/gorm"
 )
+
+func InitDB() *gorm.DB {
+	db, err := db.ConnectDB()
+	if err != nil {
+		log.Fatalf("Failed to connect to the database: %v", err)
+	}
+
+	return db
+}
 
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Failed to load .env file:", err)
 	}
 	cfg := config.LoadConfig()
+
+	db := InitDB()
 
 	client, err := ethclient.Dial(cfg.BlockChainRPC)
 	if err != nil {
@@ -40,10 +53,12 @@ func main() {
 
 	router := gin.Default()
 
+	server := handlers.NewServers(db)
+
 	middlewareNFTs := router.Group("/nfts")
 
 	middlewareNFTs.Use(middleware.MintNFT(etherService))
-	router.POST("/Create", handlers.MintNFT(etherService))
+	router.POST("/Create", server.MintNFT(etherService))
 	middlewareNFTs.Use(middleware.GetNFTs(etherService))
 	router.GET("/nfts/:id", handlers.GetNFTs(etherService))
 	middlewareNFTs.Use(middleware.BuyNFT(etherService))

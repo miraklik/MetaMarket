@@ -23,11 +23,11 @@ func GetUserById(uid uint) (User, error) {
 	var user User
 
 	db, err := ConnectDB()
-
 	if err != nil {
 		log.Println(err)
 		return User{}, err
 	}
+
 	if err := db.Preload("Groceries").Where("id=?", uid).Find(&user).Error; err != nil {
 		return user, errors.New("user not found")
 

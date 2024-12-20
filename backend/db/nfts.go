@@ -4,8 +4,8 @@ type Nfts struct {
 	ID          uint   `gorm:"primaryKey" json:"id"`
 	Name        string `gorm:"size:255; not null; unique" json:"name"`
 	Symbol      string `gorm:"size:255; not null; unique" json:"symbol"`
-	Description string `gorm:"size:255; not null; unique" json:"description"`
-	Price       string `gorm:"size:255; not null; unique" json:"price"`
+	Description string `gorm:"size:255; not null;" json:"description"`
+	Price       string `gorm:"size:255; not null;" json:"price"`
 }
 
 // GetNFTsByName retrieves a list of NFTs with the given name from the database.

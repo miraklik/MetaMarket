@@ -9,7 +9,16 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
+
+type DB_Server struct {
+	db *gorm.DB
+}
+
+func NewServers(db *gorm.DB) *DB_Server {
+	return &DB_Server{db: db}
+}
 
 // GetNFTs returns a list of NFTs from the database in the following format:
 // [
@@ -64,7 +73,7 @@ func GetNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 // If there is an error during the smart contract call, it responds with an internal server error.
 // If the database query fails, it responds with an internal server error.
 // If the operation is successful, it responds with a success message with status code 200.
-func MintNFT(ethService *services.EthereumService) gin.HandlerFunc {
+func (s *DB_Server) MintNFT(ethService *services.EthereumService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request struct {
 			TokenID     string `json:"token_id"`
@@ -74,8 +83,6 @@ func MintNFT(ethService *services.EthereumService) gin.HandlerFunc {
 			Price       string `json:"price"`
 			Recipient   string `json:"recipient"`
 		}
-
-		var s Server
 
 		if err := c.ShouldBindJSON(&request); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

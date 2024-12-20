@@ -536,7 +536,7 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 
 // MintNFT creates a new NFT and lists it on the marketplace with the given name, symbol, description, and price.
 func (es *EthereumService) MintNFT(tokenID, name, symbol, description, price, recipient string) error {
-	log.Printf("Minting NFT with token ID %s for recipient %s with price %s\n, name %s, symbol %s, description %s", tokenID, recipient, price, name, symbol, description)
+	log.Printf("Minting NFT with token ID: %s for recipient: %s with price: %s, name: %s, symbol: %s, description: %s", tokenID, recipient, price, name, symbol, description)
 
 	if !common.IsHexAddress(recipient) {
 		log.Printf("Invalid recipient address: %s", recipient)
