@@ -58,7 +58,7 @@ func NewEthereumService(rpcURL, contractAddress, privateKeyHex, abiJSON string, 
 		return nil, err
 	}
 
-	auth.GasLimit = uint64(22000)
+	auth.GasLimit = uint64(21000)
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Printf("Failed to suggest gas price: %v", err)
@@ -512,7 +512,7 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 
 // MintNFT creates a new NFT and lists it on the marketplace with the given name, symbol, description, and price.
 func (es *EthereumService) MintNFT(tokenID, price, recipient string) error {
-	log.Printf("Minting NFT with token ID: %s for recipient: %s with price: %s, name: %s, symbol: %s, description: %s", tokenID, recipient, price, name, symbol, description)
+	log.Printf("Minting NFT with token ID: %s for recipient: %s with price: %s", tokenID, recipient, price)
 
 	if !common.IsHexAddress(recipient) {
 		log.Printf("Invalid recipient address: %s", recipient)
@@ -555,7 +555,7 @@ func (es *EthereumService) MintNFT(tokenID, price, recipient string) error {
 		return fmt.Errorf("failed to create transactor: %w", err)
 	}
 
-	auth.GasLimit = uint64(22000)
+	auth.GasLimit = uint64(21000)
 	gasPrice, err := es.Client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Printf("Failed to suggest gas price: %v", err)
@@ -1002,7 +1002,7 @@ func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
 		return fmt.Errorf("failed to get network ID: %w", err)
 	}
 
-	auth.GasLimit = uint64(22000)
+	auth.GasLimit = uint64(21000)
 	gasPrice, err := es.Client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Printf("failed to suggest gas price: %v", err)

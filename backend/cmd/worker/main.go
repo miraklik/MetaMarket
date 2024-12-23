@@ -36,7 +36,7 @@ func main() {
 
 	client, err := ethclient.Dial(cfg.BlockChainRPC)
 	if err != nil {
-		log.Fatalf("Failed to connect to Ethereum client: %v", err)
+		log.Panicf("Failed to connect to Ethereum client: %v", err)
 	}
 
 	privateKey, err := crypto.HexToECDSA(cfg.PrivateKey)
