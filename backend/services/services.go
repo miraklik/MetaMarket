@@ -28,16 +28,30 @@ type NFTContract struct {
 	*bind.BoundContract
 }
 
+type NFTListing struct {
+	Seller   common.Address
+	TokenID  *big.Int
+	Price    *big.Int
+	IsActive bool
+}
+
 // NewEthereumService creates a new instance of EthereumService.
 //
 // It takes two string parameters: rpcURL and contractAddress. The rpcURL is the
 // URL of the Ethereum node to connect to, and the contractAddress is the address
 // of the smart contract to interact with.
 func NewEthereumService(rpcURL, contractAddress, privateKeyHex, abiJSON string, chainID *big.Int) (*EthereumService, error) {
+	privateKeyHex = strings.TrimPrefix(privateKeyHex, "0x")
+
 	privateKey, err := crypto.HexToECDSA(privateKeyHex)
 	if err != nil {
 		log.Printf("Invalid private key: %v", err)
 		return nil, fmt.Errorf("invalid private key: %w", err)
+	}
+
+	if rpcURL == "" {
+		log.Printf("RPC URL is required")
+		return nil, fmt.Errorf("RPC URL is required")
 	}
 
 	client, err := ethclient.Dial(rpcURL)
@@ -58,7 +72,7 @@ func NewEthereumService(rpcURL, contractAddress, privateKeyHex, abiJSON string, 
 		return nil, err
 	}
 
-	auth.GasLimit = uint64(21000)
+	auth.GasLimit = uint64(22000)
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Printf("Failed to suggest gas price: %v", err)
@@ -67,13 +81,45 @@ func NewEthereumService(rpcURL, contractAddress, privateKeyHex, abiJSON string, 
 	auth.GasPrice = new(big.Int).Div(gasPrice, big.NewInt(2))
 
 	contract := bind.NewBoundContract(common.HexToAddress(contractAddress), parsedABI, client, client, client)
+	if contract == nil {
+		log.Printf("Failed to create contract binding")
+		return nil, fmt.Errorf("failed to create contract binding")
+	}
 
-	return &EthereumService{
+	if contractAddress == "" {
+		return nil, fmt.Errorf("contract address is required")
+	}
+	if abiJSON == "" {
+		return nil, fmt.Errorf("ABI JSON is required")
+	}
+
+	contract = bind.NewBoundContract(
+		common.HexToAddress(contractAddress),
+		parsedABI,
+		client,
+		client,
+		client,
+	)
+	if contract == nil {
+		return nil, fmt.Errorf("failed to create contract binding")
+	}
+
+	code, err := client.CodeAt(context.Background(), common.HexToAddress(contractAddress), nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check contract code: %w", err)
+	}
+	if len(code) == 0 {
+		return nil, fmt.Errorf("no contract code at address: %s", contractAddress)
+	}
+
+	service := &EthereumService{
 		Client:          client,
 		ContractAddress: common.HexToAddress(contractAddress),
 		PrivateKey:      privateKey,
-		Contract:        contract,
-	}, nil
+		Contract:        contract, // Убедитесь, что это поле установлено
+	}
+
+	return service, nil
 }
 
 // CheckOwnership checks whether the given token ID is owned by the given Ethereum address.
@@ -111,9 +157,7 @@ func (es *EthereumService) GetBalance(address common.Address) (*big.Int, error) 
 
 // GetNFTs returns a list of NFTs owned by the given address. Currently, this
 // function is not implemented and will return an error.
-func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) {
-	log.Printf("Getting NFTs for address: %s\n", accounts.Hex())
-
+func (es *EthereumService) GetNFTs(accounts common.Address) ([]NFTListing, error) {
 	contractABI := `[
 	{
 		"inputs": [
@@ -149,19 +193,6 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 		"inputs": [
 			{
 				"indexed": false,
-				"internalType": "string",
-				"name": "message",
-				"type": "string"
-			}
-		],
-		"name": "Debug",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
@@ -169,7 +200,7 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "owner",
+				"name": "recipient",
 				"type": "address"
 			}
 		],
@@ -270,14 +301,8 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 		"type": "event"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "balanceOf",
+		"inputs": [],
+		"name": "MAX_COMMISSION",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -336,6 +361,85 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 		"inputs": [
 			{
 				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "getListingId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_seller",
+				"type": "address"
+			}
+		],
+		"name": "getListingsBySeller",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "seller",
+						"type": "address"
+					},
+					{
+						"internalType": "uint128",
+						"name": "tokenId",
+						"type": "uint128"
+					},
+					{
+						"internalType": "uint128",
+						"name": "price",
+						"type": "uint128"
+					},
+					{
+						"internalType": "bool",
+						"name": "isActive",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct Marketplace.Listing[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "isTokenListed",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
 			}
@@ -356,6 +460,11 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 				"internalType": "uint128",
 				"name": "price",
 				"type": "uint128"
+			},
+			{
+				"internalType": "bool",
+				"name": "isActive",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -462,7 +571,7 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "tokenId",
+				"name": "",
 				"type": "uint256"
 			}
 		],
@@ -484,30 +593,74 @@ func (es *EthereumService) GetNFTs(accounts common.Address) ([]*big.Int, error) 
 
 	parsedABI, err := abi.JSON(strings.NewReader(contractABI))
 	if err != nil {
-		log.Printf("Failed to parse ABI: %v", err)
-		return nil, err
+		log.Printf("Failed to parse contract ABI: %v", err)
+		return nil, fmt.Errorf("failed to parse contract ABI: %w", err)
+	}
+
+	services, err := NewEthereumService(
+		os.Getenv("BLOCKCHAIN_RPC"),
+		os.Getenv("CONTRACT_ADDRESS"),
+		os.Getenv("PRIVATE_KEY"),
+		contractABI,
+		big.NewInt(11155111),
+	)
+	if err != nil {
+		log.Printf("Failed to create EthereumService: %v", err)
+		return nil, fmt.Errorf("failed to create EthereumService: %w", err)
+	}
+
+	if services.Contract == nil {
+		log.Printf("Contract not initialized")
+		return nil, fmt.Errorf("contract not initialized")
+	}
+
+	if es.Client == nil {
+		log.Printf("Client not initialized")
+		return nil, fmt.Errorf("client not initialized")
+	}
+
+	code, err := es.Client.CodeAt(context.Background(), es.ContractAddress, nil)
+	if err != nil {
+		log.Printf("Failed to get contract code: %v", err)
+		return nil, fmt.Errorf("failed to get contract code: %w", err)
+	}
+
+	if len(code) == 0 {
+		log.Printf("Contract not deployed at address: %s", es.ContractAddress)
+		return nil, fmt.Errorf("contract not deployed at address: %s", es.ContractAddress)
 	}
 
 	contract := bind.NewBoundContract(es.ContractAddress, parsedABI, es.Client, es.Client, es.Client)
+	if contract == nil {
+		log.Printf("Failed to create contract: %v", err)
+		return nil, fmt.Errorf("failed to create contract: %w", err)
+	}
 
-	var balance *big.Int
-	err = contract.Call(nil, &[]interface{}{&balance}, "balanceOf", accounts)
+	var result []interface{}
+	err = contract.Call(&bind.CallOpts{}, &result, "getListingsBySeller", accounts)
 	if err != nil {
-		log.Printf("Failed to call balanceOf: %v", err)
-		return nil, err
+		log.Printf("Failed to get listings: %v", err)
+		return nil, fmt.Errorf("failed to get listings: %w", err)
 	}
 
-	tokens := make([]*big.Int, 0, balance.Uint64())
-	for i := uint64(0); i < balance.Uint64(); i++ {
-		var tokenId big.Int
-		err := contract.Call(nil, &[]interface{}{tokenId}, "tokenOfOwnerByIndex", accounts, big.NewInt(int64(i)))
-		if err != nil {
-			log.Printf("Failed to call tokenOfOwnerByIndex: %v", err)
-			return nil, err
+	listings := make([]NFTListing, 0)
+	for _, item := range result {
+		if listing, ok := item.(struct {
+			Seller   common.Address
+			TokenId  *big.Int
+			Price    *big.Int
+			IsActive bool
+		}); ok {
+			listings = append(listings, NFTListing{
+				Seller:   listing.Seller,
+				TokenID:  listing.TokenId,
+				Price:    listing.Price,
+				IsActive: listing.IsActive,
+			})
 		}
-		tokens = append(tokens, &tokenId)
 	}
-	return tokens, nil
+
+	return listings, nil
 }
 
 // MintNFT creates a new NFT and lists it on the marketplace with the given name, symbol, description, and price.
@@ -555,7 +708,7 @@ func (es *EthereumService) MintNFT(tokenID, price, recipient string) error {
 		return fmt.Errorf("failed to create transactor: %w", err)
 	}
 
-	auth.GasLimit = uint64(21000)
+	auth.GasLimit = uint64(22000)
 	gasPrice, err := es.Client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Printf("Failed to suggest gas price: %v", err)
@@ -598,19 +751,6 @@ func (es *EthereumService) MintNFT(tokenID, price, recipient string) error {
 		"inputs": [
 			{
 				"indexed": false,
-				"internalType": "string",
-				"name": "message",
-				"type": "string"
-			}
-		],
-		"name": "Debug",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
@@ -618,7 +758,7 @@ func (es *EthereumService) MintNFT(tokenID, price, recipient string) error {
 			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "owner",
+				"name": "recipient",
 				"type": "address"
 			}
 		],
@@ -719,14 +859,8 @@ func (es *EthereumService) MintNFT(tokenID, price, recipient string) error {
 		"type": "event"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "balanceOf",
+		"inputs": [],
+		"name": "MAX_COMMISSION",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -785,6 +919,85 @@ func (es *EthereumService) MintNFT(tokenID, price, recipient string) error {
 		"inputs": [
 			{
 				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "getListingId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_seller",
+				"type": "address"
+			}
+		],
+		"name": "getListingsBySeller",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "seller",
+						"type": "address"
+					},
+					{
+						"internalType": "uint128",
+						"name": "tokenId",
+						"type": "uint128"
+					},
+					{
+						"internalType": "uint128",
+						"name": "price",
+						"type": "uint128"
+					},
+					{
+						"internalType": "bool",
+						"name": "isActive",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct Marketplace.Listing[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "isTokenListed",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
 			}
@@ -805,6 +1018,11 @@ func (es *EthereumService) MintNFT(tokenID, price, recipient string) error {
 				"internalType": "uint128",
 				"name": "price",
 				"type": "uint128"
+			},
+			{
+				"internalType": "bool",
+				"name": "isActive",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -911,7 +1129,7 @@ func (es *EthereumService) MintNFT(tokenID, price, recipient string) error {
 		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "tokenId",
+				"name": "",
 				"type": "uint256"
 			}
 		],
@@ -1002,7 +1220,7 @@ func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
 		return fmt.Errorf("failed to get network ID: %w", err)
 	}
 
-	auth.GasLimit = uint64(21000)
+	auth.GasLimit = uint64(22000)
 	gasPrice, err := es.Client.SuggestGasPrice(context.Background())
 	if err != nil {
 		log.Printf("failed to suggest gas price: %v", err)
@@ -1045,19 +1263,6 @@ func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
 		"inputs": [
 			{
 				"indexed": false,
-				"internalType": "string",
-				"name": "message",
-				"type": "string"
-			}
-		],
-		"name": "Debug",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": false,
 				"internalType": "uint256",
 				"name": "amount",
 				"type": "uint256"
@@ -1065,7 +1270,7 @@ func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
 			{
 				"indexed": true,
 				"internalType": "address",
-				"name": "owner",
+				"name": "recipient",
 				"type": "address"
 			}
 		],
@@ -1166,14 +1371,8 @@ func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
 		"type": "event"
 	},
 	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "balanceOf",
+		"inputs": [],
+		"name": "MAX_COMMISSION",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -1232,6 +1431,85 @@ func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
 		"inputs": [
 			{
 				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "getListingId",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_seller",
+				"type": "address"
+			}
+		],
+		"name": "getListingsBySeller",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "seller",
+						"type": "address"
+					},
+					{
+						"internalType": "uint128",
+						"name": "tokenId",
+						"type": "uint128"
+					},
+					{
+						"internalType": "uint128",
+						"name": "price",
+						"type": "uint128"
+					},
+					{
+						"internalType": "bool",
+						"name": "isActive",
+						"type": "bool"
+					}
+				],
+				"internalType": "struct Marketplace.Listing[]",
+				"name": "",
+				"type": "tuple[]"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "isTokenListed",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
 			}
@@ -1252,6 +1530,11 @@ func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
 				"internalType": "uint128",
 				"name": "price",
 				"type": "uint128"
+			},
+			{
+				"internalType": "bool",
+				"name": "isActive",
+				"type": "bool"
 			}
 		],
 		"stateMutability": "view",
@@ -1358,7 +1641,7 @@ func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
 		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "tokenId",
+				"name": "",
 				"type": "uint256"
 			}
 		],

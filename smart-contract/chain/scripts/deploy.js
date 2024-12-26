@@ -1,5 +1,4 @@
 const { ethers } = require("hardhat");
-const provider = new ethers.JsonRpcProvider('https://rpc.sepolia.org');
 require("dotenv").config();
 
 async function main() {

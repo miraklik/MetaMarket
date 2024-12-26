@@ -47,10 +47,10 @@ func GetNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 			return
 		}
 
-		if len(nfts) == 0 {
+		/*if len(nfts) == 0 {
 			c.JSON(http.StatusNotFound, gin.H{"error": "No NFTs found"})
 			return
-		}
+		}*/
 
 		c.JSON(http.StatusOK, gin.H{"nfts": nfts})
 	}

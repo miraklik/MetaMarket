@@ -30,3 +30,18 @@ func GetNFTsByName(name string) (Nfts, error) {
 
 	return nfts, nil
 }
+
+func GetAllNFTs() ([]Nfts, error) {
+	var nfts []Nfts
+
+	db, err := ConnectDB()
+	if err != nil {
+		return nfts, err
+	}
+
+	if err := db.Find(&nfts).Error; err != nil {
+		return nfts, err
+	}
+
+	return nfts, nil
+}

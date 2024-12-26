@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"nft-marketplace/db"
@@ -37,25 +38,35 @@ func NewServers(db *gorm.DB) *DB_Server {
 // status code 200.
 func GetNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		type Request struct {
+		var req struct {
 			Accounts string `json:"accounts"`
 		}
 
-		var req Request
-		if err := c.BindJSON(&req); err != nil {
+		if err := c.ShouldBindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 			return
 		}
 
-		if !common.IsHexAddress(req.Accounts) {
+		if req.Accounts == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Account address is required"})
+			return
+		}
+
+		if err := utils.ValidateEthereumAddress(req.Accounts); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid owner address"})
 			return
 		}
 
 		accounts := common.HexToAddress(req.Accounts)
+		if ethService.ContractAddress == (common.Address{}) {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Contract address not configured"})
+			return
+		}
+
 		nfts, err := ethService.GetNFTs(accounts)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch NFTs: " + err.Error()})
+			log.Printf("Error fetching NFTs: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to fetch NFTs: %v", err)})
 			return
 		}
 

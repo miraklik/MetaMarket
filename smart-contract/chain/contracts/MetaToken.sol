@@ -33,7 +33,7 @@ contract MonToken {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "pas autorise");
+        require(msg.sender == owner, "you not owner");
         _;
     }
 

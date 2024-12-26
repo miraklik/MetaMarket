@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.20+commit.a1b79de6"
+		"version": "0.8.22+commit.4fc1097e"
 	},
 	"language": "Solidity",
 	"output": {
@@ -39,19 +39,6 @@
 				"inputs": [
 					{
 						"indexed": false,
-						"internalType": "string",
-						"name": "message",
-						"type": "string"
-					}
-				],
-				"name": "Debug",
-				"type": "event"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": false,
 						"internalType": "uint256",
 						"name": "amount",
 						"type": "uint256"
@@ -59,7 +46,7 @@
 					{
 						"indexed": true,
 						"internalType": "address",
-						"name": "owner",
+						"name": "recipient",
 						"type": "address"
 					}
 				],
@@ -160,14 +147,8 @@
 				"type": "event"
 			},
 			{
-				"inputs": [
-					{
-						"internalType": "address",
-						"name": "account",
-						"type": "address"
-					}
-				],
-				"name": "balanceOf",
+				"inputs": [],
+				"name": "MAX_COMMISSION",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -226,6 +207,85 @@
 				"inputs": [
 					{
 						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "getListingId",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_seller",
+						"type": "address"
+					}
+				],
+				"name": "getListingsBySeller",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "seller",
+								"type": "address"
+							},
+							{
+								"internalType": "uint128",
+								"name": "tokenId",
+								"type": "uint128"
+							},
+							{
+								"internalType": "uint128",
+								"name": "price",
+								"type": "uint128"
+							},
+							{
+								"internalType": "bool",
+								"name": "isActive",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct Marketplace.Listing[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "isTokenListed",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
 					}
@@ -246,6 +306,11 @@
 						"internalType": "uint128",
 						"name": "price",
 						"type": "uint128"
+					},
+					{
+						"internalType": "bool",
+						"name": "isActive",
+						"type": "bool"
 					}
 				],
 				"stateMutability": "view",
@@ -352,7 +417,7 @@
 				"outputs": [
 					{
 						"internalType": "uint256",
-						"name": "tokenId",
+						"name": "",
 						"type": "uint256"
 					}
 				],
@@ -383,7 +448,7 @@
 				"constructor": {
 					"details": "Initializes the marketplace with an ERC721 contract and commission percentage.",
 					"params": {
-						"_commissionPercent": "Marketplace commission percentage.",
+						"_commissionPercent": "Marketplace commission percentage (in basis points).",
 						"_nftContractAddress": "Address of the ERC721 token contract."
 					}
 				},
@@ -393,6 +458,30 @@
 						"_tokenId": "ID of the token to sell."
 					}
 				},
+				"getListingId(uint256)": {
+					"params": {
+						"_tokenId": "The token ID to check."
+					},
+					"returns": {
+						"_0": "The listing ID if the token is listed, 0 otherwise."
+					}
+				},
+				"getListingsBySeller(address)": {
+					"params": {
+						"_seller": "The address of the seller."
+					},
+					"returns": {
+						"_0": "Array of seller's listings."
+					}
+				},
+				"isTokenListed(uint256)": {
+					"params": {
+						"_tokenId": "The token ID to check."
+					},
+					"returns": {
+						"_0": "bool Whether the token is listed."
+					}
+				},
 				"purchaseListing(uint256)": {
 					"params": {
 						"_listingId": "ID of the listing to purchase."
@@ -400,16 +489,16 @@
 				},
 				"setCommissionPercent(uint256)": {
 					"params": {
-						"_newPercent": "New commission percentage."
+						"_newPercent": "New commission percentage in basis points."
 					}
 				},
 				"tokenOfOwnerByIndex(address,uint256)": {
 					"params": {
 						"_owner": "Address of the token owner.",
-						"index": "Index in the list of the `_owner`'s tokens."
+						"index": "Index in the owner's token list."
 					},
 					"returns": {
-						"tokenId": "The ID of the token owned by the `_owner` at the given index."
+						"_0": "The token ID at the given index."
 					}
 				}
 			},
@@ -418,13 +507,13 @@
 					"details": "Stores all listings by their unique ID."
 				},
 				"pendingWithdrawals": {
-					"details": "Pending withdrawals for sellers."
+					"details": "Pending withdrawals for sellers and owner."
+				},
+				"sellerListings": {
+					"details": "Maps seller addresses to their active listings"
 				},
 				"tokenToListingId": {
 					"details": "Maps token IDs to their active listing ID."
-				},
-				"unlocked": {
-					"details": "Reentrancy guard modifier."
 				}
 			},
 			"title": "NFT Marketplace",
@@ -436,7 +525,7 @@
 					"notice": "Event emitted when the marketplace commission is updated."
 				},
 				"FundsWithdrawn(uint256,address)": {
-					"notice": "Event emitted when funds are withdrawn from the contract."
+					"notice": "Event emitted when funds are withdrawn."
 				},
 				"ListingCancelled(uint256,address)": {
 					"notice": "Event emitted when a listing is cancelled."
@@ -450,14 +539,26 @@
 			},
 			"kind": "user",
 			"methods": {
+				"MAX_COMMISSION()": {
+					"notice": "Maximum commission percentage allowed (50%)."
+				},
 				"cancelListing(uint256)": {
 					"notice": "Cancels an active listing."
 				},
 				"commissionPercent()": {
-					"notice": "Commission percentage charged by the marketplace."
+					"notice": "Commission percentage charged by the marketplace (in basis points, 100 = 1%)."
 				},
 				"createListing(uint128,uint128)": {
 					"notice": "Creates a listing to sell an NFT."
+				},
+				"getListingId(uint256)": {
+					"notice": "Gets the listing ID for a token if it exists."
+				},
+				"getListingsBySeller(address)": {
+					"notice": "Gets all listings for a given seller."
+				},
+				"isTokenListed(uint256)": {
+					"notice": "Checks if a token is currently listed."
 				},
 				"nftContract()": {
 					"notice": "Interface for the ERC721 token contract."
@@ -478,7 +579,7 @@
 					"notice": "Returns the token ID owned by `_owner` at a specific `index`."
 				},
 				"withdrawFunds()": {
-					"notice": "Withdraws all funds from the contract."
+					"notice": "Withdraws pending funds."
 				}
 			},
 			"version": 1
@@ -525,11 +626,11 @@
 			]
 		},
 		"contracts/Orders.sol": {
-			"keccak256": "0xb4e5624c8439ff71601b715b98c9f3c0611c5f9e9776c3ad085ceb8290ff7182",
+			"keccak256": "0x5a5c9399c28bf0025ba253c98326e949f82f71005a00524f3c1bd2646b69d7f7",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://0c6b14e44be4a1243ae8a54c2375436176a8e8517b6f6b19dd9c1a142c2be2a7",
-				"dweb:/ipfs/QmUsW5L1jEqgiYCAv39RMw97m9aehjCmT3syUXkmAbDxrr"
+				"bzz-raw://1bc786295f1f72914feda58e05c85a0020ec0c7b2363962171bb35cbb396781d",
+				"dweb:/ipfs/QmYdtzAoQM4GhtL2Mu7f33RkLAFZKXYJWirMiMHJiXrdqx"
 			]
 		}
 	},

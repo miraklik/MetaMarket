@@ -3,7 +3,6 @@ pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
-
 /**
  * @title NFT Marketplace
  * @dev This contract facilitates the listing and sale of ERC721 tokens with added enumerable support.
@@ -14,13 +13,17 @@ contract Marketplace {
         address seller;
         uint128 tokenId;
         uint128 price;
+        bool isActive;
     }
 
     /// @notice Owner of the marketplace.
-    address payable public owner;
+    address payable public immutable owner;
 
-    /// @notice Commission percentage charged by the marketplace.
+    /// @notice Commission percentage charged by the marketplace (in basis points, 100 = 1%).
     uint256 public commissionPercent;
+
+    /// @notice Maximum commission percentage allowed (50%).
+    uint256 public constant MAX_COMMISSION = 5000;
 
     /// @dev Stores all listings by their unique ID.
     mapping(uint256 => Listing) public listings;
@@ -28,14 +31,17 @@ contract Marketplace {
     /// @dev Maps token IDs to their active listing ID.
     mapping(uint256 => uint256) private tokenToListingId;
 
-    /// @dev Pending withdrawals for sellers.
+    /// @dev Pending withdrawals for sellers and owner.
     mapping(address => uint256) public pendingWithdrawals;
 
     /// @notice Interface for the ERC721 token contract.
-    IERC721 public nftContract;
+    IERC721 public immutable nftContract;
 
     /// @notice Interface for enumerable ERC721 functionality.
-    IERC721Enumerable public nftEnumerable;
+    IERC721Enumerable public immutable nftEnumerable;
+
+    /// @dev Maps seller addresses to their active listings
+    mapping(address => Listing[]) private sellerListings;
 
     /// @notice Event emitted when a new listing is created.
     event ListingCreated(
@@ -61,33 +67,24 @@ contract Marketplace {
     /// @notice Event emitted when the marketplace commission is updated.
     event CommissionUpdated(uint256 newPercent);
 
-    /// @notice Event emitted when funds are withdrawn from the contract.
-    event FundsWithdrawn(uint256 amount, address indexed owner);
+    /// @notice Event emitted when funds are withdrawn.
+    event FundsWithdrawn(uint256 amount, address indexed recipient);
 
     /// @dev Modifier to restrict certain actions to the contract owner.
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can perform this action");
+        require(msg.sender == owner, "Only owner");
         _;
     }
-
-    /// @dev Reentrancy guard modifier.
-    uint256 private unlocked = 1;
-    modifier nonReentrant() {
-        require(unlocked == 1, "Reentrant call");
-        unlocked = 0;
-        _;
-        unlocked = 1;
-    }
-
-    receive() external payable {}
 
     /**
      * @dev Initializes the marketplace with an ERC721 contract and commission percentage.
      * @param _nftContractAddress Address of the ERC721 token contract.
-     * @param _commissionPercent Marketplace commission percentage.
+     * @param _commissionPercent Marketplace commission percentage (in basis points).
      */
     constructor(address _nftContractAddress, uint256 _commissionPercent) {
-        require(_commissionPercent <= 50, "Commission cannot exceed 50%");
+        require(_nftContractAddress != address(0), "Invalid NFT address");
+        require(_commissionPercent <= MAX_COMMISSION, "Commission too high");
+        
         owner = payable(msg.sender);
         nftContract = IERC721(_nftContractAddress);
         nftEnumerable = IERC721Enumerable(_nftContractAddress);
@@ -100,59 +97,67 @@ contract Marketplace {
      * @param _price Sale price in wei.
      */
     function createListing(uint128 _tokenId, uint128 _price) external {
-        require(_price > 0, "Price must be greater than 0");
-        emit Debug("Passed price check");
-
+        require(_price > 0, "Price must be > 0");
+        
         address tokenOwner = nftContract.ownerOf(_tokenId);
-        emit Debug("Owner retrieved");
-
+        require(tokenOwner == msg.sender, "Not token owner");
+        
         require(
-            tokenOwner == msg.sender,
-            "You are not the owner of this token"
+            nftContract.isApprovedForAll(msg.sender, address(this)) ||
+            nftContract.getApproved(_tokenId) == address(this),
+            "Not approved"
         );
-        emit Debug("Ownership verified");
 
-        require(
-            nftContract.getApproved(_tokenId) == address(this) ||
-                nftContract.isApprovedForAll(msg.sender, address(this)),
-            "Marketplace is not approved to transfer this token"
-        );
-        emit Debug("Approval verified");
+        require(tokenToListingId[_tokenId] == 0, "Already listed");
 
-        require(tokenToListingId[_tokenId] == 0, "Token is already listed");
+        uint256 listingId = uint256(keccak256(abi.encodePacked(
+            _tokenId,
+            msg.sender,
+            block.timestamp
+        )));
 
-        uint256 id = uint256(keccak256(abi.encodePacked(_tokenId, msg.sender)));
-        listings[id] = Listing(msg.sender, _tokenId, _price);
-        tokenToListingId[_tokenId] = id;
-        emit Debug("Unique listing ID verified");
+        listings[listingId] = Listing({
+            seller: msg.sender,
+            tokenId: _tokenId,
+            price: _price,
+            isActive: true
+        });
 
-        emit ListingCreated(id, msg.sender, _tokenId, _price, block.timestamp);
+        tokenToListingId[_tokenId] = listingId;
+        sellerListings[msg.sender].push(listings[listingId]);
+
+        emit ListingCreated(listingId, msg.sender, _tokenId, _price, block.timestamp);
     }
-
-    event Debug(string message);
 
     /**
      * @notice Purchases an NFT from an active listing.
      * @param _listingId ID of the listing to purchase.
      */
-    function purchaseListing(uint256 _listingId) external payable nonReentrant {
+    function purchaseListing(uint256 _listingId) external payable{
         Listing storage listing = listings[_listingId];
-        require(listing.price > 0, "Invalid or inactive listing");
-        require(msg.value == listing.price, "Incorrect payment amount");
+        require(listing.isActive, "Listing not active");
+        require(msg.value >= listing.price, "Insufficient payment");
+        require(msg.sender != listing.seller, "Cannot buy own listing");
 
-        uint256 commissionAmount = (msg.value * commissionPercent) / 100;
+        uint256 commissionAmount = (msg.value * commissionPercent) / 10000;
         uint256 sellerAmount = msg.value - commissionAmount;
 
-        // Transfer NFT to buyer
-        nftContract.safeTransferFrom(
-            listing.seller,
-            msg.sender,
-            listing.tokenId
+        require(
+            nftContract.ownerOf(listing.tokenId) == listing.seller,
+            "Seller no longer owns NFT"
+        );
+        require(
+            nftContract.isApprovedForAll(listing.seller, address(this)) ||
+            nftContract.getApproved(listing.tokenId) == address(this),
+            "Not approved"
         );
 
-        // Update pending withdrawals
+        listing.isActive = false;
+        delete tokenToListingId[listing.tokenId];
         pendingWithdrawals[owner] += commissionAmount;
         pendingWithdrawals[listing.seller] += sellerAmount;
+
+        nftContract.safeTransferFrom(listing.seller, msg.sender, listing.tokenId);
 
         emit PurchaseCompleted(
             _listingId,
@@ -161,10 +166,6 @@ contract Marketplace {
             listing.price,
             block.timestamp
         );
-
-        // Remove listing
-        delete listings[_listingId];
-        delete tokenToListingId[listing.tokenId];
     }
 
     /**
@@ -173,10 +174,10 @@ contract Marketplace {
      */
     function cancelListing(uint256 _listingId) external {
         Listing storage listing = listings[_listingId];
-        require(listing.price > 0, "Invalid or inactive listing");
-        require(listing.seller == msg.sender, "You are not the seller");
+        require(listing.isActive, "Listing not active");
+        require(listing.seller == msg.sender, "Not seller");
 
-        delete listings[_listingId];
+        listing.isActive = false;
         delete tokenToListingId[listing.tokenId];
 
         emit ListingCancelled(_listingId, msg.sender);
@@ -184,44 +185,73 @@ contract Marketplace {
 
     /**
      * @notice Updates the marketplace commission percentage.
-     * @param _newPercent New commission percentage.
+     * @param _newPercent New commission percentage in basis points.
      */
     function setCommissionPercent(uint256 _newPercent) external onlyOwner {
-        require(_newPercent <= 50, "Commission cannot exceed 100%");
+        require(_newPercent <= MAX_COMMISSION, "Commission too high");
         commissionPercent = _newPercent;
-
         emit CommissionUpdated(_newPercent);
     }
 
     /**
-     * @notice Withdraws all funds from the contract.
+     * @notice Withdraws pending funds.
      */
-    function withdrawFunds() external nonReentrant {
-        uint256 balance = pendingWithdrawals[msg.sender];
-        require(balance > 0, "No funds to withdraw");
-
+    function withdrawFunds() external onlyOwner {
+        uint256 amount = pendingWithdrawals[msg.sender];
+        require(amount > 0, "No funds to withdraw");
+ 
         pendingWithdrawals[msg.sender] = 0;
-        (bool success, ) = msg.sender.call{value: balance}("");
-        require(success, "Withdraw failed");
 
-        emit FundsWithdrawn(balance, msg.sender);
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
+        require(success, "Transfer failed");
+
+        emit FundsWithdrawn(amount, msg.sender);
     }
 
     /**
      * @notice Returns the token ID owned by `_owner` at a specific `index`.
      * @param _owner Address of the token owner.
-     * @param index Index in the list of the `_owner`'s tokens.
-     * @return tokenId The ID of the token owned by the `_owner` at the given index.
+     * @param index Index in the owner's token list.
+     * @return The token ID at the given index.
      */
-    function tokenOfOwnerByIndex(address _owner, uint256 index)
-        public
-        view
-        returns (uint256 tokenId)
-    {   
+    function tokenOfOwnerByIndex(address _owner, uint256 index) 
+        external
+        view 
+        returns (uint256) 
+    {
         return nftEnumerable.tokenOfOwnerByIndex(_owner, index);
     }
 
-    function balanceOf(address account) public view returns (uint256) {
-        return account.balance;
+    /**
+     * @notice Checks if a token is currently listed.
+     * @param _tokenId The token ID to check.
+     * @return bool Whether the token is listed.
+     */
+    function isTokenListed(uint256 _tokenId) external view returns (bool) {
+        uint256 listingId = tokenToListingId[_tokenId];
+        return listings[listingId].isActive;
     }
+
+    /**
+     * @notice Gets the listing ID for a token if it exists.
+     * @param _tokenId The token ID to check.
+     * @return The listing ID if the token is listed, 0 otherwise.
+     */
+    function getListingId(uint256 _tokenId) external view returns (uint256) {
+        return tokenToListingId[_tokenId];
+    }
+
+    /**
+     * @notice Gets all listings for a given seller.
+     * @param _seller The address of the seller.
+     * @return Array of seller's listings.
+     */
+    function getListingsBySeller(address _seller) external view returns (Listing[] memory) {
+        return sellerListings[_seller];
+    }
+
+    /**
+     * @notice Allows the contract to receive ETH.
+     */
+    receive() external payable {}
 }
