@@ -134,7 +134,7 @@ contract Marketplace {
      * @param _listingId ID of the listing to purchase.
      */
     function purchaseListing(uint256 _listingId) external payable{
-        Listing storage listing = listings[_listingId];
+        Listing memory listing = listings[_listingId];
         require(listing.isActive, "Listing not active");
         require(msg.value >= listing.price, "Insufficient payment");
         require(msg.sender != listing.seller, "Cannot buy own listing");
@@ -184,6 +184,21 @@ contract Marketplace {
     }
 
     /**
+     * @notice Allows a user to withdraw their pending funds.
+     * @param _to Address to send the funds to.
+     * @param _amount Amount of funds to withdraw.
+     */
+    function withdraw(address payable _to, uint256 _amount) external {
+        require(_amount > 0, "Amount must be > 0");
+        require(_amount <= pendingWithdrawals[msg.sender], "Insufficient funds");
+
+        _to.transfer(_amount);
+        pendingWithdrawals[msg.sender] -= _amount;
+
+        emit FundsWithdrawn(_amount, _to);
+    }
+
+    /**
      * @notice Updates the marketplace commission percentage.
      * @param _newPercent New commission percentage in basis points.
      */
@@ -214,11 +229,7 @@ contract Marketplace {
      * @param index Index in the owner's token list.
      * @return The token ID at the given index.
      */
-    function tokenOfOwnerByIndex(address _owner, uint256 index) 
-        external
-        view 
-        returns (uint256) 
-    {
+    function tokenOfOwnerByIndex(address _owner, uint256 index) external view returns (uint256) {
         return nftEnumerable.tokenOfOwnerByIndex(_owner, index);
     }
 
