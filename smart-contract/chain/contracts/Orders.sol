@@ -8,6 +8,29 @@ import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
  * @dev This contract facilitates the listing and sale of ERC721 tokens with added enumerable support.
  */
 contract Marketplace {
+
+    /// @dev Custom errors
+    /// @notice Error thrown when the caller is not the owner of the marketplace.
+    error NotOwner(address _owner);
+    /// @notice Error thrown when the caller is not approved to interact with the marketplace.
+    error NotApproved();
+    /// @notice Error thrown when the token is already listed.
+    error AlreadyListed();
+    /// @notice Error thrown when the listing is not active.
+    error NotActive();
+    /// @notice Error thrown when the payment is insufficient.
+    error InsufficientPayment(uint256 _price, uint256 _amount);
+    /// @notice Error thrown when the caller is not the seller.
+    error NotSeller(address _seller);
+    /// @notice Error thrown when the caller does not have enough funds.
+    error NotEnoughFunds();
+    /// @notice Error thrown when the caller is not the owner of the token.
+    error NotTokenOwner(address _ownerToken);
+    /// @notice Error thrown when the caller is trying to buy their own listing.
+    error CannotBuyOwnListing();
+    /// @notice Error thrown when the caller does not have enough funds to withdraw.
+    error InsufficientFunds(uint256 _amount, uint256 _pendingWithdrawals);
+
     /// @notice Represents a listing on the marketplace.
     struct Listing {
         address seller;
@@ -72,7 +95,11 @@ contract Marketplace {
 
     /// @dev Modifier to restrict certain actions to the contract owner.
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner");
+        if (msg.sender != owner) {
+            revert NotOwner({
+                _owner: msg.sender
+            });
+        }
         _;
     }
 
@@ -100,15 +127,22 @@ contract Marketplace {
         require(_price > 0, "Price must be > 0");
         
         address tokenOwner = nftContract.ownerOf(_tokenId);
-        require(tokenOwner == msg.sender, "Not token owner");
+        if (tokenOwner != msg.sender) {
+            revert NotTokenOwner({
+                _ownerToken: tokenOwner
+            });
+        }
         
-        require(
-            nftContract.isApprovedForAll(msg.sender, address(this)) ||
-            nftContract.getApproved(_tokenId) == address(this),
-            "Not approved"
-        );
+        if (
+            !nftContract.isApprovedForAll(msg.sender, address(this)) &&
+            nftContract.getApproved(_tokenId) != address(this)
+        ) {
+            revert NotApproved();
+        }
 
-        require(tokenToListingId[_tokenId] == 0, "Already listed");
+        if (tokenToListingId[_tokenId] != 0) {
+            revert AlreadyListed();
+        }
 
         uint256 listingId = uint256(keccak256(abi.encodePacked(
             _tokenId,
@@ -135,9 +169,18 @@ contract Marketplace {
      */
     function purchaseListing(uint256 _listingId) external payable{
         Listing memory listing = listings[_listingId];
-        require(listing.isActive, "Listing not active");
-        require(msg.value >= listing.price, "Insufficient payment");
-        require(msg.sender != listing.seller, "Cannot buy own listing");
+        if (!listing.isActive) {
+            revert NotActive();
+        }
+        if (msg.value < listing.price) {
+            revert InsufficientPayment({
+                _price: listing.price,
+                _amount: msg.value
+            });
+        }
+        if (msg.sender == listing.seller) {
+            revert CannotBuyOwnListing();
+        }
 
         uint256 commissionAmount = (msg.value * commissionPercent) / 10000;
         uint256 sellerAmount = msg.value - commissionAmount;
@@ -174,8 +217,14 @@ contract Marketplace {
      */
     function cancelListing(uint256 _listingId) external {
         Listing storage listing = listings[_listingId];
-        require(listing.isActive, "Listing not active");
-        require(listing.seller == msg.sender, "Not seller");
+        if(!listing.isActive) {
+            revert NotActive();
+        }
+        if (listing.seller != msg.sender) {
+            revert NotSeller({
+                _seller: listing.seller
+            });
+        }
 
         listing.isActive = false;
         delete tokenToListingId[listing.tokenId];
@@ -190,7 +239,12 @@ contract Marketplace {
      */
     function withdraw(address payable _to, uint256 _amount) external {
         require(_amount > 0, "Amount must be > 0");
-        require(_amount <= pendingWithdrawals[msg.sender], "Insufficient funds");
+        if (_amount > pendingWithdrawals[msg.sender]) {
+            revert InsufficientFunds({
+                _amount: _amount,
+                _pendingWithdrawals: pendingWithdrawals[msg.sender]
+            });
+        }
 
         _to.transfer(_amount);
         pendingWithdrawals[msg.sender] -= _amount;
@@ -213,7 +267,9 @@ contract Marketplace {
      */
     function withdrawFunds() external onlyOwner {
         uint256 amount = pendingWithdrawals[msg.sender];
-        require(amount > 0, "No funds to withdraw");
+        if (amount == 0) {
+            revert NotEnoughFunds();
+        }
  
         pendingWithdrawals[msg.sender] = 0;
 

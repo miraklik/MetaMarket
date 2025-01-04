@@ -270,13 +270,13 @@ func (es *EthereumService) MintNFT(tokenID, price, recipient string) error {
 		return fmt.Errorf("failed to get chain ID: %w", err)
 	}
 
-	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
+	privateKeyECDSA, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
 	if err != nil {
 		log.Printf("Invalid to load private key: %v", err)
 		return fmt.Errorf("invalid to load private key: %w", err)
 	}
 
-	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, chainID)
+	auth, err := bind.NewKeyedTransactorWithChainID(privateKeyECDSA, chainID)
 	if err != nil {
 		log.Printf("Failed to create transactor: %v", err)
 		return fmt.Errorf("failed to create transactor: %w", err)
@@ -360,6 +360,15 @@ func (es *EthereumService) TransferNFT(tokenID, buyer string) error {
 		log.Printf("failed to create transactor: %v", err)
 		return fmt.Errorf("failed to create transactor: %w", err)
 	}
+
+	var price *big.Int
+	err = es.Contract.Call(nil, &[]interface{}{price}, "getListingPrice", tokenIDBigInt)
+	if err != nil {
+		log.Printf("failed to get listing price: %v", err)
+		return fmt.Errorf("failed to get listing price: %w", err)
+	}
+
+	auth.Value = price
 
 	_, err = es.Client.NetworkID(context.Background())
 	if err != nil {
