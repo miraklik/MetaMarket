@@ -1,5 +1,9 @@
 package db
 
+import (
+	"log"
+)
+
 type Nfts struct {
 	ID          uint   `gorm:"primaryKey" json:"id"`
 	Name        string `gorm:"size:255; not null; unique" json:"name"`
@@ -29,6 +33,22 @@ func GetNFTsByName(name string) (Nfts, error) {
 	}
 
 	return nfts, nil
+}
+
+func DeleteNFT(id string) error {
+	var nfts Nfts
+
+	db, err := ConnectDB()
+	if err != nil {
+		log.Printf("Failed to connect to database: %v", err)
+		return err
+	}
+
+	if err := db.Where("id = ?", id).Delete(&nfts).Error; err != nil {
+		log.Fatalf("Failed to delete NFT: %v", err)
+	}
+
+	return nil
 }
 
 func GetAllNFTs() ([]Nfts, error) {

@@ -38,26 +38,26 @@ func NewServers(db *gorm.DB) *DB_Server {
 // status code 200.
 func GetNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req struct {
+		var request struct {
 			Accounts string `json:"accounts"`
 		}
 
-		if err := c.ShouldBindJSON(&req); err != nil {
+		if err := c.ShouldBindJSON(&request); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 			return
 		}
 
-		if req.Accounts == "" {
+		if request.Accounts == "" {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Account address is required"})
 			return
 		}
 
-		if err := utils.ValidateEthereumAddress(req.Accounts); err != nil {
+		if err := utils.ValidateEthereumAddress(request.Accounts); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid owner address"})
 			return
 		}
 
-		accounts := common.HexToAddress(req.Accounts)
+		accounts := common.HexToAddress(request.Accounts)
 		if ethService.ContractAddress == (common.Address{}) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Contract address not configured"})
 			return
@@ -206,5 +206,24 @@ func SearchNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"data": nfts})
+	}
+}
+
+func DeleteNFT(ethService *services.EthereumService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var request struct {
+			TokenID string `json:"token_id"`
+		}
+
+		if err := c.ShouldBindJSON(&request); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+		}
+
+		if err := ethService.DeleteNFT(request.TokenID); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete NFT: " + err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "NFT deleted successfully"})
 	}
 }

@@ -64,6 +64,7 @@ func main() {
 	middlewareNFTs.Use(middleware.BuyNFT(etherService))
 	router.POST("/Buy", handlers.BuyNFT(etherService))
 	router.GET("/Search", handlers.SearchNFTs(etherService))
+	router.DELETE("/nfts/:id", handlers.DeleteNFT(etherService))
 
 	router.Run(os.Getenv("SERVER_ADDRESS"))
 }

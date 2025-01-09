@@ -20,6 +20,10 @@ type LoginUserInput struct {
 	Password string `json:"password"`
 }
 
+type DeleteUserInput struct {
+	Id uint `json:"id"`
+}
+
 type Server struct {
 	db *gorm.DB
 }

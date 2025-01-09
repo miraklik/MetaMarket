@@ -429,3 +429,21 @@ func (es *EthereumService) SearchNFTs(name string) (db.Nfts, error) {
 
 	return result, nil
 }
+
+func (es *EthereumService) DeleteNFT(tokenID string) error {
+	log.Printf("Starting NFT deletion: tokenID=%s", tokenID)
+
+	tokenIDBigInt := new(big.Int)
+	if _, ok := tokenIDBigInt.SetString(tokenID, 10); !ok {
+		log.Printf("Invalid token ID: %s", tokenID)
+		return fmt.Errorf("invalid token ID: %s", tokenID)
+	}
+
+	err := db.DeleteNFT(tokenID)
+	if err != nil {
+		log.Printf("Failed to delete NFT from database: %v", err)
+		return fmt.Errorf("failed to delete NFT from database: %w", err)
+	}
+
+	return nil
+}
