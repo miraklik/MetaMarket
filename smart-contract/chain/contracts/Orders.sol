@@ -93,6 +93,9 @@ contract Marketplace {
     /// @notice Event emitted when funds are withdrawn.
     event FundsWithdrawn(uint256 amount, address indexed recipient);
 
+    /// @notice Event emitted when an NFT is deleted.
+    event NFTDelete(uint256 indexed tokenID, address indexed owner, uint256 timestamp);
+
     /// @dev Modifier to restrict certain actions to the contract owner.
     modifier onlyOwner() {
         if (msg.sender != owner) {
@@ -315,6 +318,26 @@ contract Marketplace {
      */
     function getListingsBySeller(address _seller) external view returns (Listing[] memory) {
         return sellerListings[_seller];
+    }
+
+    /**
+     * 
+     * @param _tokenId The token ID to delete.
+     */
+    function deleteListing(uint256 _tokenId) external {
+        if (msg.sender != nftContract.ownerOf(_tokenId)) {
+            revert NotTokenOwner({
+                _ownerToken: msg.sender
+            });
+        }
+
+        if (!listings[_tokenId].isActive) {
+            revert NotActive();
+        }
+
+        listings[_tokenId].isActive = false;
+
+        emit NFTDelete(_tokenId, msg.sender, block.timestamp);
     }
 
     /**

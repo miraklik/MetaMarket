@@ -445,5 +445,26 @@ func (es *EthereumService) DeleteNFT(tokenID string) error {
 		return fmt.Errorf("failed to delete NFT from database: %w", err)
 	}
 
+	contractABI, err := os.ReadFile("./blockchain/Marketplace.json")
+	if err != nil {
+		log.Fatalf("Failed to read contract ABI: %v", err)
+		return fmt.Errorf("failed to read contract ABI: %w", err)
+	}
+
+	parsedABI, err := abi.JSON(bytes.NewReader(contractABI))
+	if err != nil {
+		log.Fatalf("Failed to parse contract ABI: %v", err)
+		return fmt.Errorf("failed to parse contract ABI: %w", err)
+	}
+
+	contract := bind.NewBoundContract(es.ContractAddress, parsedABI, es.Client, es.Client, es.Client)
+
+	tx, err := contract.Transact(nil, "deleteListing", tokenIDBigInt)
+	if err != nil {
+		log.Fatalf("Failed to delete NFT: %v", err)
+		return fmt.Errorf("failed to delete NFT: %w", err)
+	}
+
+	log.Printf("NFT deleted successfully! Transaction hash: %s", tx.Hash().Hex())
 	return nil
 }

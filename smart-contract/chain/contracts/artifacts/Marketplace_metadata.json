@@ -22,6 +22,96 @@
 				"type": "constructor"
 			},
 			{
+				"inputs": [],
+				"name": "AlreadyListed",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "CannotBuyOwnListing",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_pendingWithdrawals",
+						"type": "uint256"
+					}
+				],
+				"name": "InsufficientFunds",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_price",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					}
+				],
+				"name": "InsufficientPayment",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotActive",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotApproved",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotEnoughFunds",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					}
+				],
+				"name": "NotOwner",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_seller",
+						"type": "address"
+					}
+				],
+				"name": "NotSeller",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_ownerToken",
+						"type": "address"
+					}
+				],
+				"name": "NotTokenOwner",
+				"type": "error"
+			},
+			{
 				"anonymous": false,
 				"inputs": [
 					{
@@ -115,6 +205,31 @@
 					{
 						"indexed": true,
 						"internalType": "uint256",
+						"name": "tokenID",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "NFTDelete",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint256",
 						"name": "id",
 						"type": "uint256"
 					},
@@ -199,6 +314,19 @@
 					}
 				],
 				"name": "createListing",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "deleteListing",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -425,6 +553,24 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "address payable",
+						"name": "_to",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					}
+				],
+				"name": "withdraw",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "withdrawFunds",
 				"outputs": [],
@@ -438,6 +584,13 @@
 		],
 		"devdoc": {
 			"details": "This contract facilitates the listing and sale of ERC721 tokens with added enumerable support.",
+			"errors": {
+				"NotOwner(address)": [
+					{
+						"details": "Custom errors"
+					}
+				]
+			},
 			"kind": "dev",
 			"methods": {
 				"cancelListing(uint256)": {
@@ -456,6 +609,11 @@
 					"params": {
 						"_price": "Sale price in wei.",
 						"_tokenId": "ID of the token to sell."
+					}
+				},
+				"deleteListing(uint256)": {
+					"params": {
+						"_tokenId": "The token ID to delete."
 					}
 				},
 				"getListingId(uint256)": {
@@ -500,6 +658,12 @@
 					"returns": {
 						"_0": "The token ID at the given index."
 					}
+				},
+				"withdraw(address,uint256)": {
+					"params": {
+						"_amount": "Amount of funds to withdraw.",
+						"_to": "Address to send the funds to."
+					}
 				}
 			},
 			"stateVariables": {
@@ -520,6 +684,58 @@
 			"version": 1
 		},
 		"userdoc": {
+			"errors": {
+				"AlreadyListed()": [
+					{
+						"notice": "Error thrown when the token is already listed."
+					}
+				],
+				"CannotBuyOwnListing()": [
+					{
+						"notice": "Error thrown when the caller is trying to buy their own listing."
+					}
+				],
+				"InsufficientFunds(uint256,uint256)": [
+					{
+						"notice": "Error thrown when the caller does not have enough funds to withdraw."
+					}
+				],
+				"InsufficientPayment(uint256,uint256)": [
+					{
+						"notice": "Error thrown when the payment is insufficient."
+					}
+				],
+				"NotActive()": [
+					{
+						"notice": "Error thrown when the listing is not active."
+					}
+				],
+				"NotApproved()": [
+					{
+						"notice": "Error thrown when the caller is not approved to interact with the marketplace."
+					}
+				],
+				"NotEnoughFunds()": [
+					{
+						"notice": "Error thrown when the caller does not have enough funds."
+					}
+				],
+				"NotOwner(address)": [
+					{
+						"notice": "Error thrown when the caller is not the owner of the marketplace."
+					}
+				],
+				"NotSeller(address)": [
+					{
+						"notice": "Error thrown when the caller is not the seller."
+					}
+				],
+				"NotTokenOwner(address)": [
+					{
+						"notice": "Error thrown when the caller is not the owner of the token."
+					}
+				]
+			},
 			"events": {
 				"CommissionUpdated(uint256)": {
 					"notice": "Event emitted when the marketplace commission is updated."
@@ -532,6 +748,9 @@
 				},
 				"ListingCreated(uint256,address,uint256,uint256,uint256)": {
 					"notice": "Event emitted when a new listing is created."
+				},
+				"NFTDelete(uint256,address,uint256)": {
+					"notice": "Event emitted when an NFT is deleted."
 				},
 				"PurchaseCompleted(uint256,address,uint256,uint256,uint256)": {
 					"notice": "Event emitted when an NFT is purchased."
@@ -578,6 +797,9 @@
 				"tokenOfOwnerByIndex(address,uint256)": {
 					"notice": "Returns the token ID owned by `_owner` at a specific `index`."
 				},
+				"withdraw(address,uint256)": {
+					"notice": "Allows a user to withdraw their pending funds."
+				},
 				"withdrawFunds()": {
 					"notice": "Withdraws pending funds."
 				}
@@ -587,7 +809,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"contracts/Orders.sol": "Marketplace"
+			"Orders.sol": "Marketplace"
 		},
 		"evmVersion": "shanghai",
 		"libraries": {},
@@ -625,12 +847,12 @@
 				"dweb:/ipfs/QmfDRc7pxfaXB2Dh9np5Uf29Na3pQ7tafRS684wd3GLjVL"
 			]
 		},
-		"contracts/Orders.sol": {
-			"keccak256": "0x5a5c9399c28bf0025ba253c98326e949f82f71005a00524f3c1bd2646b69d7f7",
+		"Orders.sol": {
+			"keccak256": "0xf0e00f3507fc62347e3d1e291ab40b38fc0ca87e66043207355524e507e946d8",
 			"license": "GPL-3.0",
 			"urls": [
-				"bzz-raw://1bc786295f1f72914feda58e05c85a0020ec0c7b2363962171bb35cbb396781d",
-				"dweb:/ipfs/QmYdtzAoQM4GhtL2Mu7f33RkLAFZKXYJWirMiMHJiXrdqx"
+				"bzz-raw://73fbc294c71346de43ef277c5a734ae746cf631233d8fbaf72408b406bb1c8c6",
+				"dweb:/ipfs/QmfWTtHPWJXWZJ2mKTCRPFx4xXcqMykbToj4RszPWjAVx5"
 			]
 		}
 	},
