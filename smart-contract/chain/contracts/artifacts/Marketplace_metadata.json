@@ -809,7 +809,7 @@
 	},
 	"settings": {
 		"compilationTarget": {
-			"Orders.sol": "Marketplace"
+			"contracts/Orders.sol": "Marketplace"
 		},
 		"evmVersion": "shanghai",
 		"libraries": {},
@@ -847,7 +847,7 @@
 				"dweb:/ipfs/QmfDRc7pxfaXB2Dh9np5Uf29Na3pQ7tafRS684wd3GLjVL"
 			]
 		},
-		"Orders.sol": {
+		"contracts/Orders.sol": {
 			"keccak256": "0xf0e00f3507fc62347e3d1e291ab40b38fc0ca87e66043207355524e507e946d8",
 			"license": "GPL-3.0",
 			"urls": [

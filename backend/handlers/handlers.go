@@ -36,7 +36,7 @@ func NewServers(db *gorm.DB) *DB_Server {
 // The function handles database errors by returning an error response with status
 // code 500. If the database query is successful, it returns the list of NFTs with
 // status code 200.
-func GetNFTs(ethService *services.EthereumService) gin.HandlerFunc {
+func GetAllNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request struct {
 			Accounts string `json:"accounts"`
@@ -63,7 +63,7 @@ func GetNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 			return
 		}
 
-		nfts, err := ethService.GetNFTs(accounts)
+		nfts, err := ethService.GetAllNFTs(accounts)
 		if err != nil {
 			log.Printf("Error fetching NFTs: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to fetch NFTs: %v", err)})
@@ -209,6 +209,10 @@ func SearchNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 	}
 }
 
+// DeleteNFT is a handler function that deletes an NFT with the given token ID.
+// The function expects a JSON request with a single field "token_id" containing the token ID of the NFT to be deleted.
+// It returns a success message with status code 200 if the deletion is successful.
+// If the request is invalid or the deletion fails, it returns an appropriate error response.
 func DeleteNFT(ethService *services.EthereumService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request struct {

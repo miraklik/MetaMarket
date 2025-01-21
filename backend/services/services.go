@@ -29,13 +29,6 @@ type NFTContract struct {
 	*bind.BoundContract
 }
 
-type NFTListing struct {
-	Seller   common.Address
-	TokenID  *big.Int
-	Price    *big.Int
-	IsActive bool
-}
-
 // NewEthereumService creates a new instance of EthereumService.
 //
 // It takes two string parameters: rpcURL and contractAddress. The rpcURL is the
@@ -158,83 +151,15 @@ func (es *EthereumService) GetBalance(address common.Address) (*big.Int, error) 
 
 // GetNFTs returns a list of NFTs owned by the given address. Currently, this
 // function is not implemented and will return an error.
-func (es *EthereumService) GetNFTs(accounts common.Address) ([]NFTListing, error) {
-	contractABI, err := os.ReadFile("./blockchain/Marketplace.json")
+func (es *EthereumService) GetAllNFTs(accounts common.Address) ([]db.Nfts, error) {
+	var nfts []db.Nfts
+
+	nfts, err := db.GetAllNFTs()
 	if err != nil {
-		log.Printf("Failed to read contract ABI: %v", err)
-		return nil, fmt.Errorf("failed to read contract ABI: %w", err)
+		log.Printf("Failed to get NFTs: %v", err)
 	}
 
-	parsedABI, err := abi.JSON(bytes.NewReader(contractABI))
-	if err != nil {
-		log.Printf("Failed to parse contract ABI: %v", err)
-		return nil, fmt.Errorf("failed to parse contract ABI: %w", err)
-	}
-
-	services, err := NewEthereumService(
-		os.Getenv("BLOCKCHAIN_RPC"),
-		os.Getenv("CONTRACT_ADDRESS"),
-		os.Getenv("PRIVATE_KEY"),
-		string(contractABI),
-		big.NewInt(11155111),
-	)
-	if err != nil {
-		log.Printf("Failed to create EthereumService: %v", err)
-		return nil, fmt.Errorf("failed to create EthereumService: %w", err)
-	}
-
-	if services.Contract == nil {
-		log.Printf("Contract not initialized")
-		return nil, fmt.Errorf("contract not initialized")
-	}
-
-	if es.Client == nil {
-		log.Printf("Client not initialized")
-		return nil, fmt.Errorf("client not initialized")
-	}
-
-	code, err := es.Client.CodeAt(context.Background(), es.ContractAddress, nil)
-	if err != nil {
-		log.Printf("Failed to get contract code: %v", err)
-		return nil, fmt.Errorf("failed to get contract code: %w", err)
-	}
-
-	if len(code) == 0 {
-		log.Printf("Contract not deployed at address: %s", es.ContractAddress)
-		return nil, fmt.Errorf("contract not deployed at address: %s", es.ContractAddress)
-	}
-
-	contract := bind.NewBoundContract(es.ContractAddress, parsedABI, es.Client, es.Client, es.Client)
-	if contract == nil {
-		log.Printf("Failed to create contract: %v", err)
-		return nil, fmt.Errorf("failed to create contract: %w", err)
-	}
-
-	var result []interface{}
-	err = contract.Call(&bind.CallOpts{}, &result, "getListingsBySeller", accounts)
-	if err != nil {
-		log.Printf("Failed to get listings: %v", err)
-		return nil, fmt.Errorf("failed to get listings: %w", err)
-	}
-
-	listings := make([]NFTListing, 0)
-	for _, item := range result {
-		if listing, ok := item.(struct {
-			Seller   common.Address
-			TokenId  *big.Int
-			Price    *big.Int
-			IsActive bool
-		}); ok {
-			listings = append(listings, NFTListing{
-				Seller:   listing.Seller,
-				TokenID:  listing.TokenId,
-				Price:    listing.Price,
-				IsActive: listing.IsActive,
-			})
-		}
-	}
-
-	return listings, nil
+	return nfts, nil
 }
 
 // MintNFT creates a new NFT and lists it on the marketplace with the given name, symbol, description, and price.
@@ -430,6 +355,13 @@ func (es *EthereumService) SearchNFTs(name string) (db.Nfts, error) {
 	return result, nil
 }
 
+// DeleteNFT deletes an NFT with the given token ID from the marketplace.
+// The function takes a single parameter `tokenID` which is the token ID of the NFT to delete.
+// It logs the deletion operation and returns an error if the deletion fails.
+// The error is returned in the format of a string with the error message concatenated with the original error.
+//
+// Returns:
+// - An `error` if the deletion fails.
 func (es *EthereumService) DeleteNFT(tokenID string) error {
 	log.Printf("Starting NFT deletion: tokenID=%s", tokenID)
 
@@ -439,7 +371,19 @@ func (es *EthereumService) DeleteNFT(tokenID string) error {
 		return fmt.Errorf("invalid token ID: %s", tokenID)
 	}
 
-	err := db.DeleteNFT(tokenID)
+	ChainID, err := es.Client.ChainID(context.Background())
+	if err != nil {
+		log.Fatalf("Failed to get chain ID: %v", err)
+		return fmt.Errorf("Failed to get chain ID: %w", err)
+	}
+
+	auth, err := bind.NewKeyedTransactorWithChainID(es.PrivateKey, ChainID)
+	if err != nil {
+		log.Fatalf("Failed to create transactor: %v", err)
+		return fmt.Errorf("Failed to create transactor: %w", err)
+	}
+
+	err = db.DeleteNFT(tokenID)
 	if err != nil {
 		log.Printf("Failed to delete NFT from database: %v", err)
 		return fmt.Errorf("failed to delete NFT from database: %w", err)
@@ -448,21 +392,21 @@ func (es *EthereumService) DeleteNFT(tokenID string) error {
 	contractABI, err := os.ReadFile("./blockchain/Marketplace.json")
 	if err != nil {
 		log.Fatalf("Failed to read contract ABI: %v", err)
-		return fmt.Errorf("failed to read contract ABI: %w", err)
+		return fmt.Errorf("Failed to read contract ABI: %w", err)
 	}
 
 	parsedABI, err := abi.JSON(bytes.NewReader(contractABI))
 	if err != nil {
 		log.Fatalf("Failed to parse contract ABI: %v", err)
-		return fmt.Errorf("failed to parse contract ABI: %w", err)
+		return fmt.Errorf("Failed to parse contract ABI: %w", err)
 	}
 
 	contract := bind.NewBoundContract(es.ContractAddress, parsedABI, es.Client, es.Client, es.Client)
 
-	tx, err := contract.Transact(nil, "deleteListing", tokenIDBigInt)
+	tx, err := contract.Transact(auth, "deleteListing", tokenIDBigInt)
 	if err != nil {
 		log.Fatalf("Failed to delete NFT: %v", err)
-		return fmt.Errorf("failed to delete NFT: %w", err)
+		return fmt.Errorf("Failed to delete NFT: %w", err)
 	}
 
 	log.Printf("NFT deleted successfully! Transaction hash: %s", tx.Hash().Hex())

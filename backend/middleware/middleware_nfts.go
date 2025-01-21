@@ -41,7 +41,7 @@ func GetNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 			return
 		}
 
-		nfts, err := ethService.GetNFTs(common.HexToAddress(userAddress))
+		nfts, err := ethService.GetAllNFTs(common.HexToAddress(userAddress))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch NFTs: " + err.Error()})
 			return

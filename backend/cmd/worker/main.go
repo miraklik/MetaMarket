@@ -60,7 +60,7 @@ func main() {
 	middlewareNFTs.Use(middleware.MintNFT(etherService))
 	router.POST("/Create", server.MintNFT(etherService))
 	middlewareNFTs.Use(middleware.GetNFTs(etherService))
-	router.GET("/nfts/:id", handlers.GetNFTs(etherService))
+	router.GET("/nfts/:id", handlers.GetAllNFTs(etherService))
 	middlewareNFTs.Use(middleware.BuyNFT(etherService))
 	router.POST("/Buy", handlers.BuyNFT(etherService))
 	router.GET("/Search", handlers.SearchNFTs(etherService))
