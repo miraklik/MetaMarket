@@ -298,13 +298,13 @@
 		"inputs": [
 			{
 				"internalType": "uint128",
-				"name": "_tokenId",
+				"name": "_price",
 				"type": "uint128"
 			},
 			{
-				"internalType": "uint128",
-				"name": "_price",
-				"type": "uint128"
+				"internalType": "string",
+				"name": "_ipfsHash",
+				"type": "string"
 			}
 		],
 		"name": "createListing",
@@ -323,6 +323,19 @@
 		"name": "deleteListing",
 		"outputs": [],
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "fileHash",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -362,14 +375,14 @@
 						"type": "address"
 					},
 					{
-						"internalType": "uint128",
+						"internalType": "uint256",
 						"name": "tokenId",
-						"type": "uint128"
+						"type": "uint256"
 					},
 					{
-						"internalType": "uint128",
+						"internalType": "uint256",
 						"name": "price",
-						"type": "uint128"
+						"type": "uint256"
 					},
 					{
 						"internalType": "bool",
@@ -420,14 +433,14 @@
 				"type": "address"
 			},
 			{
-				"internalType": "uint128",
+				"internalType": "uint256",
 				"name": "tokenId",
-				"type": "uint128"
+				"type": "uint256"
 			},
 			{
-				"internalType": "uint128",
+				"internalType": "uint256",
 				"name": "price",
-				"type": "uint128"
+				"type": "uint256"
 			},
 			{
 				"internalType": "bool",
@@ -523,6 +536,19 @@
 		"type": "function"
 	},
 	{
+		"inputs": [],
+		"name": "tokenCounter",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -541,6 +567,25 @@
 				"internalType": "uint256",
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_tokenId",
+				"type": "uint256"
+			}
+		],
+		"name": "tokenURI",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
 			}
 		],
 		"stateMutability": "view",
