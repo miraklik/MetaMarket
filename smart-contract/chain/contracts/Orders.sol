@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0
+// SPDX-License-Identifier: MIT 
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -34,19 +34,25 @@ contract Marketplace {
     /// @notice Represents a listing on the marketplace.
     struct Listing {
         address seller;
-        uint128 tokenId;
-        uint128 price;
+        uint256 tokenId;
+        uint256 price;
         bool isActive;
     }
 
     /// @notice Owner of the marketplace.
     address payable public immutable owner;
 
+    /// @notice Counter for listing IDs.
+    uint256 public tokenCounter;
+
     /// @notice Commission percentage charged by the marketplace (in basis points, 100 = 1%).
     uint256 public commissionPercent;
 
     /// @notice Maximum commission percentage allowed (50%).
     uint256 public constant MAX_COMMISSION = 5000;
+
+    /// @notice Hash of the stored file
+    string public fileHash;
 
     /// @dev Stores all listings by their unique ID.
     mapping(uint256 => Listing) public listings;
@@ -56,6 +62,9 @@ contract Marketplace {
 
     /// @dev Pending withdrawals for sellers and owner.
     mapping(address => uint256) public pendingWithdrawals;
+
+    /// @dev Token URIs
+    mapping(uint256 => string) private _tokenURIs;
 
     /// @notice Interface for the ERC721 token contract.
     IERC721 public immutable nftContract;
@@ -115,21 +124,19 @@ contract Marketplace {
         require(_nftContractAddress != address(0), "Invalid NFT address");
         require(_commissionPercent <= MAX_COMMISSION, "Commission too high");
         
+        tokenCounter = 0;
         owner = payable(msg.sender);
         nftContract = IERC721(_nftContractAddress);
         nftEnumerable = IERC721Enumerable(_nftContractAddress);
         commissionPercent = _commissionPercent;
     }
 
-    /**
-     * @notice Creates a listing to sell an NFT.
-     * @param _tokenId ID of the token to sell.
-     * @param _price Sale price in wei.
-     */
-    function createListing(uint128 _tokenId, uint128 _price) external {
+    
+    function createListing(uint128 _price, string memory _ipfsHash) external {
+        uint256 _NewtokenId = tokenCounter;
         require(_price > 0, "Price must be > 0");
         
-        address tokenOwner = nftContract.ownerOf(_tokenId);
+        address tokenOwner = nftContract.ownerOf(_NewtokenId);
         if (tokenOwner != msg.sender) {
             revert NotTokenOwner({
                 _ownerToken: tokenOwner
@@ -138,32 +145,34 @@ contract Marketplace {
         
         if (
             !nftContract.isApprovedForAll(msg.sender, address(this)) &&
-            nftContract.getApproved(_tokenId) != address(this)
+            nftContract.getApproved(_NewtokenId) != address(this)
         ) {
             revert NotApproved();
         }
 
-        if (tokenToListingId[_tokenId] != 0) {
+        if (tokenToListingId[_NewtokenId] != 0) {
             revert AlreadyListed();
         }
 
         uint256 listingId = uint256(keccak256(abi.encodePacked(
-            _tokenId,
+            _NewtokenId,
             msg.sender,
             block.timestamp
         )));
 
         listings[listingId] = Listing({
             seller: msg.sender,
-            tokenId: _tokenId,
+            tokenId: _NewtokenId,
             price: _price,
             isActive: true
         });
 
-        tokenToListingId[_tokenId] = listingId;
+        _setTokenURI(_NewtokenId, _ipfsHash);
+
+        tokenToListingId[_NewtokenId] = listingId;
         sellerListings[msg.sender].push(listings[listingId]);
 
-        emit ListingCreated(listingId, msg.sender, _tokenId, _price, block.timestamp);
+        emit ListingCreated(listingId, msg.sender, _NewtokenId, _price, block.timestamp);
     }
 
     /**
@@ -234,6 +243,25 @@ contract Marketplace {
 
         emit ListingCancelled(_listingId, msg.sender);
     }
+
+    /** 
+     * @notice Sets the URI for an NFT.
+     * @param _tokenId ID of the token to set the URI for.
+     * @param _ipfsHash IPFS hash of the URI to set.
+     */ 
+    function _setTokenURI(uint256 _tokenId, string memory _ipfsHash) internal {
+    _tokenURIs[_tokenId] = _ipfsHash;
+}
+
+    /**
+     * @notice Returns the URI for an NFT.
+     * @param _tokenId ID of the token to get the URI for.
+     * @return The URI for the token.
+     */
+    function tokenURI(uint256 _tokenId) public view returns (string memory) {
+    require(bytes(_tokenURIs[_tokenId]).length > 0, "URI set to the null address");
+    return string(abi.encodePacked("ipfs://", _tokenURIs[_tokenId]));
+}
 
     /**
      * @notice Allows a user to withdraw their pending funds.

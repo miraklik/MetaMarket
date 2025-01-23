@@ -12,7 +12,8 @@
   "dependencies": {
     "@nomiclabs/hardhat-waffle": "^2.0.6",
     "dotenv": "^16.4.7",
-    "ethers": "^5.7.2"
+    "ethers": "^5.7.2",
+    "web3.storage": "^4.5.5"
   },
   "version": "1.0.0",
   "description": "This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.",

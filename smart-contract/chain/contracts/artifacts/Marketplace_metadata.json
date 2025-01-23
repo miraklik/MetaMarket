@@ -304,13 +304,13 @@
 				"inputs": [
 					{
 						"internalType": "uint128",
-						"name": "_tokenId",
+						"name": "_price",
 						"type": "uint128"
 					},
 					{
-						"internalType": "uint128",
-						"name": "_price",
-						"type": "uint128"
+						"internalType": "string",
+						"name": "_ipfsHash",
+						"type": "string"
 					}
 				],
 				"name": "createListing",
@@ -329,6 +329,19 @@
 				"name": "deleteListing",
 				"outputs": [],
 				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "fileHash",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
 				"type": "function"
 			},
 			{
@@ -368,14 +381,14 @@
 								"type": "address"
 							},
 							{
-								"internalType": "uint128",
+								"internalType": "uint256",
 								"name": "tokenId",
-								"type": "uint128"
+								"type": "uint256"
 							},
 							{
-								"internalType": "uint128",
+								"internalType": "uint256",
 								"name": "price",
-								"type": "uint128"
+								"type": "uint256"
 							},
 							{
 								"internalType": "bool",
@@ -426,14 +439,14 @@
 						"type": "address"
 					},
 					{
-						"internalType": "uint128",
+						"internalType": "uint256",
 						"name": "tokenId",
-						"type": "uint128"
+						"type": "uint256"
 					},
 					{
-						"internalType": "uint128",
+						"internalType": "uint256",
 						"name": "price",
-						"type": "uint128"
+						"type": "uint256"
 					},
 					{
 						"internalType": "bool",
@@ -529,6 +542,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "tokenCounter",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -547,6 +573,25 @@
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "tokenURI",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
 					}
 				],
 				"stateMutability": "view",
@@ -605,12 +650,6 @@
 						"_nftContractAddress": "Address of the ERC721 token contract."
 					}
 				},
-				"createListing(uint128,uint128)": {
-					"params": {
-						"_price": "Sale price in wei.",
-						"_tokenId": "ID of the token to sell."
-					}
-				},
 				"deleteListing(uint256)": {
 					"params": {
 						"_tokenId": "The token ID to delete."
@@ -659,6 +698,14 @@
 						"_0": "The token ID at the given index."
 					}
 				},
+				"tokenURI(uint256)": {
+					"params": {
+						"_tokenId": "ID of the token to get the URI for."
+					},
+					"returns": {
+						"_0": "The URI for the token."
+					}
+				},
 				"withdraw(address,uint256)": {
 					"params": {
 						"_amount": "Amount of funds to withdraw.",
@@ -667,6 +714,9 @@
 				}
 			},
 			"stateVariables": {
+				"_tokenURIs": {
+					"details": "Token URIs"
+				},
 				"listings": {
 					"details": "Stores all listings by their unique ID."
 				},
@@ -767,8 +817,8 @@
 				"commissionPercent()": {
 					"notice": "Commission percentage charged by the marketplace (in basis points, 100 = 1%)."
 				},
-				"createListing(uint128,uint128)": {
-					"notice": "Creates a listing to sell an NFT."
+				"fileHash()": {
+					"notice": "Hash of the stored file"
 				},
 				"getListingId(uint256)": {
 					"notice": "Gets the listing ID for a token if it exists."
@@ -794,8 +844,14 @@
 				"setCommissionPercent(uint256)": {
 					"notice": "Updates the marketplace commission percentage."
 				},
+				"tokenCounter()": {
+					"notice": "Counter for listing IDs."
+				},
 				"tokenOfOwnerByIndex(address,uint256)": {
 					"notice": "Returns the token ID owned by `_owner` at a specific `index`."
+				},
+				"tokenURI(uint256)": {
+					"notice": "Returns the URI for an NFT."
 				},
 				"withdraw(address,uint256)": {
 					"notice": "Allows a user to withdraw their pending funds."
@@ -848,11 +904,11 @@
 			]
 		},
 		"contracts/Orders.sol": {
-			"keccak256": "0xf0e00f3507fc62347e3d1e291ab40b38fc0ca87e66043207355524e507e946d8",
-			"license": "GPL-3.0",
+			"keccak256": "0x692ec6e07ee0ed6d17b17d945722d97724575a750eed7cbf8f1eb694398c10c8",
+			"license": "MIT",
 			"urls": [
-				"bzz-raw://73fbc294c71346de43ef277c5a734ae746cf631233d8fbaf72408b406bb1c8c6",
-				"dweb:/ipfs/QmfWTtHPWJXWZJ2mKTCRPFx4xXcqMykbToj4RszPWjAVx5"
+				"bzz-raw://d5a274dc6b40ca6ddf18696e7a284e2f741d4de1255d7ede30660a9a00ab953b",
+				"dweb:/ipfs/QmZ1NkM9wPxnx2nBFGRW1oztBbHWmYK5LD7xRKnD69QLX9"
 			]
 		}
 	},

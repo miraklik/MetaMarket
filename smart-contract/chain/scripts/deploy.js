@@ -1,5 +1,6 @@
 const { ethers } = require("hardhat");
 require("dotenv").config();
+import { Web3Storage } from 'web3.storage'
 
 async function main() {
     const [deployer] = await ethers.getSigners();
@@ -10,6 +11,31 @@ async function main() {
 
     if (balance.lt(ethers.utils.parseEther("0.01"))) {
         throw new Error("Insufficient balance for deployment. Ensure the deployer wallet has enough ETH.");
+    }
+
+    const MakeStorageClient = () => {
+        return new Web3Storage({token: process.env.WEB3STORAGE_TOKEN})
+    }
+
+    const saveToIpfs = async (files) => {
+        const client = MakeStorageClient()
+        const cid = await client.put([files])
+        console.log(`File stored with CID: ${cid}`)
+        return cid
+      }
+
+    const retriveData = async (cid) => {
+        const client = MakeStorageClient()
+        const res = await client.get(cid)
+        console.log(`Got a response! [${res.status}] ${res.statusText}`)
+        if (!res.ok) {
+          throw new Error(`failed to get ${cid} - ${res.statusText}`)
+        }
+
+        const files = await res.files()
+        for (const file of files) {
+          console.log(`${file.cid} -- ${file.path} -- ${file.size}`)
+        }
     }
 
     const nftContractAddress = "0x9823dda4Bac5331a6dFe7A2883075A7f3D72Bb64";
