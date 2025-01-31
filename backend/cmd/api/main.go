@@ -4,6 +4,7 @@ import (
 	"log"
 	"nft-marketplace/db"
 	"nft-marketplace/handlers"
+	"nft-marketplace/middleware"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -29,9 +30,11 @@ func SetupRouter() *gin.Engine {
 
 	router := r.Group("/api")
 
-	//router.Use(middleware.JwtAuthMiddleware())
-	router.POST("/register", server.Register)
-	router.POST("/login", server.Login)
+	router.Use(middleware.JwtAuthMiddleware())
+	{
+		router.POST("/register", server.Register)
+		router.POST("/login", server.Login)
+	}
 
 	return r
 }

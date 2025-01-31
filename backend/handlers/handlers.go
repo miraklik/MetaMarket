@@ -21,21 +21,15 @@ func NewServers(db *gorm.DB) *DB_Server {
 	return &DB_Server{db: db}
 }
 
-// GetNFTs returns a list of NFTs from the database in the following format:
-// [
-//
-//	{
-//	  "id": 1,
-//	  "token_id": "1",
-//	  "owner_address": "0x1234567890123456789012345678901234567890"
-//	},
-//	...
-//
-// ]
-//
-// The function handles database errors by returning an error response with status
-// code 500. If the database query is successful, it returns the list of NFTs with
-// status code 200.
+// GetAllNFTs is a handler function that retrieves all NFTs owned by a specific account.
+// The function expects a JSON request containing the Ethereum account address in the "accounts" field.
+// It performs the following steps:
+// 1. Validates the JSON request structure and the Ethereum account address.
+// 2. Converts the account address to a common.Address type.
+// 3. Checks if the contract address is configured.
+// 4. Retrieves all NFTs associated with the given account using the EthereumService.
+// 5. Returns a success response with the list of NFTs if the retrieval is successful.
+// If any step fails, it returns an appropriate error response.
 func GetAllNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request struct {
@@ -74,6 +68,39 @@ func GetAllNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 	}
 }
 
+// GetNftById is a handler function that retrieves an NFT by its ID from the database.
+// The function expects a JSON request with a single field "id" containing the ID of the NFT to be retrieved.
+// It performs the following steps:
+// 1. Validates the JSON request structure and the NFT ID.
+// 2. Retrieves the NFT with the given ID from the database using the DB service.
+// 3. Returns a success response with the NFT if the retrieval is successful.
+// If any step fails, it returns an appropriate error response.
+func GetNftById(ethService *services.EthereumService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var request struct {
+			ID uint `json:"id"`
+		}
+
+		if err := c.ShouldBindJSON(&request); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+			return
+		}
+
+		if request.ID == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "NFT id is required"})
+			return
+		}
+
+		nft, err := db.GetNFTsByID(request.ID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to fetch NFT: %v", err)})
+			return
+		}
+
+		c.JSON(http.StatusAccepted, gin.H{"data": nft})
+	}
+}
+
 // MintNFT is a handler function that mints a new NFT with the given token ID and recipient address.
 // The function expects a JSON request with the following fields:
 //
@@ -87,7 +114,7 @@ func GetAllNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 func (s *DB_Server) MintNFT(ethService *services.EthereumService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request struct {
-			TokenID     string `json:"token_id"`
+			TokenID     string `json:"id"`
 			Name        string `json:"name"`
 			Symbol      string `json:"symbol"`
 			Description string `json:"description"`
@@ -157,7 +184,7 @@ func (s *DB_Server) MintNFT(ethService *services.EthereumService) gin.HandlerFun
 func BuyNFT(ethService *services.EthereumService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request struct {
-			TokenID string `json:"token_id"`
+			TokenID string `json:"id"`
 			Buyer   string `json:"buyer"`
 		}
 
@@ -216,7 +243,7 @@ func SearchNFTs(ethService *services.EthereumService) gin.HandlerFunc {
 func DeleteNFT(ethService *services.EthereumService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request struct {
-			TokenID string `json:"token_id"`
+			TokenID string `json:"id"`
 		}
 
 		if err := c.ShouldBindJSON(&request); err != nil {
