@@ -1,0 +1,916 @@
+{
+	"compiler": {
+		"version": "0.8.22+commit.4fc1097e"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_nftContractAddress",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_commissionPercent",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [],
+				"name": "AlreadyListed",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "CannotBuyOwnListing",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_pendingWithdrawals",
+						"type": "uint256"
+					}
+				],
+				"name": "InsufficientFunds",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_price",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					}
+				],
+				"name": "InsufficientPayment",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotActive",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotApproved",
+				"type": "error"
+			},
+			{
+				"inputs": [],
+				"name": "NotEnoughFunds",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					}
+				],
+				"name": "NotOwner",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_seller",
+						"type": "address"
+					}
+				],
+				"name": "NotSeller",
+				"type": "error"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_ownerToken",
+						"type": "address"
+					}
+				],
+				"name": "NotTokenOwner",
+				"type": "error"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "newPercent",
+						"type": "uint256"
+					}
+				],
+				"name": "CommissionUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "recipient",
+						"type": "address"
+					}
+				],
+				"name": "FundsWithdrawn",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "seller",
+						"type": "address"
+					}
+				],
+				"name": "ListingCancelled",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "seller",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "ListingCreated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "tokenID",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "NFTDelete",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "buyer",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					}
+				],
+				"name": "PurchaseCompleted",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "MAX_COMMISSION",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_listingId",
+						"type": "uint256"
+					}
+				],
+				"name": "cancelListing",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "commissionPercent",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint128",
+						"name": "_price",
+						"type": "uint128"
+					},
+					{
+						"internalType": "string",
+						"name": "_ipfsHash",
+						"type": "string"
+					}
+				],
+				"name": "createListing",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "deleteListing",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "fileHash",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "getListingId",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_seller",
+						"type": "address"
+					}
+				],
+				"name": "getListingsBySeller",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "seller",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "tokenId",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "price",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "isActive",
+								"type": "bool"
+							}
+						],
+						"internalType": "struct Marketplace.Listing[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "isTokenListed",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "listings",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "seller",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "tokenId",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "price",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "isActive",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "nftContract",
+				"outputs": [
+					{
+						"internalType": "contract IERC721",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "nftEnumerable",
+				"outputs": [
+					{
+						"internalType": "contract IERC721Enumerable",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "owner",
+				"outputs": [
+					{
+						"internalType": "address payable",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"name": "pendingWithdrawals",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_listingId",
+						"type": "uint256"
+					}
+				],
+				"name": "purchaseListing",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_newPercent",
+						"type": "uint256"
+					}
+				],
+				"name": "setCommissionPercent",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "tokenCounter",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_owner",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "index",
+						"type": "uint256"
+					}
+				],
+				"name": "tokenOfOwnerByIndex",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_tokenId",
+						"type": "uint256"
+					}
+				],
+				"name": "tokenURI",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address payable",
+						"name": "_to",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "_amount",
+						"type": "uint256"
+					}
+				],
+				"name": "withdraw",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "withdrawFunds",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "receive"
+			}
+		],
+		"devdoc": {
+			"details": "This contract facilitates the listing and sale of ERC721 tokens with added enumerable support.",
+			"errors": {
+				"NotOwner(address)": [
+					{
+						"details": "Custom errors"
+					}
+				]
+			},
+			"kind": "dev",
+			"methods": {
+				"cancelListing(uint256)": {
+					"params": {
+						"_listingId": "ID of the listing to cancel."
+					}
+				},
+				"constructor": {
+					"details": "Initializes the marketplace with an ERC721 contract and commission percentage.",
+					"params": {
+						"_commissionPercent": "Marketplace commission percentage (in basis points).",
+						"_nftContractAddress": "Address of the ERC721 token contract."
+					}
+				},
+				"deleteListing(uint256)": {
+					"params": {
+						"_tokenId": "The token ID to delete."
+					}
+				},
+				"getListingId(uint256)": {
+					"params": {
+						"_tokenId": "The token ID to check."
+					},
+					"returns": {
+						"_0": "The listing ID if the token is listed, 0 otherwise."
+					}
+				},
+				"getListingsBySeller(address)": {
+					"params": {
+						"_seller": "The address of the seller."
+					},
+					"returns": {
+						"_0": "Array of seller's listings."
+					}
+				},
+				"isTokenListed(uint256)": {
+					"params": {
+						"_tokenId": "The token ID to check."
+					},
+					"returns": {
+						"_0": "bool Whether the token is listed."
+					}
+				},
+				"purchaseListing(uint256)": {
+					"params": {
+						"_listingId": "ID of the listing to purchase."
+					}
+				},
+				"setCommissionPercent(uint256)": {
+					"params": {
+						"_newPercent": "New commission percentage in basis points."
+					}
+				},
+				"tokenOfOwnerByIndex(address,uint256)": {
+					"params": {
+						"_owner": "Address of the token owner.",
+						"index": "Index in the owner's token list."
+					},
+					"returns": {
+						"_0": "The token ID at the given index."
+					}
+				},
+				"tokenURI(uint256)": {
+					"params": {
+						"_tokenId": "ID of the token to get the URI for."
+					},
+					"returns": {
+						"_0": "The URI for the token."
+					}
+				},
+				"withdraw(address,uint256)": {
+					"params": {
+						"_amount": "Amount of funds to withdraw.",
+						"_to": "Address to send the funds to."
+					}
+				}
+			},
+			"stateVariables": {
+				"_tokenURIs": {
+					"details": "Token URIs"
+				},
+				"listings": {
+					"details": "Stores all listings by their unique ID."
+				},
+				"pendingWithdrawals": {
+					"details": "Pending withdrawals for sellers and owner."
+				},
+				"sellerListings": {
+					"details": "Maps seller addresses to their active listings"
+				},
+				"tokenToListingId": {
+					"details": "Maps token IDs to their active listing ID."
+				}
+			},
+			"title": "NFT Marketplace",
+			"version": 1
+		},
+		"userdoc": {
+			"errors": {
+				"AlreadyListed()": [
+					{
+						"notice": "Error thrown when the token is already listed."
+					}
+				],
+				"CannotBuyOwnListing()": [
+					{
+						"notice": "Error thrown when the caller is trying to buy their own listing."
+					}
+				],
+				"InsufficientFunds(uint256,uint256)": [
+					{
+						"notice": "Error thrown when the caller does not have enough funds to withdraw."
+					}
+				],
+				"InsufficientPayment(uint256,uint256)": [
+					{
+						"notice": "Error thrown when the payment is insufficient."
+					}
+				],
+				"NotActive()": [
+					{
+						"notice": "Error thrown when the listing is not active."
+					}
+				],
+				"NotApproved()": [
+					{
+						"notice": "Error thrown when the caller is not approved to interact with the marketplace."
+					}
+				],
+				"NotEnoughFunds()": [
+					{
+						"notice": "Error thrown when the caller does not have enough funds."
+					}
+				],
+				"NotOwner(address)": [
+					{
+						"notice": "Error thrown when the caller is not the owner of the marketplace."
+					}
+				],
+				"NotSeller(address)": [
+					{
+						"notice": "Error thrown when the caller is not the seller."
+					}
+				],
+				"NotTokenOwner(address)": [
+					{
+						"notice": "Error thrown when the caller is not the owner of the token."
+					}
+				]
+			},
+			"events": {
+				"CommissionUpdated(uint256)": {
+					"notice": "Event emitted when the marketplace commission is updated."
+				},
+				"FundsWithdrawn(uint256,address)": {
+					"notice": "Event emitted when funds are withdrawn."
+				},
+				"ListingCancelled(uint256,address)": {
+					"notice": "Event emitted when a listing is cancelled."
+				},
+				"ListingCreated(uint256,address,uint256,uint256,uint256)": {
+					"notice": "Event emitted when a new listing is created."
+				},
+				"NFTDelete(uint256,address,uint256)": {
+					"notice": "Event emitted when an NFT is deleted."
+				},
+				"PurchaseCompleted(uint256,address,uint256,uint256,uint256)": {
+					"notice": "Event emitted when an NFT is purchased."
+				}
+			},
+			"kind": "user",
+			"methods": {
+				"MAX_COMMISSION()": {
+					"notice": "Maximum commission percentage allowed (50%)."
+				},
+				"cancelListing(uint256)": {
+					"notice": "Cancels an active listing."
+				},
+				"commissionPercent()": {
+					"notice": "Commission percentage charged by the marketplace (in basis points, 100 = 1%)."
+				},
+				"fileHash()": {
+					"notice": "Hash of the stored file"
+				},
+				"getListingId(uint256)": {
+					"notice": "Gets the listing ID for a token if it exists."
+				},
+				"getListingsBySeller(address)": {
+					"notice": "Gets all listings for a given seller."
+				},
+				"isTokenListed(uint256)": {
+					"notice": "Checks if a token is currently listed."
+				},
+				"nftContract()": {
+					"notice": "Interface for the ERC721 token contract."
+				},
+				"nftEnumerable()": {
+					"notice": "Interface for enumerable ERC721 functionality."
+				},
+				"owner()": {
+					"notice": "Owner of the marketplace."
+				},
+				"purchaseListing(uint256)": {
+					"notice": "Purchases an NFT from an active listing."
+				},
+				"setCommissionPercent(uint256)": {
+					"notice": "Updates the marketplace commission percentage."
+				},
+				"tokenCounter()": {
+					"notice": "Counter for listing IDs."
+				},
+				"tokenOfOwnerByIndex(address,uint256)": {
+					"notice": "Returns the token ID owned by `_owner` at a specific `index`."
+				},
+				"tokenURI(uint256)": {
+					"notice": "Returns the URI for an NFT."
+				},
+				"withdraw(address,uint256)": {
+					"notice": "Allows a user to withdraw their pending funds."
+				},
+				"withdrawFunds()": {
+					"notice": "Withdraws pending funds."
+				}
+			},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"contracts/Orders.sol": "Marketplace"
+		},
+		"evmVersion": "shanghai",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"@openzeppelin/contracts/token/ERC721/IERC721.sol": {
+			"keccak256": "0x5dc63d1c6a12fe1b17793e1745877b2fcbe1964c3edfd0a482fac21ca8f18261",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6b7f97c5960a50fd1822cb298551ffc908e37b7893a68d6d08bce18a11cb0f11",
+				"dweb:/ipfs/QmQQvxBytoY1eBt3pRQDmvH2hZ2yjhs12YqVfzGm7KSURq"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol": {
+			"keccak256": "0x3d6954a93ac198a2ffa384fa58ccf18e7e235263e051a394328002eff4e073de",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://1f58c799bd939d3951c94893e83ef86acd56989d1d7db7f9d180c515e29e28ff",
+				"dweb:/ipfs/QmTgAxHAAys4kq9ZfU9YB24MWYoHLGAKSxnYUigPFrNW7g"
+			]
+		},
+		"@openzeppelin/contracts/utils/introspection/IERC165.sol": {
+			"keccak256": "0x79796192ec90263f21b464d5bc90b777a525971d3de8232be80d9c4f9fb353b8",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://f6fda447a62815e8064f47eff0dd1cf58d9207ad69b5d32280f8d7ed1d1e4621",
+				"dweb:/ipfs/QmfDRc7pxfaXB2Dh9np5Uf29Na3pQ7tafRS684wd3GLjVL"
+			]
+		},
+		"contracts/Orders.sol": {
+			"keccak256": "0x692ec6e07ee0ed6d17b17d945722d97724575a750eed7cbf8f1eb694398c10c8",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://d5a274dc6b40ca6ddf18696e7a284e2f741d4de1255d7ede30660a9a00ab953b",
+				"dweb:/ipfs/QmZ1NkM9wPxnx2nBFGRW1oztBbHWmYK5LD7xRKnD69QLX9"
+			]
+		}
+	},
+	"version": 1
+}
