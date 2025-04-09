@@ -1,122 +1,35 @@
-// SPDX-License-Identifier: MIT 
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.29;
 
-contract MonToken {
-    string public constant name = "MetaToken";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20Burnable} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import {ERC20Votes} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import {Nonces} from "@openzeppelin/contracts/utils/Nonces.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-    string public constant symbol = "META";
-
-    uint256 public constant decimals = 18;
-
-    uint256 public totalSupply;
-
-    address public owner;
-
-    mapping(address => uint256) public balanceOf;
-
-    mapping(address => mapping(address => uint256)) public allowance;
-
-    event Transfer(address indexed _from, address indexed _to, uint256 _value);
-
-    event Approval(
-        address indexed _owner,
-        address indexed _spender,
-        uint256 _value
-    );
-
-    event Ownership(address indexed owner, address indexed ownerNew);
-
-    constructor(uint256 _totalSupply) {
-        owner = msg.sender;
-        totalSupply = _totalSupply;
-        balanceOf[msg.sender] = totalSupply;
+contract Token is ERC20, ERC20Burnable, ERC20Permit, Ownable, ERC20Votes {
+    constructor(uint256 _totalSupply) ERC20("MetaMarket", "META") Ownable(msg.sender) ERC20Permit("MetaMarket") {
+        _mint(msg.sender, _totalSupply * 10**decimals());
     }
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "you not owner");
-        _;
+    function mint(address to, uint256 value) external onlyOwner{
+        _mint(to, value);
     }
 
-    function transfer(address _to, uint256 _value)
-        public
-        returns (bool success)
+     function _update(address from, address to, uint256 value)
+        internal
+        override(ERC20, ERC20Votes)
     {
-        require(_to != address(0), "sets a normal address");
-
-        require(balanceOf[msg.sender] >= _value, "you don't have enough funds");
-
-        balanceOf[msg.sender] -= _value;
-
-        balanceOf[_to] += _value;
-
-        emit Transfer(msg.sender, _to, _value);
-
-        return true;
+        super._update(from, to, value);
     }
 
-    function approve(address _spender, uint256 _value)
+    function nonces(address owner)
         public
-        returns (bool succes)
+        view
+        override(ERC20Permit, Nonces)
+        returns (uint256)
     {
-        allowance[msg.sender][_spender] = _value;
-
-        emit Approval(msg.sender, _spender, _value);
-
-        return true;
-    }
-
-    function transferFrom(
-        address _from,
-        address _to,
-        uint256 _value
-    ) public returns (bool success) {
-        require(
-            balanceOf[_from] >= _value,
-            "we don't have enough tokens to serve you"
-        );
-
-        require(allowance[_from][msg.sender] >= _value, "not authorized");
-
-        allowance[_from][msg.sender] -= _value;
-
-        balanceOf[_from] -= _value;
-
-        balanceOf[_to] += _value;
-
-        emit Transfer(msg.sender, _to, _value);
-
-        return true;
-    }
-
-    function mint(address _to, uint256 _value)
-        public
-        onlyOwner
-        returns (bool success)
-    {
-        require(_to != address(0));
-
-        totalSupply += _value;
-
-        balanceOf[_to] += _value;
-
-        emit Transfer(msg.sender, _to, _value);
-
-        return true;
-    }
-
-    function burn(uint256 _value) public onlyOwner returns (bool success) {
-        totalSupply -= _value;
-
-        balanceOf[msg.sender] -= _value;
-
-        emit Transfer(msg.sender, address(0), _value);
-
-        return true;
-    }
-
-    function transferOwnerShip(address _newOwner) public onlyOwner {
-        owner = _newOwner;
-
-        emit Ownership(msg.sender, _newOwner);
+        return super.nonces(owner);
     }
 }

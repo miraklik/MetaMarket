@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT 
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.29;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
+
 /**
  * @title NFT Marketplace
  * @dev This contract facilitates the listing and sale of ERC721 tokens with added enumerable support.
  */
 contract Marketplace {
-
     /// @dev Custom errors
     /// @notice Error thrown when the caller is not the owner of the marketplace.
     error NotOwner(address _owner);
@@ -30,6 +30,19 @@ contract Marketplace {
     error CannotBuyOwnListing();
     /// @notice Error thrown when the caller does not have enough funds to withdraw.
     error InsufficientFunds(uint256 _amount, uint256 _pendingWithdrawals);
+    /// @notice Error thrown when the token ID is invalid.
+    error InvalidNFTAddress();
+    /// @notice Error thrown when the commission is too high.
+    error CommissionTooHigh();
+    /// @notice Error throw when the price must be 0
+    error PriceMustBe0();
+    /// @notice Error thrown when the amount must be 0
+    error AmountMustBe0();
+    /// @notice Error thrown when the token is not listed.
+    error TransferFailed();
+    /// @notice Error thrown when the token is not listed.
+    error URISetToTheNullAddress();
+    
 
     /// @notice Represents a listing on the marketplace.
     struct Listing {
@@ -121,8 +134,8 @@ contract Marketplace {
      * @param _commissionPercent Marketplace commission percentage (in basis points).
      */
     constructor(address _nftContractAddress, uint256 _commissionPercent) {
-        require(_nftContractAddress != address(0), "Invalid NFT address");
-        require(_commissionPercent <= MAX_COMMISSION, "Commission too high");
+        require(_nftContractAddress != address(0), InvalidNFTAddress());
+        require(_commissionPercent <= MAX_COMMISSION, CommissionTooHigh());
         
         tokenCounter = 0;
         owner = payable(msg.sender);
@@ -134,7 +147,7 @@ contract Marketplace {
     
     function createListing(uint128 _price, string memory _ipfsHash) external {
         uint256 _NewtokenId = tokenCounter;
-        require(_price > 0, "Price must be > 0");
+        require(_price > 0, PriceMustBe0());
         
         address tokenOwner = nftContract.ownerOf(_NewtokenId);
         if (tokenOwner != msg.sender) {
@@ -199,12 +212,12 @@ contract Marketplace {
 
         require(
             nftContract.ownerOf(listing.tokenId) == listing.seller,
-            "Seller no longer owns NFT"
+            CannotBuyOwnListing()
         );
         require(
             nftContract.isApprovedForAll(listing.seller, address(this)) ||
             nftContract.getApproved(listing.tokenId) == address(this),
-            "Not approved"
+            NotApproved()
         );
 
         listing.isActive = false;
@@ -259,7 +272,7 @@ contract Marketplace {
      * @return The URI for the token.
      */
     function tokenURI(uint256 _tokenId) public view returns (string memory) {
-    require(bytes(_tokenURIs[_tokenId]).length > 0, "URI set to the null address");
+    require(bytes(_tokenURIs[_tokenId]).length > 0, URISetToTheNullAddress());
     return string(abi.encodePacked("ipfs://", _tokenURIs[_tokenId]));
 }
 
@@ -269,7 +282,7 @@ contract Marketplace {
      * @param _amount Amount of funds to withdraw.
      */
     function withdraw(address payable _to, uint256 _amount) external {
-        require(_amount > 0, "Amount must be > 0");
+        require(_amount > 0, AmountMustBe0());
         if (_amount > pendingWithdrawals[msg.sender]) {
             revert InsufficientFunds({
                 _amount: _amount,
@@ -288,7 +301,7 @@ contract Marketplace {
      * @param _newPercent New commission percentage in basis points.
      */
     function setCommissionPercent(uint256 _newPercent) external onlyOwner {
-        require(_newPercent <= MAX_COMMISSION, "Commission too high");
+        require(_newPercent <= MAX_COMMISSION, CommissionTooHigh());
         commissionPercent = _newPercent;
         emit CommissionUpdated(_newPercent);
     }
@@ -305,7 +318,7 @@ contract Marketplace {
         pendingWithdrawals[msg.sender] = 0;
 
         (bool success, ) = payable(msg.sender).call{value: amount}("");
-        require(success, "Transfer failed");
+        require(success, TransferFailed());
 
         emit FundsWithdrawn(amount, msg.sender);
     }
