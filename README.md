@@ -26,6 +26,8 @@
 ---
 
 ## 📁 Project Structure
+
+```
 MetaMarket/
 ├── backend/ # Golang server
 ├── frontend/ # React frontend
@@ -35,6 +37,7 @@ MetaMarket/
 ├── .gitignore
 ├── README.md
 └── package.json
+```
 
 ## 📦 Installation & Setup
 
